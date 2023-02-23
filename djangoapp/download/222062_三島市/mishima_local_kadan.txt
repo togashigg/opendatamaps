@@ -1,0 +1,102 @@
+#LINK
+#lang	ja
+#attribution_name	三島市
+#license	http://creativecommons.org/licenses/by/3.0/deed.ja
+#file_name	mishima_local_kadan
+#download_from	http://linkdata.org/work/rdf1s1773i
+#property	http://www.w3.org/2000/01/rdf-schema#label	address	http://www.w3.org/2003/01/geo/wgs84_pos#lat	http://www.w3.org/2003/01/geo/wgs84_pos#long	URL
+#object_type_xsd	string:ja	string:ja	float	float	string
+#property_context	Assertion	Assertion	Assertion	Assertion	Assertion
+msm_lkdn_01	青葉台花の会	静岡県三島市若松町	35.131733	138.925292	https://mishima-life.jp/kadan001/index.html
+msm_lkdn_02	寿町老人会	静岡県三島市寿町	35.125406	138.908381	https://mishima-life.jp/kadan002/index.html
+msm_lkdn_03	大宮町3丁目自治会	静岡県三島市大宮町3丁目	35.125485	138.915993	
+msm_lkdn_04	富田町美化友の会	静岡県三島市富田町	35.110634	138.917077	https://mishima-life.jp/kadan004/index.html
+msm_lkdn_05	東大場花の会	静岡県三島市東大場地内	35.109605	138.952074	https://mishima-life.jp/kadan005/index.html
+msm_lkdn_06	長伏会	静岡県三島市長伏	35.088767	138.91407	https://mishima-life.jp/kadan006/index.html
+msm_lkdn_07	はつね公園花壇	静岡県三島市初音台	35.126459	138.933838	https://mishima-life.jp/kadan007/index.html
+msm_lkdn_08	三恵台自治会	静岡県三島市三恵台	35.129035	138.93935	https://mishima-life.jp/kadan008/index.html
+msm_lkdn_09	山中町内会	静岡県三島市山中新田	35.155348	138.99503	https://mishima-life.jp/kadan009/index.html
+msm_lkdn_10	千枚原老人会（千寿会）	静岡県三島市沢地	35.137243	138.921835	https://mishima-life.jp/kadan010/index.html
+msm_lkdn_11	壱町田青少年健全育成会	静岡県三島市壱町田	35.134104	138.919759	https://mishima-life.jp/kadan011/index.html
+msm_lkdn_12	加茂川町９組花壇の会	静岡県三島市加茂川町	35.126064	138.925762	https://mishima-life.jp/kadan012/index.html
+msm_lkdn_13	川原ヶ谷坂の上花壇	静岡県三島市川原ヶ谷	35.120137	138.927612	https://mishima-life.jp/kadan013/index.html
+msm_lkdn_14	旭ヶ丘緑地花壇	静岡県三島市旭ヶ丘	35.130138	138.928991	https://mishima-life.jp/kadan014/index.html
+msm_lkdn_15	小山中島自治会	静岡県三島市谷田	35.117936	138.93188	https://mishima-life.jp/kadan015/index.html
+msm_lkdn_16	田町会	静岡県三島市南田町	35.111784	138.917313	https://mishima-life.jp/kadan016/index.html
+msm_lkdn_17	夏梅木環境美化	静岡県三島市谷田	35.106564	138.935852	
+msm_lkdn_18	三ツ谷老人会	静岡県三島市三ツ谷新田	35.138142	138.962084	https://mishima-life.jp/kadan019/index.html
+msm_lkdn_19	雪沢自治会	静岡県三島市小山公民館前	35.116284	138.928286	https://mishima-life.jp/kadan020/index.html
+msm_lkdn_20	山田入り口	静岡県三島市旭ヶ丘	35.128131	138.932129	https://mishima-life.jp/kadan021/index.html
+msm_lkdn_21	西旭ヶ丘町内会	静岡県三島市川原ヶ谷	35.129592	138.927569	https://mishima-life.jp/kadan022/index.html
+msm_lkdn_22	旭ヶ丘町内会	静岡県三島市旭ヶ丘	35.130377	138.931201	https://mishima-life.jp/kadan023/index.html
+msm_lkdn_23	御門自治会	静岡県三島市谷田御門(公民館敷地内)	35.110617	138.932633	https://mishima-life.jp/kadan024/index.html
+msm_lkdn_24	壱町田２丁目	静岡県三島市壱町田公民館	35.130671	138.919008	
+msm_lkdn_25	小山自治会	静岡県三島市谷田小山１号線沿い	35.117039	138.928948	https://mishima-life.jp/kadan026/index.html
+msm_lkdn_26	赤橋花壇	静岡県三島市三島市中央町	35.120641	138.916138	https://mishima-life.jp/kadan027/index.html
+msm_lkdn_27	桜ヶ丘桜寿会	静岡県三島市谷田桜ヶ丘	35.118746	138.936072	https://mishima-life.jp/kadan028/index.html
+msm_lkdn_28	塚の台花壇	静岡県三島市谷田	35.124704	138.936598	
+msm_lkdn_29	特別養護老人ホーム御寿園	静岡県三島市御園	35.078214	138.923881	https://mishima-life.jp/kadan030/index.html
+msm_lkdn_30	つりがねにんじんクラブ	静岡県三島市大場(パサディナ町内)	35.115415	138.956996	https://mishima-life.jp/kadan031/index.html
+msm_lkdn_31	錦が丘花と緑の会	静岡県三島市錦が丘公園	35.110483	138.945859	https://mishima-life.jp/kadan032/index.html
+msm_lkdn_32	老人福祉（西小）	静岡県三島市緑町	35.116501	138.909411	https://mishima-life.jp/kadan033/index.html
+msm_lkdn_33	老人福祉（東小）	静岡県三島市東町	35.117921	138.924439	https://mishima-life.jp/kadan034/index.html
+msm_lkdn_34	老人福祉（南小）	静岡県三島市富田町	35.109818	138.918257	https://mishima-life.jp/kadan035/index.html
+msm_lkdn_35	御殿町花の会	静岡県三島市南本町	35.117789	138.915062	https://mishima-life.jp/kadan037/index.html
+msm_lkdn_36	シャリエ花の会	静岡県三島市松が丘	35.123737	138.935257	https://mishima-life.jp/kadan038/index.html
+msm_lkdn_37	北上えこくらぶ	静岡県三島市沢地	35.142976	138.92794	https://mishima-life.jp/kadan039/index.html
+msm_lkdn_38	谷田ひまわりの会	静岡県三島市谷田西富士見町	35.116909	138.931056	https://mishima-life.jp/kadan040/index.html
+msm_lkdn_39	H21宮さんの川を守る会	静岡県三島市大宮町	35.121181	138.911803	https://mishima-life.jp/kadan042/index.html
+msm_lkdn_40	山中商工組合	静岡県三島市山中新田	35.153769	138.99389	https://mishima-life.jp/kadan043/index.html
+msm_lkdn_41	清住ミツマタ花壇友の会	静岡県三島市清住町	35.112804	138.906855	https://mishima-life.jp/kadan044/index.html
+msm_lkdn_42	しらゆき会（押切老人会）	静岡県三島市谷田押切	35.119558	138.93472	https://mishima-life.jp/kadan045/index.html
+msm_lkdn_43	芙蓉台フラワーフレンズ	静岡県三島市芙蓉台２丁目	35.155916	138.917441	https://mishima-life.jp/kadan046/index.html
+msm_lkdn_44	若松会（老人クラブ）	静岡県三島市若松町	35.132441	138.928597	https://mishima-life.jp/kadan047/index.html
+msm_lkdn_45	花を愛でる会	静岡県三島市中島	35.093053	138.934192	https://mishima-life.jp/kadan048/index.html
+msm_lkdn_46	広小路駅前を美化にする会	静岡県三島市広小路街	35.118583	138.911047	https://mishima-life.jp/kadan049/index.html
+msm_lkdn_47	就労継続支援Ｂ型事業所       アルシオン	静岡県三島市北田町	35.117958	138.917243	
+msm_lkdn_48	花愛好会	静岡県三島市谷田	35.109381	138.938888	https://mishima-life.jp/kadan051/index.html
+msm_lkdn_49	ナルク三島花会	静岡県三島市徳倉2丁目	35.138344	138.915993	https://mishima-life.jp/kadan052/index.html
+msm_lkdn_50	富士見つばき会（つばき公園内）	静岡県三島市谷田夏梅木(つばき公園内)	35.107729	138.942088	https://mishima-life.jp/kadan054/index.html
+msm_lkdn_51	なでしこ	静岡県三島市芝本町	35.122219	138.912935	https://mishima-life.jp/kadan055/index.html
+msm_lkdn_52	みゆき通り花の会	静岡県三島市大宮町3丁目	35.126095	138.9161	https://mishima-life.jp/kadan057/index.html
+msm_lkdn_53	コスモスの会	静岡県三島市大宮町2丁目	35.124413	138.91757	https://mishima-life.jp/kadan058/index.html
+msm_lkdn_54	八鶴悠和会	静岡県三島市八反畑公民館	35.101739	138.928245	https://mishima-life.jp/kadan059/index.html
+msm_lkdn_55	花だん同好会	静岡県三島市広小路町13-1	35.118478	138.911994	https://mishima-life.jp/kadan060/index.html
+msm_lkdn_56	はぎ（萩）	静岡県三島市萩	35.149255	138.907249	https://mishima-life.jp/kadan063/index.html
+msm_lkdn_57	源兵川遊歩道	静岡県三島市広小路町	35.12011	138.912098	
+msm_lkdn_58	郷土と花を愛する会	静岡県三島市梅名	35.092829	138.929565	https://mishima-life.jp/kadan065/index.html
+msm_lkdn_59	虹の花の会	静岡県三島市東本町	35.115233	138.92253	https://mishima-life.jp/kadan068/index.html
+msm_lkdn_60	ビューティ―会	静岡県三島市谷田（東富士見）	35.114099	138.932011	https://mishima-life.jp/kadan066/index.html
+msm_lkdn_61	芙蓉台入口花愛する会	静岡県三島市萩	35.149442	138.909845	https://mishima-life.jp/kadan069/index.html
+msm_lkdn_62	フレッシュガーデン	静岡県三島市徳倉2丁目	35.138213	138.912882	https://mishima-life.jp/kadan070/index.html
+msm_lkdn_63	徳倉４丁目 大久保５組	静岡県三島市徳倉4丁目	35.143301	138.912377	https://mishima-life.jp/kadan071/index.html
+msm_lkdn_64	農道の碑	静岡県三島市梅名	35.096378	138.927502	https://mishima-life.jp/kadan072/index.html
+msm_lkdn_65	花畑ガーデン	静岡県三島市幸原町1丁目	35.137947	138.913029	https://mishima-life.jp/kadan073/index.html
+msm_lkdn_66	東本町２丁目まどろみ会	静岡県三島市東本町2丁目	35.114307	138.925424	https://mishima-life.jp/kadan074/index.html
+msm_lkdn_67	中いこい会	静岡県三島市中	35.108436	138.934363	https://mishima-life.jp/kadan075/index.html
+msm_lkdn_68	幸原町２丁目フラワー会	静岡県三島市幸原町2丁目	35.138449	138.912444	
+msm_lkdn_69	花みずきの会	静岡県三島市初音台	35.125911	138.933583	https://mishima-life.jp/kadan077/index.html
+msm_lkdn_70	AFCC花の会	静岡県三島市大宮町3丁目	35.125187	138.915894	https://mishima-life.jp/kadan078/index.html
+msm_lkdn_71	Ｗelcomeガーデン三恵台	静岡県三島市三恵台	35.129289	138.941316	https://mishima-life.jp/kadan079/index.html
+msm_lkdn_72	小さな花畑	静岡県三島市幸原町1丁目	35.138228	138.913564	
+msm_lkdn_73	みどり	静岡県三島市広小路町	35.11907	138.911102	https://mishima-life.jp/kadan081/index.html
+msm_lkdn_74	夢鼓の園	静岡県三島市中島	35.100259	138.932913	https://mishima-life.jp/kadan082/index.html
+msm_lkdn_75	安寿会	静岡県三島市安久	35.08629	138.930985	https://mishima-life.jp/kadan083/index.html
+msm_lkdn_76	八鶴悠和会Ⅱ	静岡県三島市八反畑	35.100823	138.925663	
+msm_lkdn_77	笑前会	静岡県三島市谷田	35.096985	138.939727	
+msm_lkdn_78	富士ビレッジ花友の会	静岡県三島市富士ビレッジ	35.143801	138.921377	
+msm_lkdn_79	三島駅南口喫煙所管理する会	静岡県三島市一番町	35.125889	138.912796	
+msm_lkdn_80	菜月	静岡県三島市徳倉1丁目	35.141476	138.913745	
+msm_lkdn_81	ムーミン谷の広小路	静岡県三島市広小路町	35.118145	138.911524	
+msm_lkdn_82	山中城跡花のおもてなしの会	静岡県三島市山中新田	35.154126	138.994217	
+msm_lkdn_83	加屋町さくら会	静岡県三島市加屋町	35.116109	138.904964	
+msm_lkdn_84	フラワー１７	静岡県三島市大宮町3丁目	35.126587	138.916068	
+msm_lkdn_85	幸原花の会Ⅱ	静岡県三島市幸原町2丁目	35.138515	138.912179	
+msm_lkdn_86	大社町絆の会花人	静岡県三島市大社町	35.119432	138.919426	
+msm_lkdn_87	夏梅木ロータリー	静岡県三島市谷田（夏梅木）	35.108695	138.944494	
+msm_lkdn_88	加屋町さくら会Ⅱ	静岡県三島市加屋町	35.116122	138.907099	
+msm_lkdn_89	錦が丘公園整備	静岡県三島市錦が丘	35.109906	138.947064	
+msm_lkdn_90	八鶴悠和会Ⅲ	静岡県三島市八反畑	35.103823	138.926432	
+msm_lkdn_91	シャリエ上岩崎公園ＷＥＳＴガーデニングクラブ	静岡県三島市文教町2丁目	35.136153	138.915226	
+msm_lkdn_92	大通り商店花飾り隊	静岡県三島市本町	35.119531	138.915006	
+msm_lkdn_93	なみき	静岡県三島市谷田	35.114213	138.935316	

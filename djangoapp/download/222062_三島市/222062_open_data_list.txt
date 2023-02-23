@@ -1,0 +1,73 @@
+#LINK
+#lang	ja
+#attribution_url	https://www.city.mishima.shizuoka.jp/
+#attribution_name	三島市
+#license	http://creativecommons.org/licenses/by/3.0/deed.ja
+#file_name	222062_open_data_list
+#download_from	http://linkdata.org/work/rdf1s8200i
+#property	都道府県コード又は市区町村コード	NO	都道府県名	市区町村名	データ名称	データ概要	データ形式	分類	更新頻度	URL	API対応有無	ライセンス	登録日	最終更新日	備考
+#object_type_xsd	int	int	string:ja	string:ja	string:ja	string:ja	string:en	string	string	string	string	string	date	date	string
+#property_context	Assertion	Assertion	Assertion	Assertion	Assertion	Assertion	Assertion	Assertion	Assertion	Assertion	Assertion	Assertion	Assertion	Assertion	Assertion
+mishima_opendata_1	222062	0000000001	静岡県	三島市	三島市オープンデータ一覧	三島市が公開しているオープンデータの一覧	CSV	行財政	随時	http://linkdata.org/work/rdf1s8200i	有	CC BY	2020-01-30	2022-12-26	
+mishima_opendata_2	222062	0000000002	静岡県	三島市	三島市AED設置場所	三島市内のAEDを設置している場所の情報	CSV	社会保障・衛生	随時	http://linkdata.org/work/rdf1s1732i	有	CC BY	2014-08-21	2018-11-09	
+mishima_opendata_3	222062	0000000003	静岡県	三島市	三島市公園情報	三島市内の公園位置情報	CSV	教育・文化・スポーツ・生活	随時	http://linkdata.org/work/rdf1s1774i	有	CC BY	2014-08-21	2018-11-05	
+mishima_opendata_4	222062	0000000004	静岡県	三島市	三島市施設情報	三島市内の施設情報	CSV	行財政	随時	http://linkdata.org/work/rdf1s1759i	有	CC BY	2014-08-21	2018-11-09	
+mishima_opendata_5	222062	0000000005	静岡県	三島市	三島市地域花壇マップ情報	三島市内にある地域花壇マップ情報	CSV	司法・安全・環境	随時	http://linkdata.org/work/rdf1s1773i	有	CC BY	2014-08-21	2018-10-31	
+mishima_opendata_6	222062	0000000006	静岡県	三島市	三島市避難所情報	三島市の避難所情報	CSV	司法・安全・環境	随時	http://linkdata.org/work/rdf1s1763i	有	CC BY	2014-08-21	2018-10-31	
+mishima_opendata_7	222062	0000000007	静岡県	三島市	三島市選挙投票所	三島市の選挙投票所情報	CSV	行財政	随時	http://linkdata.org/work/rdf1s1768i	有	CC BY	2014-08-21	2018-10-31	
+mishima_opendata_8	222062	0000000008	静岡県	三島市	三島市公共施設Wi-Fi設置場所	三島市内の公共施設Wi-Fi設置場所	CSV	情報通信・科学技術	随時	http://linkdata.org/work/rdf1s1769i	有	CC BY	2014-08-21	2018-11-09	
+mishima_opendata_9	222062	0000000009	静岡県	三島市	三島市「広報みしま」	三島市広報紙「広報みしま」の内容の標題	CSV	行財政	月に1回	http://linkdata.org/work/rdf1s1772i	有	CC BY	2014-08-21	2018-11-01	
+mishima_opendata_10	222062	0000000010	静岡県	三島市	三島市公衆トイレ設置場所	三島市内の公衆トイレ設置場所情報	CSV	社会保障・衛生	随時	http://linkdata.org/work/rdf1s1771i	有	CC BY	2014-08-21	2018-11-09	
+mishima_opendata_11	222062	0000000011	静岡県	三島市	三島市人口統計	静岡県三島市人口統計  1.町内別人口の月別推移2007年から  2.年齢別人口の月別推移2007年から  3.年別人口の推移（抜粋）1935年から2013年  4.月別人口の推移1999年から　	CSV	人口・世帯	月に1回	http://linkdata.org/work/rdf1s1764i	有	CC BY	2014-08-21	2018-11-09	
+mishima_opendata_12	222062	0000000012	静岡県	三島市	三島市眺望地点	・市街地から富士山の眺望や箱根の山並み景観が得られる地点  ・箱根西麓から市街地や駿河湾のパノラマ景観が得られる地点	CSV	運輸・観光	随時	http://linkdata.org/work/rdf1s1926i	有	CC BY	2014-10-15	2018-10-31	
+mishima_opendata_13	222062	0000000013	静岡県	三島市	三島市消火栓・防火水槽	三島市内にある消火栓と防火水槽の位置情報	CSV	司法・安全・環境	随時	http://linkdata.org/work/rdf1s2518i	有	CC BY	2015-01-05	2018-11-09	
+mishima_opendata_14	222062	0000000014	静岡県	三島市	三島市内の桜の名所	三島市内の桜の名所、位置情報等	CSV	運輸・観光	随時	http://linkdata.org/work/rdf1s2737i	有	CC BY	2015-02-20	2018-10-31	
+mishima_opendata_15	222062	0000000015	静岡県	三島市	三島市公共施設情報（基本）	三島市が保有する建物、土地の情報です。県と市町のＦＭ（ファシリティマネジメント）研究会で定めた共通フォーマットに準拠しています	CSV	住宅・土地・建設	随時	https://opendata.pref.shizuoka.jp/dataset/fuji-480.html	有	CC BY	2015-03-17	2015-03-17	
+mishima_opendata_16	222062	0000000016	静岡県	三島市	三島市公共施設情報（建物）	三島市が保有する建物、土地の情報です。県と市町のＦＭ（ファシリティマネジメント）研究会で定めた共通フォーマットに準拠しています	CSV	住宅・土地・建設	随時	https://opendata.pref.shizuoka.jp/dataset/fuji-479.html	有	CC BY	2015-03-17	2015-03-17	
+mishima_opendata_17	222062	0000000017	静岡県	三島市	三島市公共施設情報（土地）	三島市が保有する建物、土地の情報です。県と市町のＦＭ（ファシリティマネジメント）研究会で定めた共通フォーマットに準拠しています	CSV	住宅・土地・建設	随時	https://opendata.pref.shizuoka.jp/dataset/fuji-478.html	有	CC BY	2015-03-17	2015-03-17	
+mishima_opendata_18	222062	0000000018	静岡県	三島市	三島市選挙投票率	三島市で行われた選挙の投票率（昭和22年から）	CSV	行財政	随時	http://linkdata.org/work/rdf1s3184i	有	CC BY	2015-04-27	2018-10-31	
+mishima_opendata_19	222062	0000000019	静岡県	三島市	三島市職員数の増減	昭和54年（1979）からの職員数	CSV	行財政	年に1回	http://linkdata.org/work/rdf1s3689i	有	CC BY	2015-11-18	2020-08-28	
+mishima_opendata_20	222062	0000000020	静岡県	三島市	「みしまコロッケ」認定店一覧	平成27年11月18日現在の「みしまコロッケ」認定店一覧（緯度、経度、情報あり）	CSV	商業・サービス業	随時	http://linkdata.org/work/rdf1s3692i	有	CC BY	2015-11-19	2018-10-31	
+mishima_opendata_21	222062	0000000021	静岡県	三島市	三島市電子申請システム利用数	三島市電子申請システムを利用した手続数及び利用者数（2006年4月から）	CSV	情報通信・科学技術	年に1回	http://linkdata.org/work/rdf1s3728i	有	CC BY	2015-11-26	2018-10-31	
+mishima_opendata_22	222062	0000000022	静岡県	三島市	三島市電子申請簡易版申請内訳	三島市の電子申請簡易版申請数の受付フォームごとの内訳（2012年4月から）	CSV	情報通信・科学技術	年に1回	http://linkdata.org/work/rdf1s3940i	有	CC BY	2015-12-16	2018-10-31	
+mishima_opendata_23	222062	0000000023	静岡県	三島市	三島市電子申請汎用版申請内訳	三島市の電子申請汎用版申請数の受付フォームごとの内訳（2012年4月から）	CSV	情報通信・科学技術	年に1回	http://linkdata.org/work/rdf1s4181i	有	CC BY	2016-01-26	2018-10-31	
+mishima_opendata_24	222062	0000000024	静岡県	三島市	三島市事業所数、従業員数	2015年度版「三島の統計」より（平成21年7月1日現在経済センサス?基礎調査）	CSV	企業・家計・経済	年に1回	http://linkdata.org/work/rdf1s4196i	有	CC BY	2016-01-27	2018-11-01	
+mishima_opendata_25	222062	0000000025	静岡県	三島市	三島市経営組織別民営事業所数と従業者数の推移	静岡県三島市の経営組織別民営事業所数と従業者数の推移1996年から2009年(2015「三島の統計」より)	CSV	企業・家計・経済	年に1回	http://linkdata.org/work/rdf1s4206i	有	CC BY	2016-01-28	2018-11-01	
+mishima_opendata_26	222062	0000000026	静岡県	三島市	三島市月平均気温の推移	2005年から2014年の月平均気温の推移（2015三島の統計より）	CSV	国土・気象	年に1回	http://linkdata.org/work/rdf1s4211i	有	CC BY	2016-01-29	2018-10-31	
+mishima_opendata_27	222062	0000000027	静岡県	三島市	三島市ごみ収集日	三島市のごみ収集日	CSV	司法・安全・環境	随時	http://ja.linkdata.org/work/rdf1s4245i	有	CC BY	2016-02-15	2018-10-31	
+mishima_opendata_28	222062	0000000028	静岡県	三島市	三島市コミュニティバス	標準的なバス情報フォーマットに基づいた、2022年8月時点での三島市コミュニティバスのデータ	CSV	運輸・観光	随時	https://opendata.pref.shizuoka.jp/dataset/8895.html	有	CC BY	2022-03-09	2022-09-20	
+mishima_opendata_29	222062	0000000029	静岡県	三島市	三島市立公園楽寿園「小浜池」水位	三島市立公園　楽寿園にある小浜池の水位（1958年6月から、計測していない日は、データがありません）	CSV	司法・安全・環境	随時	http://ja.linkdata.org/work/rdf1s4387i	有	CC BY	2016-03-29	2022-12-26	
+mishima_opendata_30	222062	0000000030	静岡県	三島市	三島市議会議員名簿	三島市議会の議員名簿	CSV	行財政	随時	http://linkdata.org/work/rdf1s4550i	有	CC BY	2016-09-06	2019-08-13	
+mishima_opendata_31	222062	0000000031	静岡県	三島市	三島市内医療機関	三島市内の医療機関の位置情報等	CSV	社会保障・衛生	随時	http://linkdata.org/work/rdf1s7132i	有	CC BY	2018-03-14	2018-11-09	
+mishima_opendata_32	222062	0000000032	静岡県	三島市	三島市内薬局	三島市内の薬局の位置情報等	CSV	社会保障・衛生	随時	http://linkdata.org/work/rdf1s7134i	有	CC BY	2018-03-14	2018-11-01	
+mishima_opendata_33	222062	0000000033	静岡県	三島市	みしまタニタ健康クラブ活動量拠点	三島市のみしまタニタ健康クラブ活動両拠点の位置情報等	CSV	社会保障・衛生	随時	http://linkdata.org/work/rdf1s7133i	有	CC BY	2018-03-14	2018-11-01	
+mishima_opendata_34	222062	0000000034	静岡県	三島市	三島市ごみの分け方	三島市でのごみの分別方法	CSV	司法・安全・環境	随時	http://linkdata.org/work/rdf1s7136i	有	CC BY	2018-03-14	2018-11-01	
+mishima_opendata_35	222062	0000000035	静岡県	三島市	三島市ごみの出し方	三島市内各地域ごとのごみの収取曜日等	CSV	司法・安全・環境	随時	http://linkdata.org/work/rdf1s7135i	有	CC BY	2018-03-14	2018-11-01	
+mishima_opendata_36	222062	0000000036	静岡県	三島市	世帯と人口	三島市の世帯と人口の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8249.html	有	CC BY	2020-08-06	2020-08-06	
+mishima_opendata_37	222062	0000000037	静岡県	三島市	月別の世帯と人口推移	三島市の月別の世帯と人口推移の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8250.html	有	CC BY	2020-08-06	2020-08-06	
+mishima_opendata_38	222062	0000000038	静岡県	三島市	国籍別の外国人住民	三島市の国籍別の外国人住民の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8251.html	有	CC BY	2020-08-06	2020-08-06	
+mishima_opendata_39	222062	0000000039	静岡県	三島市	人口動態	三島市の人口動態の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8252.html	有	CC BY	2020-08-06	2020-08-06	
+mishima_opendata_40	222062	0000000040	静岡県	三島市	年齢の階級別人口	三島市の年齢の階級別人口の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8253.html	有	CC BY	2020-08-06	2020-08-06	
+mishima_opendata_41	222062	0000000041	静岡県	三島市	自治会・町内別の人口	三島市の自治会・町内別の人口の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8254.html	有	CC BY	2020-08-06	2020-08-06	
+mishima_opendata_42	222062	0000000042	静岡県	三島市	地区世帯と人口推移	三島市の地区世帯と人口推移の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8255.html	有	CC BY	2020-08-06	2020-08-06	
+mishima_opendata_43	222062	0000000043	静岡県	三島市	世帯と人口	三島市の世帯と人口の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8256.html	有	CC BY	2020-08-06	2020-08-06	
+mishima_opendata_44	222062	0000000044	静岡県	三島市	男女別人口	三島市の男女別人口の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8257.html	有	CC BY	2020-08-06	2020-08-06	
+mishima_opendata_45	222062	0000000045	静岡県	三島市	年齢別人口の推移	三島市の年齢別人口の推移の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8258.html	有	CC BY	2020-08-06	2020-08-06	
+mishima_opendata_46	222062	0000000046	静岡県	三島市	人口集中地区人口	三島市の人口集中地区人口の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8259.html	有	CC BY	2020-08-06	2020-08-06	
+mishima_opendata_47	222062	0000000047	静岡県	三島市	流出流入の人口	三島市の流出流入の人口の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8260.html	有	CC BY	2020-08-06	2020-08-06	
+mishima_opendata_48	222062	0000000048	静岡県	三島市	昼間の人口	三島市の昼間の人口の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8261.html	有	CC BY	2020-08-06	2020-08-06	
+mishima_opendata_49	222062	0000000049	静岡県	三島市	産業大分類別15歳以上就業者数	三島市の産業大分類別15歳以上就業者数の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8262.html	有	CC BY	2020-08-06	2020-08-06	
+mishima_opendata_50	222062	0000000050	静岡県	三島市	将来推計人口	三島市の将来推計人口の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8263.html	有	CC BY	2020-08-06	2020-08-06	
+mishima_opendata_51	222062	0000000051	静岡県	三島市	合計特殊出生率	三島市の合計特殊出生率の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8264.html	有	CC BY	2020-08-06	2020-08-06	
+mishima_opendata_52	222062	0000000052	静岡県	三島市	位置	三島市の位置の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8266.html	有	CC BY	2020-08-07	2020-08-07	
+mishima_opendata_53	222062	0000000053	静岡県	三島市	面積	三島市の面積の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8267.html	有	CC BY	2020-08-07	2020-08-07	
+mishima_opendata_54	222062	0000000054	静岡県	三島市	土地利用の現況	三島市の土地利用の現況の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8268.html	有	CC BY	2020-08-07	2020-08-07	
+mishima_opendata_55	222062	0000000055	静岡県	三島市	月平均気温	三島市の月平均気温の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8269.html	有	CC BY	2020-08-07	2020-08-07	
+mishima_opendata_56	222062	0000000056	静岡県	三島市	日最高気温の月平均値	三島市の日最高気温の月平均値の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8270.html	有	CC BY	2020-08-07	2020-08-07	
+mishima_opendata_57	222062	0000000057	静岡県	三島市	日最低気温の月平均値	三島市の日最低気温の月平均値の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8271.html	有	CC BY	2020-08-07	2020-08-07	
+mishima_opendata_58	222062	0000000058	静岡県	三島市	月平均相対湿度	三島市の月平均相対湿度の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8272.html	有	CC BY	2020-08-07	2020-08-07	
+mishima_opendata_59	222062	0000000059	静岡県	三島市	月平均風速	三島市の月平均風速の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8273.html	有	CC BY	2020-08-07	2020-08-07	
+mishima_opendata_60	222062	0000000060	静岡県	三島市	月降水量	三島市の月降水量の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8274.html	有	CC BY	2020-08-07	2020-08-07	
+mishima_opendata_61	222062	0000000061	静岡県	三島市	三島市 農家数と農家人口、経営耕地規模等	三島市の農家数と農家人口、経営耕地規模等の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8362.html	有	CC BY	2020-11-04	2020-11-04	
+mishima_opendata_62	222062	0000000062	静岡県	三島市	三島市 耕地面積	三島市の耕地面積の統計情報	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/8363.html	有	CC BY	2020-11-04	2020-11-04	
+mishima_opendata_63	222062	0000000063	静岡県	三島市	地域・年齢別人口	【三島市】住民基本台帳に基づく地域・年齢別の人口一覧	CSV	行財政	随時	https://opendata.pref.shizuoka.jp/dataset/9439.html	有	CC BY	2022-07-07	2022-07-07	

@@ -1,0 +1,22 @@
+#LINK
+#lang	ja
+#attribution_url	http://www.city.mishima.shizuoka.jp/
+#attribution_name	三島市
+#license	http://creativecommons.org/licenses/by/3.0/deed.ja
+#file_name	Attractions_of_Mishima_city_Sakura
+#download_from	http://linkdata.org/work/rdf1s2737i
+#property	場所名	桜の種類	http://www.w3.org/2003/01/geo/wgs84_pos#lat	http://www.w3.org/2003/01/geo/wgs84_pos#long	http://xmlns.com/foaf/0.1/homepage
+#object_type_xsd	string:ja	string:ja	float	float	string
+#property_context	Assertion	Assertion	Assertion	Assertion	Assertion
+1	三嶋大社	ソメイヨシノ・ベニシダレ	35.122399	138.918832	http://www.city.mishima.shizuoka.jp/ipn004326.html
+2	遺伝研桜並木	ソメイヨシノ	35.1164719352346	138.936364914016	http://www.city.mishima.shizuoka.jp/ipn004325.html
+3	上岩崎公園	ソメイヨシノ	35.1347327863768	138.916465605335	http://www.city.mishima.shizuoka.jp/ipn004324.html
+4	長伏公園	ソメイヨシノ	35.0844331651236	138.910559381084	http://www.city.mishima.shizuoka.jp/ipn004323.html
+5	源兵衛川沿い	ソメイヨシノ	35.1154714627819	138.914014066295	http://www.city.mishima.shizuoka.jp/ipn004322.html
+6	玉沢（玉沢桜街道）	ソメイヨシノ・エドヒガン	35.118007724306	138.952680791454	http://www.city.mishima.shizuoka.jp/ipn004321.html
+7	塚原新田	ソメイヨシノ	35.1325492903505	138.945002313358	http://www.city.mishima.shizuoka.jp/ipn004320.html
+8	市山新田（坂公民館前）	ソメイヨシノ	35.1377522769678	138.961999471885	http://www.city.mishima.shizuoka.jp/ipn004319.html
+9	子供の森公園	ヤマザクラ	35.141630172126	138.961779530746	http://www.city.mishima.shizuoka.jp/ipn004318.html
+10	光ヶ丘緑地	ソメイヨシノ	35.1363111794825	138.923796768886	http://www.city.mishima.shizuoka.jp/ipn004317.html
+11	末広山	ソメイヨシノ	35.1577955825387	138.928109760982	http://www.city.mishima.shizuoka.jp/ipn004315.html
+12	楽寿園	ソメイヨシノ	35.1249174956352	138.911217208606	http://www.city.mishima.shizuoka.jp/ipn004314.html
