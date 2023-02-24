@@ -187,12 +187,12 @@ div#close {
 		{locality:"沼津市", code:"222038", datalist:dataList_numadu},
 		{locality:"熱海市", code:"222054", datalist:dataList_atami},
 	];
-	var dataList=[]
+	var dataList=[];
 	// var dataList=dataList_mishima;
 	// var dataList=dataList_numadu;
 	// var dataList=dataList_atami;
 	if(paramLocality>0) {
-		datalist=locality_list[paramLocality-1].datalist
+		dataList=locality_list[paramLocality-1].datalist;
 	}
 	var data=[];
 	var myWatchID=null;
@@ -293,6 +293,7 @@ div#close {
 		}
 		paramID=0;
 		showDataList();
+		selectId(paramId);
 		if(DEBUG) console.log(dateToString(new Date())+' selectLocality() ended');
 		return false;
 	}
@@ -306,16 +307,17 @@ div#close {
 		if(typeof dataIndex=='undefined' || isNaN(dataIndex)) {
 			return;
 		}
+		paramID=dataIndex;
 		if(dataIndex==0) {
 			data=[];
-			delMarkers=true;
-			// 表更新
-			showTable();
-			// マーカー表示
-			showMarkers();
-			return;
+		} else {
+			readData(dataIndex);
 		}
-		readData(dataIndex);
+		delMarkers=true;
+		// 表更新
+		showTable();
+		// マーカー表示
+		showMarkers();
 		if(DEBUG) console.log(dateToString(new Date())+' selectId() ended');
 	}
 	// データファイル読み込み

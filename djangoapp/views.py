@@ -27,7 +27,7 @@ def opendataID(request, Locality, ID):
         filePath="index.html"
         contexts = {
                 'title' : 'title',
-                'Locality' ; Locality,
+                'Locality' : Locality,
                 'ID' : ID,
         }
         return render(request, filePath, contexts)
