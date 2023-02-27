@@ -121,7 +121,7 @@ div#close {
 	var directionsRenderer=null;
 	var directionRouteNo=-1;
 	var buttonLabel='追尾停止';
-	var mishimaLatlng={lat:35.118590536070734, lng:138.91855992264092};	// 三島市役所→どこにしようか？
+	var initialLatlng={lat:35.118590536070734, lng:138.91855992264092};	// 初期位置、三島市役所→どこにしようか？
 	var mapCenter=null;
 	var mapCenterPrev=null;
 	let url=new URL(window.location.href);
@@ -133,7 +133,6 @@ div#close {
 	catch(e) {
 		paramLocality=0;
 	}
-	if(DEBUG) console.log('Locality='+paramLocality);
 	var paramID=params.get('ID');
 	try {
 		paramID=parseInt(paramID);
@@ -141,7 +140,7 @@ div#close {
 	catch(e) {
 		paramID=0;
 	}
-	if(DEBUG) console.log('ID='+paramID);
+	if(DEBUG) console.log('Locality='+paramLocality+', ID='+paramID);
 	var dataList_mishima=[
 		{city:"三島市", title:"AED設置場所", date:"2018/11/09", url:"http://linkdata.org/download/rdf1s1732i/link/mishima_aed.txt", cache:"cache/222062_三島市/mishima_aed.json", format:{type:"JSON", code:"UTF-8"}},
 		{city:"三島市", title:"公園情報", date:"2015/1/16", url:"http://linkdata.org/download/rdf1s1774i/link/mishima_park.txt", cache:"cache/222062_三島市/mishima_park.json", format:{type:"JSON", code:"UTF-8"}},
@@ -188,9 +187,6 @@ div#close {
 		{locality:"熱海市", code:"222054", datalist:dataList_atami},
 	];
 	var dataList=[];
-	// var dataList=dataList_mishima;
-	// var dataList=dataList_numadu;
-	// var dataList=dataList_atami;
 	if(paramLocality>0) {
 		dataList=locality_list[paramLocality-1].datalist;
 	}
@@ -202,8 +198,9 @@ div#close {
 	var delMarkers=false;
 	var markTableTag="markTableV";
 	var markMaxValue=10;
+	setTimeout(window.scrollTo(0,1),1);
 
-	// Google Map APIのcallback関数
+	// Google Maps APIのcallback関数
 	function initMap() {
 		if(DEBUG) console.log(dateToString(new Date())+' initMap() start');
 		// 位置情報対応ブラウザの確認
@@ -211,7 +208,7 @@ div#close {
 			myGeolocation=false;
 		}
 		// マップ表示・表表示
-		mapCenter=new google.maps.LatLng(mishimaLatlng.lat, mishimaLatlng.lng);
+		mapCenter=new google.maps.LatLng(initialLatlng.lat, initialLatlng.lng);
 		var gmapTag=document.getElementById("gmap");
 		var options={
 			zoom: 15,
@@ -220,9 +217,13 @@ div#close {
 			scaleControl:true
 		};
 		map=new google.maps.Map(gmapTag, options);
-		// resizeWindows();
-		// showTable();
 		startTraceCurrentPosition();
+		// resizeWindows();
+		showDataList();
+		if(paramLocality>0 && paramID>0) {
+			readData(paramID);
+		}
+		showTable();
 		if(DEBUG) console.log(dateToString(new Date())+' initMap() ended');
 	}
 	// データ一覧作成
@@ -266,14 +267,6 @@ div#close {
 				document.getElementById("selectList").selectedIndex=paramID;
 			}
 		}
-/*
-		if(paramLocality>0) {
-			selectLocality(paramLocality);
-			if(paramID>0) {
-				readData(paramID);
-			}
-		}
-*/
 		if(DEBUG) console.log(dateToString(new Date())+' showDataList() ended');
 	}
 	// 自治体選択
@@ -308,11 +301,7 @@ div#close {
 			return;
 		}
 		paramID=dataIndex;
-		if(dataIndex==0) {
-			data=[];
-		} else {
-			readData(dataIndex);
-		}
+		readData(dataIndex);
 		delMarkers=true;
 		// 表更新
 		showTable();
@@ -675,7 +664,7 @@ div#close {
 		var tableTags="";
 		tableTags+='<table id="list" border="1">';
 		tableTags+='<tbody>';
-		tableTags+='<tr><th>No</th><th>名称</th><th nowrap>距離(m)</th>';
+		tableTags+='<tr><th>No</th><th>名称</th><th nowrap>直線距離(m)</th>';
 		if(showLocation) {
 			tableTags+='<th>緯度</th><th>経度</th>';
 		}
@@ -821,7 +810,7 @@ div#close {
 	if(DEBUG) console.log(dateToString(new Date())+' javascript passed');
 	</script>
 </head>
-<body onLoad="setTimeout(window.scrollTo(0,1),1); resizeWindows(); showDataList();" onResize="resizeWindows();" bgcolor="#F0F0F0">
+<body onLoad="resizeWindows();" onResize="resizeWindows();" bgcolor="#F0F0F0">
 	<div id="title"><center><a href="https://www.digital.go.jp/resources/open_data/" name="オープンデータ">オープンデータ</a> on <a href="https://mapsplatform.google.com/?hl=ja" name="Google Maps">Google Maps</a></center></div>
 	<form name="selectForm">
 		<div id="main">
