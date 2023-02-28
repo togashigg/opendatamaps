@@ -19,7 +19,7 @@ div#modal div:target {
 	opacity: 1;
 	display:block;
 }
-div#modalWindow {
+.modalWindow {
 	top: 0;
 	left: 0;
 	margin: 30px 0 0 10px;
@@ -28,6 +28,14 @@ div#modalWindow {
 	position: absolute;
 	z-index: 10;
 	border: 3px dimgray solid;
+}
+.modalTitle {
+	font-size: 20px;
+	width: 100%;
+	background: #808080;
+	background:-moz-linear-gradient(rgba(128,128,128,0.7), rgba(128,128,128,0.9) 50%);
+	background:-webkit-gradient(linear, 100% 0%, 100% 50%, from(rgba(128,128,128,0.7)), to(rgba(64,64,64,0.9)));
+	color: #000;
 }
 div#title {
 	border: 3px dimgray solid;
@@ -94,14 +102,6 @@ table#list tr:hover {
 	background: #bbd4ee;
 	cursor:pointer;
 }
-table#modalTitle {
-	font-size: 20px;
-	width: 100%;
-	background: #808080;
-	background:-moz-linear-gradient(rgba(128,128,128,0.7), rgba(128,128,128,0.9) 50%);
-	background:-webkit-gradient(linear, 100% 0%, 100% 50%, from(rgba(128,128,128,0.7)), to(rgba(64,64,64,0.9)));
-	color: #000;
-}
 table#detailTable {
 	font-size: 20px;
 	width: 100%;
@@ -131,7 +131,7 @@ div#close {
 		paramLocality=parseInt(paramLocality);
 	}
 	catch(e) {
-		paramLocality=0;
+		paramLocality=1;
 	}
 	var paramID=params.get('ID');
 	try {
@@ -229,11 +229,10 @@ div#close {
 	// データ一覧作成
 	function showDataList() {
 		if(DEBUG) console.log(dateToString(new Date())+' showDataList() start');
-		var selectData=document.getElementById("selectData");
-		var selectTags='';
-		var selected='';
 		// 自治体名一覧作成
-		selected=' selected';
+		var selectData=document.getElementById("localityData");
+		var selectTags='';
+		var selected=' selected';
 		selectTags+='&nbsp;<select id="selectLocalityList" name="selectLocalityList" style="width:120px;" onChange="selectLocality(document.selectForm.selectLocalityList.selectedIndex);">\n';
 		selectTags+='<option value="0" '+selected+'>0:(未選択)</option>\n';
 		selected='';
@@ -241,7 +240,10 @@ div#close {
 			selectTags+='<option value="'+(i+1)+'"'+selected+'>'+(i+1)+':'+locality_list[i]['locality']+'</option>\n';
 		}
 		selectTags+='</select>\n';
+		selectData.innerHTML=selectTags;
 		// データセット一覧作成
+		selectData=document.getElementById("selectData");
+		selectTags='';
 		selected=' selected';
 		selectTags+='&nbsp;<select id="selectList" name="selectList" style="width:120px;" onChange="readData(document.selectForm.selectList.selectedIndex);">\n';
 		selectTags+='<option value="0" '+selected+'>0:(未選択)</option>\n';
@@ -260,6 +262,7 @@ div#close {
 		selectTags+='</select>\n';
 		selectTags+='件&nbsp;<input id="traceButton" type="button" value="'+buttonLabel+'" onClick="toggleTraceButton();" />\n';
 		// selectTags+='&nbsp;<input id="showLocation" type="checkbox" name="座標" onClick="toggleShowLocation();">座標</input>\n';	// checked
+		selectTags+='&nbsp;<input id="settingsButton" type="button" value="設定" onClick="showSettings();" />\n';
 		selectData.innerHTML=selectTags;
 		if(paramLocality>0) {
 			document.getElementById("selectLocalityList").selectedIndex=paramLocality;
@@ -286,7 +289,7 @@ div#close {
 		}
 		paramID=0;
 		showDataList();
-		selectId(paramId);
+		selectId(paramID);
 		if(DEBUG) console.log(dateToString(new Date())+' selectLocality() ended');
 		return false;
 	}
@@ -314,6 +317,9 @@ div#close {
 		if(DEBUG) console.log(dateToString(new Date())
 				+' readData() start, dataIndex='+dataIndex);
 		data=[];
+		if(dataIndex==0) {
+			return false;
+		}
 		dataIndex--;
 		var httpObj=new XMLHttpRequest();
 		var readText='';
@@ -664,12 +670,12 @@ div#close {
 		var tableTags="";
 		tableTags+='<table id="list" border="1">';
 		tableTags+='<tbody>';
-		tableTags+='<tr><th>No</th><th>名称</th><th nowrap>直線距離(m)</th>';
+		tableTags+='<tr><th>ﾙｰﾄ</th><th>名称</th><th nowrap>直線距離(m)</th>';
 		if(showLocation) {
 			tableTags+='<th>緯度</th><th>経度</th>';
 		}
 		tableTags+='</tr>';
-		tableTags+='<tr onClick="showPopup(-1);"><td>現</td>'
+		tableTags+='<tr onClick="showDetail(-1);"><td>−</td>'
 				+'<td>現在地</td><td align="RIGHT">0</td>';
 		if(showLocation) {
 			tableTags+='<td>'+Math.round(mapCenter.lat()*1000000)/1000000+'</td><td>'+Math.round(mapCenter.lng()*1000000)/1000000+'</td>';
@@ -678,7 +684,7 @@ div#close {
 		for(no=0; no<data.length; no++) {
 			tableTags+='<tr>'
 						+'<td><input type="button" value="'+data[no].no+'" onClick="showTrabelRoute('+no+');"></td>'
-						+'<td onClick="showPopup('+no+');">'+data[no].label+'</td>'
+						+'<td onClick="showDetail('+no+');">'+data[no].label+'</td>'
 						+'<td align="RIGHT">'+data[no].distance.toLocaleString()+'</td>';
 			if(showLocation) {
 				tableTags+='<td>'+data[no].lat+'</td>'
@@ -692,8 +698,8 @@ div#close {
 		markTable.scrollTop=0;
 		if(DEBUG) console.log(dateToString(new Date())+' showTable() ended');
 	}
-	function showPopup(no) {
-		if(DEBUG) console.log(dateToString(new Date())+' showPopup() start');
+	function showDetail(no) {
+		if(DEBUG) console.log(dateToString(new Date())+' showDetail() start');
 		var divTag=document.getElementById("locationDetail");
 		var detail="";
 		detail+='<table border="1" id="detailTable">\n';
@@ -714,15 +720,15 @@ div#close {
 		}
 		detail+='</table>\n';
 		divTag.innerHTML=detail;
-		divTag=document.getElementById("modalWindow");
+		divTag=document.getElementById("popupDitail");
 		divTag.style.display="block";
-		if(DEBUG) console.log(dateToString(new Date())+' showPopup() ended');
+		if(DEBUG) console.log(dateToString(new Date())+' showDetail() ended');
 	}
-	function closePopup() {
-		if(DEBUG) console.log(dateToString(new Date())+' closePopup() start');
-		var divTag=document.getElementById("modalWindow");
+	function closeDetail() {
+		if(DEBUG) console.log(dateToString(new Date())+' closeDetail() start');
+		var divTag=document.getElementById("popupDitail");
 		divTag.style.display="none";
-		if(DEBUG) console.log(dateToString(new Date())+' closePopup() ended');
+		if(DEBUG) console.log(dateToString(new Date())+' closeDetail() ended');
 	}
 	function myMarkToCenter() {
 		if(DEBUG) console.log(dateToString(new Date())+' myMarkToCenter() start');
@@ -770,6 +776,20 @@ div#close {
 			directionRouteNo=no;
 		}
 		if(DEBUG) console.log(dateToString(new Date())+' showTrabelRoute('+no+') ended');
+	}
+	function showSettings() {
+		if(DEBUG) console.log(dateToString(new Date())+' showSettings() start');
+		divTag=document.getElementById("popupSettings");
+		divTag.style.display="block";
+		if(DEBUG) console.log(dateToString(new Date())+' showSettings() ended');
+		return false;
+	}
+	function closeSettings() {
+		if(DEBUG) console.log(dateToString(new Date())+' closeSettings() start');
+		var divTag=document.getElementById("popupSettings");
+		divTag.style.display="none";
+		if(DEBUG) console.log(dateToString(new Date())+' closeSettings() ended');
+		return false;
 	}
 	function distanceLatlng(lat, lng) {
 		return(Math.round(Math.sqrt(
@@ -833,19 +853,34 @@ div#close {
 				</div>
 			</fieldset>
 		</div>
-		<div id="modal">
-			<div id="popupWindow">
-				<div id="modalWindow">
-					<table border="0" id="modalTitle">
-						<tr>
-							<th width="80%">詳細情報</th>
-							<th width="20%" align="right"><div id="close" onClick="closePopup();">【×】</th>
-						</tr>
-					</table>
-					<div id="locationDetail"></div>
-					<div>
-						<center><input type="button" value="クローズ" onClick="closePopup();" /></center>
-					</div>
+		<div id="modalDitail">
+			<div id="popupDitail" class="modalWindow">
+				<table border="0" class="modalTitle">
+					<tr>
+						<th width="80%">詳細情報</th>
+						<th width="20%" align="right"><div id="close" onClick="closeDetail();">【×】</th>
+					</tr>
+				</table>
+				<div id="locationDetail"></div>
+				<div>
+					<center><input type="button" value="クローズ" onClick="closeDetail();" /></center>
+				</div>
+			</div>
+		</div>
+		<div id="modalSettings">
+			<div id="popupSettings" class="modalWindow">
+				<table border="0" class="modalTitle">
+					<tr>
+						<th width="80%">設定</th>
+						<th width="20%" align="right"><div id="close" onClick="closeSettings();">【×】</th>
+					</tr>
+				</table>
+				<table border="1" width="100%">
+					<tr><th>項目</th><th>設定値</th></tr>
+					<tr><td>自治体名</td><td id="localityData"></td></tr>
+				</table>
+				<div>
+					<center><input type="button" value="クローズ" onClick="closeSettings();" /></center>
 				</div>
 			</div>
 		</div>
