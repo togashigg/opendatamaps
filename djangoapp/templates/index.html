@@ -115,12 +115,14 @@ div#close {
 	</style>
 	<script type="text/javascript">
 	var DEBUG=false;
+	var CONSOLE_RED='\u001b[31m';
+	var CONSOLE_RESET='\u001b[0m';
 	if(DEBUG) console.log(dateToString(new Date())+' javascript start');
 	var map=null;
 	var directionsService=null;
 	var directionsRenderer=null;
 	var directionRouteNo=-1;
-	var buttonLabel='追尾停止';
+	var buttonLabel='追尾中';
 	var initialLatlng={lat:35.118590536070734, lng:138.91855992264092};	// 初期位置、三島市役所→どこにしようか？
 	var mapCenter=null;
 	var mapCenterPrev=null;
@@ -181,10 +183,14 @@ div#close {
 		{city:"熱海市", title:"公衆無線LANアクセスポイント", date:"2021/9/2", url:"https://opendata.pref.shizuoka.jp/dataset/8724/resource/53948/22205_public_wireless_lan.csv", cache:"cache/222054_熱海市/22205_public_wireless_lan.json", format:{type:"JSON", code:"UTF-8"}},
 		{city:"熱海市", title:"熱海市指定避難所", date:"2018/3/27", url:"https://opendata.pref.shizuoka.jp/dataset/fuji-457/resource/33274/熱海市指定避難所.CSV", cache:"cache/222054_熱海市/熱海市指定避難所.json", format:{type:"JSON", code:"UTF-8"}},
 	];
+	var dataList_suginamiku=[
+		{city:"杉並区", title:"公園・公衆トイレ", date:"2018/5/14", url:"http://www2.wagmap.jp/suginami/opendata/?type=shp&ly=105", cache:"cache/131156_杉並区/opendata_105.json", format:{type:"JSON", code:"UTF-8"}}
+	];
 	var locality_list=[
 		{locality:"三島市", code:"222062", datalist:dataList_mishima},
 		{locality:"沼津市", code:"222038", datalist:dataList_numadu},
 		{locality:"熱海市", code:"222054", datalist:dataList_atami},
+		{locality:"杉並区", code:"131156", datalist:dataList_suginamiku},
 	];
 	var dataList=[];
 	if(paramLocality>0) {
@@ -262,7 +268,7 @@ div#close {
 		selectTags+='</select>\n';
 		selectTags+='件&nbsp;<input id="traceButton" type="button" value="'+buttonLabel+'" onClick="toggleTraceButton();" />\n';
 		// selectTags+='&nbsp;<input id="showLocation" type="checkbox" name="座標" onClick="toggleShowLocation();">座標</input>\n';	// checked
-		selectTags+='&nbsp;<input id="settingsButton" type="button" value="設定" onClick="showSettings();" />\n';
+		selectTags+='&nbsp;<input id="settingsButton" type="button" value="☸" onClick="showSettings();" />\n';
 		selectData.innerHTML=selectTags;
 		if(paramLocality>0) {
 			document.getElementById("selectLocalityList").selectedIndex=paramLocality;
@@ -343,7 +349,7 @@ div#close {
 					} else if(dataList[dataIndex].format.type=='JSON') {
 						data=dataFromJson(readText, dataIndex);
 					} else {
-						console.log('\u001b[31m'+"error in dataInfo.format.type, "+JSON.stringify(dataList[dataIndex])+'\u001b[0m');
+						console.log(CONSOLE_RED+"error in dataInfo.format.type, "+JSON.stringify(dataList[dataIndex])+CONSOLE_RESET);
 					}
 					delMarkers=true;
 					// 表更新
@@ -507,14 +513,14 @@ div#close {
 		if(!myGeolocation) {
 			var tag=document.getElementById("traceButton");
 			if(tag!=null) {
-				tag.value='追尾不可';
+				tag.value='追尾無';
 				tag.disabled=true;
 			}
-			if(DEBUG) console.log(dateToString(new Date())+' ※現在位置情報が取得できないブラウザです。');
+			console.log(CONSOLE_RED+dateToString(new Date())+' ※現在位置情報が取得できないブラウザです。'+CONSOLE_RESET);
 			document.getElementById("message").innerHTML='※現在位置情報が取得できないブラウザです。';
 			return;
 		}
-		buttonLabel='追尾停止';
+		buttonLabel='追尾中';
 		var gmapTag=document.getElementById("gmap");
 		// 現在位置情報取得
 		var position_options={
@@ -541,7 +547,7 @@ div#close {
 					myMarker.zIndex=0;
 					myMarker.setMap(map);
 				}
-				var moveCenter=false;
+				let moveCenter=false;
 				if(mapCenterPrev==null) {
 					if(DEBUG) console.log(dateToString(new Date())+' センター設定：'+mapCenter);
 					moveCenter=true;
@@ -583,7 +589,7 @@ div#close {
 	}
 	function toggleTraceButton() {
 		if(DEBUG) console.log(dateToString(new Date())+' toggleTraceButton() start');
-		if(buttonLabel=='追尾停止') {
+		if(buttonLabel=='追尾中') {
 			stopTraceCurrentPosition();
 		} else {
 			startTraceCurrentPosition();
@@ -593,7 +599,7 @@ div#close {
 	function stopTraceCurrentPosition() {
 		if(DEBUG) console.log(dateToString(new Date())+' stopTraceCurrentPosition() start');
 		navigator.geolocation.clearWatch(myWatchID);
-		buttonLabel='追尾開始';
+		buttonLabel='追尾始';
 		var buttonTag=document.getElementById("traceButton");
 		buttonTag.value=buttonLabel;
 		if(DEBUG) console.log(dateToString(new Date())+' stopTraceCurrentPosition() ended');

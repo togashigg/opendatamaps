@@ -750,7 +750,7 @@ if __name__ == '__main__':
         logger.info(msg)
         print(msg, file=sys.stderr)
         # 取得開始
-        BASE_DIR=os.path.join(os.environ['HOME'], 'github', 'opendata')
+        BASE_DIR=os.path.join(os.environ['HOME'], 'github', 'opendatamaps')
         cobj = Crawler(None)
         names_all = cobj.get_names()
         if args.list:
