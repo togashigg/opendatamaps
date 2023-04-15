@@ -99,6 +99,41 @@ WSGI_APPLICATION = 'djangoapp.wsgi.application'
 #     },
 # ]
 
+# for logging
+LOG_BASE_DIR = os.path.join(BASE_DIR, "djangoapp", "log")
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {"simple": {"format": "%(asctime)s [%(levelname)s] %(message)s"}},
+    "handlers": {
+        "django": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(LOG_BASE_DIR, "django.log"),
+            "formatter": "simple",
+        },
+        "djangoapp": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(LOG_BASE_DIR, "djangoapp.log"),
+            "formatter": "simple",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["django"],
+            "level": "INFO",
+        },
+        "djangoapp": {
+            "handlers": ["djangoapp"],
+            "level": "DEBUG",
+        },
+    },
+    "root": {
+        "handlers": ["django"],
+        "level": "INFO",
+    },
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/

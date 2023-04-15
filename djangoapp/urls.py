@@ -30,6 +30,10 @@ urlpatterns = [
     re_path(r'^cache/(?P<filePath>[^\.]+\.txt)$', views.opendataCsv),
     re_path(r'^cache/(?P<filePath>[^\.]+\.csv)$', views.opendataCsv),
     re_path(r'^(?P<Locality>/d+)(?P<ID>\d+)$', views.opendataID),
+    re_path(r'^api/localitycode/query', views.localitycodeQuery),
+    re_path(r'^api/facility/kinds', views.facilityKinds),
+    re_path(r'^api/facility/query', views.facilityQuery),
+    re_path(r'^api/facility/summary', views.facilitySummary),
     # re_path(r'^(?P<filePath>.*)$', views.opendataFile),
     re_path(r'^.*$', views.error404)
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

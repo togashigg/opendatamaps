@@ -102,12 +102,12 @@ class Crawler:
     def make_cache_data(self, name):
         """
         指定された自治体のオープンデータを取得しマッピング形式に変換してキャッシュする
-        :param name: 自治体名
+        :param name: str型、自治体名
         :return: なし
         :raise: Exception
         """
         logger = logging.getLogger(__name__)
-        logger.debug('make_cache_data() start.')
+        logger.debug('make_cache_data() start, name=' + str(name))
         # 実行
         rc = 0
         try:
@@ -122,7 +122,7 @@ class Crawler:
             self.download_dir = os.path.join(self.APP_DIR,
                     self.common['download_dir'],
                     self.common['dir_name'].format(
-                            code=self.code, name=self.name))
+                            code=self.code, name=self.state+self.name))
             if not os.path.exists(self.download_dir):
                 # raise Exception('download_dir not exists, ' + self.download_dir)
                 os.mkdir(self.download_dir)
@@ -132,7 +132,7 @@ class Crawler:
             self.cache_dir = os.path.join(self.APP_DIR,
                     self.common['cache_dir'],
                     self.common['dir_name'].format(
-                            code=self.code, name=self.name))
+                            code=self.code, name=self.state+self.name))
             if not os.path.exists(self.cache_dir):
                 # raise Exception('cache_dir not exists, ' + self.cache_dir)
                 os.mkdir(self.cache_dir)
@@ -173,7 +173,7 @@ class Crawler:
             rc = 99
         # geocode検索結果キャッシュを保存
         if self.__geocode_cache_update:
-            cache_json = json.dumps(self.__geocode_cache, ensure_ascii=False)
+            cache_json = json.dumps(self.__geocode_cache, ensure_ascii=False).replace('"OK"}, "', '"OK"},\n"')
             with open(self.__geocode_cache_path, 'w') as h_cache:
                 h_cache.write(cache_json)
         # 復帰
@@ -261,6 +261,10 @@ class Crawler:
 
     def data_from_csv(self, content, info):
         """
+        CSV形式のデータをJSON形式に変換する。
+        :param content: str型、CSV形式文字列
+        :param info: dict型、形式情報
+        :return: str型、JSON形式データ
         """
         logger = logging.getLogger(__name__)
         logger.debug('data_from_csv() start.')
@@ -313,9 +317,10 @@ class Crawler:
                 info_items['item'+('0'+str(j))[-2:]] = {'key': headers[j], 'value': data[i][j]}
             error = ''
             no += 1
-            id_value = ('000' + str(no))[-4]
+            id_value = ('000' + str(no))[-4:]
             if info['id'] >= 0:
-                id_value = data[i][info['id']]
+                if data[i][info['id']] != '':
+                    id_value = data[i][info['id']]
             else:
                 error += 'id未設定。'
             address = ''
@@ -324,6 +329,9 @@ class Crawler:
             (lat, lng, msg) = self.lat_lng_from_data(data[i], info, address)
             data_value = {
                     "id": id_value,
+                    "locality_code": self.code,
+                    "locality_name": self.state + self.name,
+                    "kind": info['kind'],
                     "label": label,
                     "lat": lat,
                     "lng": lng,
@@ -387,6 +395,9 @@ class Crawler:
                 (lat, lng, msg) = self.lat_lng_from_data(data[i], info, address)
                 data_value = {
                         "id": id_value,
+                        "locality_code": self.code,
+                        "locality_name": self.state + self.name,
+                        "kind": info['kind'],
                         "label": label,
                         "lat": lat,
                         "lng": lng,
@@ -430,6 +441,9 @@ class Crawler:
                 (lat, lng, msg) = self.lat_lng_from_data(data[i], info, address)
                 data_value = {
                         "id": id_value,
+                        "locality_code": self.code,
+                        "locality_name": self.state + self.name,
+                        "kind": info['kind'],
                         "label": label,
                         "lat": lat,
                         "lng": lng,
@@ -465,7 +479,7 @@ class Crawler:
         logger.debug('save_to_cache() start, file=' + file)
         # 実行
         try:
-            content = json.dumps(mapping_data, ensure_ascii=False)
+            content = json.dumps(mapping_data, ensure_ascii=False).replace('}, {', '},\n{')
             with open(os.path.join(self.cache_dir, file), 'w') as f:
                 f.write(content)
         except Exception as e:
@@ -539,6 +553,8 @@ class Crawler:
                 for res in result['results']:
                     if 'geometry' in res:
                         if 'location_type' in res['geometry']:
+                            if self.state + self.name not in res['formatted_address']:
+                                continue
                             if res['geometry']['location_type'] == 'ROOFTOP':
                                 lat = res['geometry']['location']['lat']
                                 lng = res['geometry']['location']['lng']
@@ -585,7 +601,7 @@ class Crawler:
                                             msg += '=番地が同一(' + a_match.group(1) + ')。'
                                             break
                             elif address == '' and len(result['results']) == 1:
-                                if res['address_components'][0]['long_name'] not in [self.state, self.name]:
+                                if self.state + self.name in res['formatted_address']:
                                     lat = res['geometry']['location']['lat']
                                     lng = res['geometry']['location']['lng']
                                     msg += '名称から近隣の緯度・経度を取得5(' + res['geometry']['location_type'] \
@@ -625,7 +641,7 @@ class Crawler:
                         if 'location_type' in res['geometry']:
                             # if res['geometry']['location_type'] \
                             #       in ['ROOFTOP', 'RANGE_INTERPOLATED', 'GEOMETRIC_CENTER', 'APPROXIMATE']:
-                            if res['address_components'][0]['long_name'] not in [self.state, self.name]:
+                            if self.state + self.name in res['formatted_address']:
                                 lat = res['geometry']['location']['lat']
                                 lng = res['geometry']['location']['lng']
                                 if res['geometry']['location_type'] == 'ROOFTOP':
@@ -706,8 +722,7 @@ def setup_logger(name, level, log_file='crawler.log', log_dir='log'):
     :param name: str型、関数、__main__
     :param level: int型、logging.INFO、logging.DEBUG、...
     :param log_file: str型/stderr、ログファイル名またはstderr
-    :param log_dir: str型、ログディレクトリ名、log_fileがログファイル名の場合に有効なパ
-ラメタ
+    :param log_dir: str型、ログディレクトリ名、log_fileがログファイル名の場合に有効なパラメタ
     :return: logger
     """
     logger = logging.getLogger(name)
@@ -741,7 +756,7 @@ if __name__ == '__main__':
         # パラメタチェック
         import argparse
         p = argparse.ArgumentParser()
-        p.add_argument('-l', '--list', action='store_true', help='定義されている自治体名を出力する。')
+        p.add_argument('-l', '--locality_list', action='store_true', help='定義されている自治体名を出力する。')
         p.add_argument('names', nargs='*', type=str, help='自治体名を指定する。')
         args = p.parse_args(sys.argv[1:])
         names = args.names
@@ -753,7 +768,7 @@ if __name__ == '__main__':
         BASE_DIR=os.path.join(os.environ['HOME'], 'github', 'opendatamaps')
         cobj = Crawler(None)
         names_all = cobj.get_names()
-        if args.list:
+        if args.locality_list:
             print('定義済自治体名：' + str(names_all), file=sys.stderr)
             cobj = None
             sys.exit(0)

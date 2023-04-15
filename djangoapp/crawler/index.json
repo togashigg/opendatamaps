@@ -3,7 +3,7 @@
 		"download_dir": "download",
 		"cache_dir": "cache",
 		"dir_name": "{code}_{name}",
-		"items": ["AED設置場所", "公衆トイレ"]
+		"items": ["AED", "公衆トイレ"]
 	},
 	"list": [
 		{
@@ -17,21 +17,21 @@
 				"format": "TSV"
 			},
 			"data": [
-				{"title":"AED設置場所", "url": "http://linkdata.org/download/rdf1s1732i/link/mishima_aed.txt", "id":0, "name":4, "info":[5,6,7,8,11,12,13,14,15,16,17,18,19,20], "lat":10, "lng":9, "format":"TSV"},
-				{"title":"公園情報", "url":"http://linkdata.org/download/rdf1s1774i/link/mishima_park.txt", "id":0, "name":1, "info":[2,3,4,5,6,7,8], "lat":9, "lng":10, "format":"TSV"},
-				{"title":"施設情報", "url":"http://linkdata.org/download/rdf1s1759i/link/mishima_public_facilities.txt", "id":0, "name":1, "info":[2,3,4,5], "lat":7, "lng":6, "format":"TSV"},
-				{"title":"花壇マップ情報", "url":"http://linkdata.org/download/rdf1s1773i/link/mishima_local_kadan.txt", "id":0, "name":1, "info":[2,5], "lat":3, "lng":4, "format":"TSV"},
-				{"title":"避難所情報", "url":"http://linkdata.org/download/rdf1s1763i/link/mishima_emergency.txt", "id":0, "name":1, "info":[2,3,4], "lat":6, "lng":5, "format":"TSV"},
-				{"title":"選挙投票所", "url":"http://linkdata.org/download/rdf1s1768i/link/mishima_senkyo_tohyojo.txt", "id":0, "name":1, "info":[2,5], "lat":3, "lng":4, "format":"TSV"},
-				{"title":"公共施設Wi-Fi設置場所", "url":"http://linkdata.org/download/rdf1s1769i/link/mishima_public_wifi.txt", "id":0, "name":1, "info":[2], "lat":3, "lng":4, "format":"TSV"},
-				{"title":"公衆トイレ設置場所", "url":"http://linkdata.org/download/rdf1s1771i/link/mishima_public_toilet.txt", "id":0, "name":1, "info":[2,3,4], "lat":5, "lng":6, "format":"TSV"},
-				{"title":"眺望地点", "url":"http://linkdata.org/download/rdf1s1926i/link/Best_View_Point_in_Mishima.txt", "id":0, "name":1, "info":[4], "lat":3, "lng":2, "format":"TSV"},
-				{"title":"消火栓・防火水槽", "url":"http://linkdata.org/download/rdf1s2518i/link/mishima_shoukasen.txt", "id":0, "name":2, "label":["［",1,"］",2], "info":[1,3], "lat":5, "lng":4, "format":"TSV"},
-				{"title":"桜の名所", "url":"http://linkdata.org/download/rdf1s2737i/link/Attractions_of_Mishima_city_Sakura.txt", "id":0, "name":1, "info":[2,5], "lat":3, "lng":4, "format":"TSV"},
-				{"title":"みしまコロッケ認定店", "url":"http://linkdata.org/download/rdf1s3692i/link/Mishima_croquette.txt", "id":0, "name":1, "info":[2,3,4], "lat":5, "lng":6, "format":"TSV"},
-				{"title":"市内医療機関", "url":"http://linkdata.org/download/rdf1s7132i/link/mishima_medicalInstitute.txt", "id":0, "name":1, "label":["［",3,"］",1], "info":[2,3,4,5,6,7,8,9,10], "lat":11, "lng":12, "format":"TSV"},
-				{"title":"市内薬局", "url":"http://linkdata.org/download/rdf1s7134i/link/mishima_yakkyoku.txt", "id":0, "name":1, "info":[2,3,4], "lat":5, "lng":6, "format":"TSV"},
-				{"title":"みしまタニタ健康くらぶ活動量拠点", "url":"http://linkdata.org/download/rdf1s7133i/link/mishima_tanita_katudoryokyoten.txt", "id":0, "name":1, "label":[1,"（",2,"）"], "info":[2,3,4,5,6,7,10,11,12], "lat":8, "lng":9, "format":"TSV"}
+				{"title":"AED設置場所", "kind": "AED", "url": "http://linkdata.org/download/rdf1s1732i/link/mishima_aed.txt", "id":0, "name":4, "info":[5,6,7,8,11,12,13,14,15,16,17,18,19,20], "lat":10, "lng":9, "format":"TSV"},
+				{"title":"公園情報", "kind": "公園", "url":"http://linkdata.org/download/rdf1s1774i/link/mishima_park.txt", "id":0, "name":1, "info":[2,3,4,5,6,7,8], "lat":9, "lng":10, "format":"TSV"},
+				{"title":"施設情報", "kind": "公共施設", "url":"http://linkdata.org/download/rdf1s1759i/link/mishima_public_facilities.txt", "id":0, "name":1, "info":[2,3,4,5], "lat":7, "lng":6, "format":"TSV"},
+				{"title":"花壇マップ情報", "kind": "花壇", "url":"http://linkdata.org/download/rdf1s1773i/link/mishima_local_kadan.txt", "id":0, "name":1, "info":[2,5], "lat":3, "lng":4, "format":"TSV"},
+				{"title":"避難所情報", "kind": "避難所", "url":"http://linkdata.org/download/rdf1s1763i/link/mishima_emergency.txt", "id":0, "name":1, "info":[2,3,4], "lat":6, "lng":5, "format":"TSV"},
+				{"title":"選挙投票所", "kind": "投票所", "url":"http://linkdata.org/download/rdf1s1768i/link/mishima_senkyo_tohyojo.txt", "id":0, "name":1, "info":[2,5], "lat":3, "lng":4, "format":"TSV"},
+				{"title":"公共施設Wi-Fi設置場所", "kind": "Wi-Fiスポット", "url":"http://linkdata.org/download/rdf1s1769i/link/mishima_public_wifi.txt", "id":0, "name":1, "info":[2], "lat":3, "lng":4, "format":"TSV"},
+				{"title":"公衆トイレ設置場所", "kind": "公衆トイレ", "url":"http://linkdata.org/download/rdf1s1771i/link/mishima_public_toilet.txt", "id":0, "name":1, "info":[2,3,4], "lat":5, "lng":6, "format":"TSV"},
+				{"title":"眺望地点", "kind": "眺望地点", "url":"http://linkdata.org/download/rdf1s1926i/link/Best_View_Point_in_Mishima.txt", "id":0, "name":1, "info":[4], "lat":3, "lng":2, "format":"TSV"},
+				{"title":"消火栓・防火水槽", "kind": "消防水利施設", "url":"http://linkdata.org/download/rdf1s2518i/link/mishima_shoukasen.txt", "id":0, "name":2, "label":["［",1,"］",2], "info":[1,3], "lat":5, "lng":4, "format":"TSV"},
+				{"title":"桜の名所", "kind": "桜の名所", "url":"http://linkdata.org/download/rdf1s2737i/link/Attractions_of_Mishima_city_Sakura.txt", "id":0, "name":1, "info":[2,5], "lat":3, "lng":4, "format":"TSV"},
+				{"title":"みしまコロッケ認定店", "kind": "みしまコロッケ認定店", "url":"http://linkdata.org/download/rdf1s3692i/link/Mishima_croquette.txt", "id":0, "name":1, "info":[2,3,4], "lat":5, "lng":6, "format":"TSV"},
+				{"title":"市内医療機関", "kind": "医療機関", "url":"http://linkdata.org/download/rdf1s7132i/link/mishima_medicalInstitute.txt", "id":0, "name":1, "label":["［",3,"］",1], "info":[2,3,4,5,6,7,8,9,10], "lat":11, "lng":12, "format":"TSV"},
+				{"title":"市内薬局", "kind": "薬局", "url":"http://linkdata.org/download/rdf1s7134i/link/mishima_yakkyoku.txt", "id":0, "name":1, "info":[2,3,4], "lat":5, "lng":6, "format":"TSV"},
+				{"title":"みしまタニタ健康くらぶ活動量拠点", "kind": "みしまタニタ健康くらぶ活動量拠点", "url":"http://linkdata.org/download/rdf1s7133i/link/mishima_tanita_katudoryokyoten.txt", "id":0, "name":1, "label":[1,"（",2,"）"], "info":[2,3,4,5,6,7,10,11,12], "lat":8, "lng":9, "format":"TSV"}
 			]
 		},
 		{
@@ -45,23 +45,23 @@
 				"format": "HTML"
 			},
 			"data": [
-				{"title":"AED設置の市公共施設", "url":"https://opendata.pref.shizuoka.jp/dataset/8504/resource/51193/AED設置の沼津市公共施設一覧.csv", "id":1, "name":4, "info":[5,6,7,10,11,12,13,14,15,16,17,18,19,20], "lat":8, "lng":9, "format":"CSV", "header":1},
-				{"title":"公共施設情報", "url":"https://opendata.pref.shizuoka.jp/dataset/8498/resource/51129/222038_public_facility_20210305.csv", "id":1, "name":4, "info":[5,6,7,8,9,12,13,14,15,16,17,18,19,20], "lat":10, "lng":11, "format":"CSV", "header":1},
-				{"title":"指定避難所", "url":"https://opendata.pref.shizuoka.jp/dataset/fuji-449/resource/33255/sitei_hinanjyo_ichiran.csv", "id":-1, "name":0, "info":[1,2], "lat":3, "lng":4, "format":"CSV", "header":1},
-				{"title":"沼津市指定緊急避難場所", "url":"https://opendata.pref.shizuoka.jp/dataset/8474/resource/50309/沼津市指定緊急避難場所一覧.csv", "id":0, "name":1, "info":[2,3,4,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25], "lat":5, "lng":6, "format":"CSV", "header":1},
-				{"title":"沼津市津波避難ビル", "url":"https://opendata.pref.shizuoka.jp/dataset/fuji-423/resource/33196/沼津市津波避難ビル一覧(201807).csv", "id":-1, "name":0, "info":[1], "lat":2, "lng":3, "format":"CSV", "header":2},
-				{"title":"沼津市津波緊急避難施設", "url":"https://opendata.pref.shizuoka.jp/dataset/fuji-428/resource/33205/津波緊急避難施設一覧表.csv", "id":-1, "name":0, "info":[1], "lat":2, "lng":3, "format":"CSV", "header":2},
-				{"title":"沼津市公衆無線LAN（Wi-Fiスポット）設置個所", "url":"https://opendata.pref.shizuoka.jp/dataset/fuji-430/resource/40201/沼津市公衆無線LAN設置箇所（推奨フォーマット）.csv", "id":1, "name":4, "info":[5,6,7,8,11,12,13,14,15,16,17], "lat":9, "lng":10, "format":"CSV", "header":1},
-				{"title":"公衆トイレ", "url":"https://opendata.pref.shizuoka.jp/dataset/9155/resource/61624/公衆トイレ.csv", "id":1, "name":4, "info":[5,6,7,8,9,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], "lat":10, "lng":11, "format":"CSV", "header":1},
-				{"title":"観光施設", "url":"https://opendata.pref.shizuoka.jp/dataset/9153/resource/61622/観光施設.csv", "id":1, "name":4, "info":[5,6,7,8,9,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29], "lat":10, "lng":11, "format":"CSV", "header":1},
-				{"title":"駿東伊豆消防　消防本部・消防署・出張所", "url":"https://opendata.pref.shizuoka.jp/dataset/fuji-437/resource/33230/syoubousyo_ichiran.csv", "id":-1, "name":0, "info":[1,2], "lat":3, "lng":4, "format":"CSV", "header":1},
-				{"title":"消防水利施設", "url":"https://opendata.pref.shizuoka.jp/dataset/9156/resource/61625/消防水利施設.csv", "id":1, "name":5, "label":["［",4,"］",5], "info":[4,5,9,10], "lat":7, "lng":8, "format":"CSV", "header":1},
-				{"title":"沼津市包括支援センター", "url":"https://opendata.pref.shizuoka.jp/dataset/7719/resource/40268/沼津市包括支援センター一覧.csv", "id":1, "name":4, "info":[5,6,7,8,11,12,13,14,15,16,17,18,19,20,21], "lat":9, "lng":10, "format":"CSV", "header":1},
-				{"title":"沼津市子育て施設", "url":"https://opendata.pref.shizuoka.jp/dataset/8460/resource/49457/沼津市子育て施設一覧.csv", "id":1, "name":4, "info":[5,6,7,8,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27], "lat":9, "lng":10, "format":"CSV", "header":1},
-				{"title":"沼津市文化財", "url":"https://opendata.pref.shizuoka.jp/dataset/8442/resource/61297/沼津市文化財一覧.csv", "id":1, "name":4, "label":[4,"（",8,"）"], "info":[5,6,7,8,9,10,11,12,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33], "lat":13, "lng":14, "format":"CSV", "header":1},
-				{"title":"沼津市駐輪場", "url":"https://opendata.pref.shizuoka.jp/dataset/fuji-431/resource/33213/駐輪場一覧.csv", "id":-1, "name":0, "info":[1,2,3,4,5], "lng":-1, "lat":-1, "format":"CSV", "header":1},
-				{"title":"医療機関", "url":"https://opendata.pref.shizuoka.jp/dataset/9152/resource/61621/医療機関.csv", "id":1, "name":4, "info":[5,6,7,8,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25], "lat":9, "lng":10, "format":"CSV", "header":1},
-				{"title":"介護サービス事業所", "url":"https://opendata.pref.shizuoka.jp/dataset/9151/resource/61620/介護サービス事業所.csv", "id":1, "name":4, "info":[5,6,7,8,11,12,13,14,15,16,17,18,19,20,21], "lat":9, "lng":10, "format":"CSV", "header":1}
+				{"title":"AED設置の市公共施設", "kind": "AED", "url":"https://opendata.pref.shizuoka.jp/dataset/8504/resource/51193/AED設置の沼津市公共施設一覧.csv", "id":1, "name":4, "info":[5,6,7,10,11,12,13,14,15,16,17,18,19,20], "lat":8, "lng":9, "format":"CSV", "header":1},
+				{"title":"公共施設情報", "kind": "公共施設", "url":"https://opendata.pref.shizuoka.jp/dataset/8498/resource/51129/222038_public_facility_20210305.csv", "id":1, "name":4, "info":[5,6,7,8,9,12,13,14,15,16,17,18,19,20], "lat":10, "lng":11, "format":"CSV", "header":1},
+				{"title":"指定避難所", "kind": "避難所", "url":"https://opendata.pref.shizuoka.jp/dataset/fuji-449/resource/33255/sitei_hinanjyo_ichiran.csv", "id":-1, "name":0, "info":[1,2], "lat":3, "lng":4, "format":"CSV", "header":1},
+				{"title":"沼津市指定緊急避難場所", "kind": "緊急避難場所", "url":"https://opendata.pref.shizuoka.jp/dataset/8474/resource/50309/沼津市指定緊急避難場所一覧.csv", "id":0, "name":1, "info":[2,3,4,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25], "lat":5, "lng":6, "format":"CSV", "header":1},
+				{"title":"沼津市津波避難ビル", "kind": "津波避難ビル", "url":"https://opendata.pref.shizuoka.jp/dataset/fuji-423/resource/33196/沼津市津波避難ビル一覧(201807).csv", "id":-1, "name":0, "info":[1], "lat":2, "lng":3, "format":"CSV", "header":2},
+				{"title":"沼津市津波緊急避難施設", "kind": "津波緊急避難施設", "url":"https://opendata.pref.shizuoka.jp/dataset/fuji-428/resource/33205/津波緊急避難施設一覧表.csv", "id":-1, "name":0, "info":[1], "lat":2, "lng":3, "format":"CSV", "header":2},
+				{"title":"沼津市公衆無線LAN（Wi-Fiスポット）設置個所", "kind": "Wi-Fiスポット", "url":"https://opendata.pref.shizuoka.jp/dataset/fuji-430/resource/40201/沼津市公衆無線LAN設置箇所（推奨フォーマット）.csv", "id":1, "name":4, "info":[5,6,7,8,11,12,13,14,15,16,17], "lat":9, "lng":10, "format":"CSV", "header":1},
+				{"title":"公衆トイレ", "kind": "公衆トイレ", "url":"https://opendata.pref.shizuoka.jp/dataset/9155/resource/61624/公衆トイレ.csv", "id":1, "name":4, "info":[5,6,7,8,9,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], "lat":10, "lng":11, "format":"CSV", "header":1},
+				{"title":"観光施設", "kind": "観光施設", "url":"https://opendata.pref.shizuoka.jp/dataset/9153/resource/61622/観光施設.csv", "id":1, "name":4, "info":[5,6,7,8,9,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29], "lat":10, "lng":11, "format":"CSV", "header":1},
+				{"title":"駿東伊豆消防　消防本部・消防署・出張所", "kind": "消防署", "url":"https://opendata.pref.shizuoka.jp/dataset/fuji-437/resource/33230/syoubousyo_ichiran.csv", "id":-1, "name":0, "info":[1,2], "lat":3, "lng":4, "format":"CSV", "header":1},
+				{"title":"消防水利施設", "kind": "消防水利施設", "url":"https://opendata.pref.shizuoka.jp/dataset/9156/resource/61625/消防水利施設.csv", "id":1, "name":5, "label":["［",4,"］",5], "info":[4,5,9,10], "lat":7, "lng":8, "format":"CSV", "header":1},
+				{"title":"沼津市包括支援センター", "kind": "包括支援センター", "url":"https://opendata.pref.shizuoka.jp/dataset/7719/resource/40268/沼津市包括支援センター一覧.csv", "id":1, "name":4, "info":[5,6,7,8,11,12,13,14,15,16,17,18,19,20,21], "lat":9, "lng":10, "format":"CSV", "header":1},
+				{"title":"沼津市子育て施設", "kind": "子育て施設", "url":"https://opendata.pref.shizuoka.jp/dataset/8460/resource/49457/沼津市子育て施設一覧.csv", "id":1, "name":4, "info":[5,6,7,8,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27], "lat":9, "lng":10, "format":"CSV", "header":1},
+				{"title":"沼津市文化財", "kind": "文化財", "url":"https://opendata.pref.shizuoka.jp/dataset/8442/resource/61297/沼津市文化財一覧.csv", "id":1, "name":4, "label":[4,"（",8,"）"], "info":[5,6,7,8,9,10,11,12,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33], "lat":13, "lng":14, "format":"CSV", "header":1},
+				{"title":"沼津市駐輪場", "kind": "駐輪場", "url":"https://opendata.pref.shizuoka.jp/dataset/fuji-431/resource/33213/駐輪場一覧.csv", "id":-1, "name":0, "info":[1,2,3,4,5], "lng":-1, "lat":-1, "format":"CSV", "header":1},
+				{"title":"医療機関", "kind": "医療機関", "url":"https://opendata.pref.shizuoka.jp/dataset/9152/resource/61621/医療機関.csv", "id":1, "name":4, "info":[5,6,7,8,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25], "lat":9, "lng":10, "format":"CSV", "header":1},
+				{"title":"介護サービス事業所", "kind": "介護サービス事業所", "url":"https://opendata.pref.shizuoka.jp/dataset/9151/resource/61620/介護サービス事業所.csv", "id":1, "name":4, "info":[5,6,7,8,11,12,13,14,15,16,17,18,19,20,21], "lat":9, "lng":10, "format":"CSV", "header":1}
 			]
 		},
 		{
@@ -75,8 +75,8 @@
 				"format": "HTML"
 			},
 			"data": [
-				{"title":"公衆無線LANアクセスポイント", "url":"https://opendata.pref.shizuoka.jp/dataset/8724/resource/53948/22205_public_wireless_lan.csv", "id":-1, "name":4, "info":[5,6,7,8,11,12,13,14,15,16,17], "lat":9, "lng":10, "format":"CSV", "header":1},
-				{"title":"熱海市指定避難所", "url":"https://opendata.pref.shizuoka.jp/dataset/fuji-457/resource/33274/熱海市指定避難所.CSV", "id":0, "name":1, "info":[2,3,4,5,6], "lat":8, "lng":7, "format":"CSV", "header":1}
+				{"title":"公衆無線LANアクセスポイント", "kind": "Wi-Fiスポット", "url":"https://opendata.pref.shizuoka.jp/dataset/8724/resource/53948/22205_public_wireless_lan.csv", "id":-1, "name":4, "info":[5,6,7,8,11,12,13,14,15,16,17], "lat":9, "lng":10, "format":"CSV", "header":1},
+				{"title":"熱海市指定避難所", "kind": "避難所", "url":"https://opendata.pref.shizuoka.jp/dataset/fuji-457/resource/33274/熱海市指定避難所.CSV", "id":0, "name":1, "info":[2,3,4,5,6], "lat":8, "lng":7, "format":"CSV", "header":1}
 			]
 		},
 		{
@@ -90,7 +90,7 @@
 				"format": "HTML"
 			},
 			"data": [
-				{"title":"公園・公衆トイレ", "url":"http://www2.wagmap.jp/suginami/opendata/?type=shp&ly=105/opendata_105.csv", "id":0, "name":1, "info":[31,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28], "lat":30, "lng":29, "format":"CSV", "header":1}
+				{"title":"公園・公衆トイレ", "kind": "公衆トイレ", "url":"http://www2.wagmap.jp/suginami/opendata/?type=shp&ly=105/opendata_105.csv", "id":0, "name":1, "info":[31,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28], "lat":30, "lng":29, "format":"CSV", "header":1}
 			]
 		}
 	]
