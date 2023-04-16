@@ -137,6 +137,7 @@ div#close {
 	var mapCenterPrev=null;
 	var mapCenterPrev10=null;
 	var centerLocalityCode=null;
+	var centerLocalityName=null;
 	var myParam=null;
 	var data=[];
 	var myWatchID=null;
@@ -274,6 +275,7 @@ div#close {
 		htmlTags+='</select>\n';
 		htmlTags+='&nbsp;<input id="traceButton" type="button" value="'+buttonLabel+'" onClick="toggleTraceButton();" />\n';
 		htmlTags+='&nbsp;<input id="settingsButton" type="button" value="☸" onClick="showSettings();" />\n';
+		htmlTags+='&nbsp;<span id="centerAddress"></span>';
 		operationMenu.innerHTML=htmlTags;
 		document.getElementById("markCountList").querySelector("option[value='"+myParam.count+"']").setAttribute("selected", "selected");
 		// 設定画面
@@ -303,6 +305,11 @@ div#close {
 		}
 		// 近隣距離選択
 		document.getElementById("selectDistanceList").querySelector("option[value='"+myParam.distance+"']").setAttribute("selected", "selected");
+		// 現在住所表示
+		let codeName=getCenterAddress();
+		centerLocalityCode=codeName[0];
+		centerLocalityName=codeName[1];
+		document.getElementById("centerAddress").innerHTML=centerLocalityName;
 		if(DEBUG) console.log(nowToString()+' showDataList() ended');
 	}
 	// モード選択
@@ -540,11 +547,9 @@ div#close {
 				mapCenterPrev=new google.maps.LatLng(mapCenter.lat(), mapCenter.lng());
 				if(myParam.mode == 'center') {
 					if(mapCenterPrev10==null) {
-						let url=googleApiLatLonToAddr.replace('{lat}',''+mapCenter.lat()).replace('{lon}',''+mapCenter.lng());
-						let rjson=httpGetToJson(url);	// 例：{"results":{"muniCd":"22206","lv01Nm":"文教町二丁目"}}
-						if(rjson!=null) {
-							centerLocalityCode=rjson.results.muniCd;
-						}
+						let codeName=getCenterAddress();
+						centerLocalityCode=codeName[0];
+						centerLocalityName=codeName[1];
 						mapCenterPrev10=new google.maps.LatLng(
 								Math.floor(mapCenter.lat()*1000)/1000,
 								Math.floor(mapCenter.lng()*1000)/1000);
@@ -554,13 +559,12 @@ div#close {
 						// 約10m移動した：
 						// 近隣の施設を再取得する
 						// 中心の住所を取得する
-						let url=googleApiLatLonToAddr.replace('{lat}',''+mapCenter.lat()).replace('{lon}',''+mapCenter.lng());
-						let rjson=httpGetToJson(url);	// 例：{"results":{"muniCd":"22206","lv01Nm":"文教町二丁目"}}
-						if(rjson!=null) {
-							if(centerLocaliryCode!=rjson['result']['muniCd']) {
-								// 市区町村を移動した：
-								centerLocalityCode=rjson['result']['muniCd']
-							}
+						let codeName=getCenterAddress();
+						if(codeName[0]!=centerLocaliryCode) {
+							// 市区町村を移動した：
+							centerLocalityCode=codeName[0];
+							centerLocalityName=codeName[1];
+							document.getElementById("centerAddress").innerHTML=centerLocalityName;
 						}
 						mapCenterPrev10=new google.maps.LatLng(
 								Math.floor(mapCenter.lat()*1000)/1000,
@@ -604,6 +608,30 @@ div#close {
 		request=null;
 		if (DEBUG) console.log(nowToString()+' httpGetToJson() ended, result='+JSON.stringify(result));
 		return result;
+	}
+	function getCenterAddress() {
+		if (DEBUG) console.log(nowToString()+' getCenterAddress() start');
+		let codeName=['', ''];
+		let url=googleApiLatLonToAddr.replace('{lat}',''+mapCenter.lat()).replace('{lon}',''+mapCenter.lng());
+		let rjson=httpGetToJson(url);	// 例：{"results":{"muniCd":"22206","lv01Nm":"文教町二丁目"}}
+		if(rjson!=null) {
+			codeName[0]=codeFromLocalityDict(rjson.results.muniCd);
+			codeName[1]=myParam.locality_dict[codeName[0]].name+rjson.results.lv01Nm;
+		}
+		if (DEBUG) console.log(nowToString()+' getCenterAddress() ended, codeName='+codeName);
+		return codeName;
+	}
+	function codeFromLocalityDict(code) {
+		if(!(code in myParam.locality_dict)) {
+			Object.keys(myParam.locality_dict).some(function(key, index) {
+				if(key.substr(0, code.length)==code) {
+					code=key;
+					return true;
+				}
+				return false;
+			});
+		}
+		return code;
 	}
 	function toggleTraceButton() {
 		if(DEBUG) console.log(nowToString()+' toggleTraceButton() start');

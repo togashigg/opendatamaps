@@ -94,3 +94,17 @@ wget -O - 'https://maps.googleapis.com/maps/api/geocode/json?address=静岡県�
    "status" : "OK"
 }
 
+# 距離1kmあたりの緯度・経度の度数を計算（日本・北緯35度）　https://easyramble.com/latitude-and-longitude-per-kilometer.html
+# 日本での1kmあたりの緯度の大きさ（極半径をもとに計算）
+import math
+POLE_RADIUS = 6356752.314
+lat_degree = ( 360.0 * 1000.0 ) / ( 2.0 * math.pi * POLE_RADIUS )
+# 1000m => 0.0090133729745762
+# 10m => 0.0001 <= 0.000090133729745762
+# 日本での1kmあたりの経度の大きさ（赤道半径をもとに計算）
+JAPAN_LATITUDE = 35.0
+EQUATOR_RADIUS = 6378137.0
+lng_degree = ( 360.0 * 1000.0 ) / ( 2.0 * math.pi * ( EQUATOR_RADIUS * math.cos(JAPAN_LATITUDE * math.pi / 180.0) ) )
+# 1000m => 0.010966404715491394
+# 10m => 0.0001 <= 0.00010966404715491394
+
