@@ -27,6 +27,12 @@ class opendatadb:
     COMMIT_COUNT = 100
     LOCALITYCODE_CSV = '都道府県コード及び市区町村コード_20190501.csv'
     conn = None
+    cache_dir = None
+
+    def __init__(self):
+        if 'BASE_DIR' not in locals():
+            BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        self.cache_dir = os.path.join(BASE_DIR, 'djangoapp' , 'cache')
 
     def connect(self):
         logger = logging.getLogger(__name__)
@@ -126,7 +132,10 @@ class opendatadb:
         if 'localitycode' in tables:
             self.load_localitycode()
         if 'opendatamaps' in tables:
-            self.load_opendatamaps()
+            # キャッシュディレクトリ全て（ディレクトリ１階層）
+            # ToDo: self.load_opendatamaps()
+            # ディレクトリ単位（ディレクトリ２階層）
+            self.load_opendatamaps_in_dir(tables)
         logger.debug('load_tables() ended.')
         return True
 
@@ -171,31 +180,52 @@ class opendatadb:
 
     def load_opendatamaps(self):
         logger = logging.getLogger(__name__)
-        logger.debug('load_opendatamaps() start.')
+        logger.debug('load_opendatamaps() start, root_dir=' + str(root_dir))
+        # 実行
         msg = 'opendatamapsテーブルにデータをロードします。'
         logger.info(msg)
         print(msg, file=sys.stderr)
+        for dir in os.listdir(self.cache_dir):
+            if dir[0] == '.':
+                continue
+            msg = 'dir=' + dir
+            logger.debug(msg)
+            print(msg, file=sys.stderr)
+            load_opendatamaps_dir(os.path.join(self.cache, dir))
+
+        msg = 'opendatamapsテーブルにデータをロードしました。'
+        logger.info(msg)
+        print(msg, file=sys.stderr)
+        # 復帰
+        logger.debug('load_opendatamaps() ended.')
+        return True
+
+    def load_opendatamaps_dir(self, dir):
+        logger = logging.getLogger(__name__)
+        logger.debug('load_opendatamaps_dir() start, dir=' + str(dir))
+        # 実行
+        if not os.path.isdir(dir):
+            msg = 'dir is not directory, dir=' + str(dir)
+            logger.debug(msg)
+            print(msg, file=sys.stderr)
+            return False
         # opendatamapsテーブルにJSON形式データをロードする
-        cache_dir = os.path.join(BASE_DIR, 'djangoapp' , 'cache')
         sql_insert = "INSERT INTO opendatamaps" \
                 + " (locality_code, kind, id, label, lat, lng, info)" \
                 + " VALUES ('{locality_code}',{ekind}'{kind}','{id}'," \
                 + "{elabel}'{label}',{lat},{lng},{einfo}'{info}');"
-        with self.conn.cursor() as cur:
-            for dir in os.listdir(cache_dir):
-                if dir[0] == '.':
-                    continue
-                msg = 'dir=' + dir
-                logger.debug(msg)
-                print(msg, file=sys.stderr)
-                for file in os.listdir(os.path.join(cache_dir, dir)):
-                    if file[0] == '.':
-                        continue
-                    msg = 'loading file=' + file
-                    logger.debug(msg)
-                    print('  '+msg, file=sys.stderr)
-                    jfile = os.path.join(cache_dir, dir, file)
-                    commit = False
+        for file in os.listdir(dir):
+            if file[0] == '.':
+                continue
+            msg = 'loading file=' + file
+            logger.debug(msg)
+            print('  '+msg+'：', file=sys.stderr, end='')
+            with self.conn.cursor() as cur:
+                jfile = os.path.join(dir, file)
+                sql = ''
+                r_count = 0
+                commit = False
+                try:
                     with open(jfile, 'r') as fh:
                         jrecs = json.loads(fh.read())
                         # logger.debug('jrecs='+jfile+', content='+str(jrecs))
@@ -216,8 +246,9 @@ class opendatadb:
                             if jdata['lng'] == '':
                                 jdata['lng'] = 0.0
                             sql = sql_insert.format(**jdata)
-                            logger.debug('sql=' + sql)
+                            # logger.debug('sql=' + sql)
                             cur.execute(sql)
+                            r_count += 1
                             commit = True
                             if self.COMMIT_COUNT > 0 and (i % self.COMMIT_COUNT) == (self.COMMIT_COUNT - 1):
                                 self.conn.commit()
@@ -226,10 +257,84 @@ class opendatadb:
                     if commit:
                         self.conn.commit()
                         logger.debug('committed last.')
+                    msg = str(r_count) + '件'
+                    print(msg, file=sys.stderr)
+                    logger.debug(msg)
+                except psycopg2.errors.UniqueViolation as e:
+                    logger.exception(e)
+                    logger.error('sql=' + sql)
+                    self.conn.rollback()
+                    print('ユニークキー例外が発生', file=sys.stderr)
+        # 復帰
+        logger.debug('load_opendatamaps_dir() ended.')
+        return True
+
+    def load_opendatamaps_in_dir(self, dirs):
+        logger = logging.getLogger(__name__)
+        logger.debug('load_opendatamaps_in_dir() start.')
+        # 実行
+        msg = 'opendatamapsテーブルにデータをロードします。'
+        logger.info(msg)
+        print(msg, file=sys.stderr)
+        # ディレクトリを辿る
+        dir_list = []
+        for dir in dirs:
+            if dir == 'localitycode' or dir == 'opendatamaps':
+                continue
+            dir_list.append(dir.split('/'))
+        for dir1 in os.listdir(self.cache_dir):
+            if dir1[0] == '.':
+                continue
+            logger.debug('dir1=' + dir1)
+            dir1_list = dir1.split('_')
+            if len(dir1_list) != 2:
+                continue
+            dir1_exec = False
+            if dir_list == []:
+                dir1_exec = True
+            else:
+                for dir in dir_list:
+                    if dir1_list[1] == dir[0]:
+                        dir1_exec = True
+                        break
+            if not dir1_exec:
+                continue
+            dir1_path = os.path.join(self.cache_dir, dir1)
+            if not os.path.isdir(dir1_path):
+                continue
+            for dir2 in os.listdir(os.path.join(dir1_path)):
+                if dir2[0] == '.':
+                    continue
+                logger.debug('dir2=' + dir2)
+                dir2_list = dir2.split('_')
+                if len(dir2_list) != 2:
+                    continue
+                dir2_exec = False
+                if dir_list == []:
+                    dir2_exec = True
+                else:
+                    for dir in dir_list:
+                        if dir[0] == dir1_list[1]:
+                            if len(dir) == 1:
+                                dir2_exec = True
+                                break
+                            elif dir[1] == dir2_list[1]:
+                                dir2_exec = True
+                                break
+                if not dir2_exec:
+                    continue
+                dir2_path = os.path.join(dir1_path, dir2)
+                if not os.path.isdir(dir2_path):
+                    continue
+                # ロード範囲のデータを削除する
+                # ToDo: self.delete_opendatamaps_dir(dir2_path)
+                print('dir=' + dir1 + '/' + dir2, file=sys.stderr)
+                self.load_opendatamaps_dir(dir2_path)
+
         msg = 'opendatamapsテーブルにデータをロードしました。'
         logger.info(msg)
         print(msg, file=sys.stderr)
-        logger.debug('load_opendatamaps() ended.')
+        logger.debug('load_opendatamaps_in_dir() ended.')
         return True
 
     def drop_tables(self, tables):

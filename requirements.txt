@@ -1,3 +1,7 @@
+bs4
 django
+openpyxl
 psycopg2-binary
 requests
+xlrd
+

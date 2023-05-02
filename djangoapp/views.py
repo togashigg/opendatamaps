@@ -93,13 +93,15 @@ def localitycodeQuery(request):
 
 def facilitySummary(request):
         # print("\nstart facilitySummary().", file=sys.stderr)
+        db = None
         try:
             db = opendatadb.opendatadb()
             db.connect()
             recs = db.get_summary()
         except Exception as e:
-            db.disconnect()
-            db = None
+            if db is not None:
+                db.disconnect()
+                db = None
             raise BadRequest('Error in Execution.')
         if db is not None:
             db.disconnect()
@@ -185,3 +187,4 @@ def facilityKinds(request):
         response = HttpResponse(json.dumps(res, ensure_ascii=False))
         response['content-type'] = 'application/json; charset=utf-8'
         return response
+

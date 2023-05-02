@@ -156,7 +156,7 @@ div#close {
 		let myUrlParams=myUrl.searchParams;
 		let myParam={locality_list: null, datalist: null, 
 				mode: myInitialMode, locality: myInitialLocality, kind: myInitialKind,
-				distance: myInitialDistance, count: myInitialCount};
+				distance: myInitialDistance, count: myInitialCount, kind_selected: []};
 		myParam.mode=myUrlParams.get('mode');	// 動作モード：center=近隣施設、code=市区町村単位の施設
 		myParam.locality=myUrlParams.get('locality');	// 市区町村コード、例：22206
 		myParam.kind=myUrlParams.get('kind');	// 種別、例：公衆トイレ
@@ -207,7 +207,7 @@ div#close {
 			myParam.kind='-';
 		} else if(myParam.kind!='-') {
 			if(!myParam.allKinds.includes(myParam.kind)) {
-				console.log(ESCAPE_RED+nowToString()+' ERROR:kind is not found, kind='+kind+ESCAPE_RESET);
+				console.log(ESCAPE_RED+nowToString()+' ERROR:kind is not found, kind='+myParam.kind+ESCAPE_RESET);
 				myParam.kind='-';
 			}
 		}
@@ -253,10 +253,10 @@ div#close {
 		let htmlTags='';
 		let selected='';
 		let operationMenu=document.getElementById("operationMenu");
-		// 種別一覧作成
-		htmlTags='';
+		// 種別一覧作成（表示選択）
+		htmlTags='<table><tr>';
 		selected='';
-		htmlTags+='<select id="selectKindList" name="selectKindList" style="width:128px;" onChange="selectKind(this.options[this.selectedIndex].value);">\n';
+		htmlTags+='<td><select id="selectKindList" name="selectKindList" style="width:128px;" onChange="selectKind(this.options[this.selectedIndex].value);">\n';
 		htmlTags+='<option value="-"'+selected+'>(未選択)</option>\n';
 		selected='';
 		let kind_list=myParam.allKinds;
@@ -266,16 +266,17 @@ div#close {
 		kind_list.forEach(function(kind) {
 			htmlTags+='<option value="'+kind+'"'+selected+'>'+kind+'</option>\n';
 		});
-		htmlTags+='</select>\n';
-		htmlTags+='&nbsp;<select name="markCountList" id="markCountList" style="width:64px;" onChange="myParam.count=parseInt(this.options[this.selectedIndex].value,10);delMarkers=true;showMarkers();">\n';
+		htmlTags+='</select></td>\n';
+		htmlTags+='<td><select name="markCountList" id="markCountList" style="width:64px;" onChange="myParam.count=parseInt(this.options[this.selectedIndex].value,10);delMarkers=true;showMarkers();">\n';
 		htmlTags+='<option value="10">10件</option>\n';
 		htmlTags+='<option value="20">20件</option>\n';
 		htmlTags+='<option value="50">50件</option>\n';
 		htmlTags+='<option value="0">全て</option>\n';
-		htmlTags+='</select>\n';
-		htmlTags+='&nbsp;<input id="traceButton" type="button" value="'+buttonLabel+'" onClick="toggleTraceButton();" />\n';
-		htmlTags+='&nbsp;<input id="settingsButton" type="button" value="☸" onClick="showSettings();" />\n';
-		htmlTags+='&nbsp;<span id="centerAddress"></span>';
+		htmlTags+='</select></td>\n';
+		htmlTags+='<td><input id="traceButton" type="button" value="'+buttonLabel+'" onClick="toggleTraceButton();" /></td>\n';
+		htmlTags+='<td><input id="settingsButton" type="button" value="☸" onClick="showSettings();" /></td>\n';
+		htmlTags+='<td><span id="centerAddress" style="text-overflow:ellipsis; white-space:nowrap; overflow:hidden; padding:10px;"></span></td>';
+		htmlTags+='</tr></table>';
 		operationMenu.innerHTML=htmlTags;
 		document.getElementById("markCountList").querySelector("option[value='"+myParam.count+"']").setAttribute("selected", "selected");
 		// 設定画面
@@ -295,6 +296,21 @@ div#close {
 		});
 		htmlTags+='</select>\n';
 		localityData.innerHTML=htmlTags;
+		// 種別一覧作成（検索条件）
+		let kindListSelect=document.getElementById("kindListSelect");
+		htmlTags='';
+		kind_list=myParam.allKinds;
+		if(myParam.locality!='-') {
+			kind_list=myParam.locality_dict[myParam.locality].kinds;
+		}
+		kind_list.forEach(function(kind) {
+	   		selected='';
+	   		if(myParam.kind_selected.indexOf(kind) >= 0) {
+	   		    selected=' selected';
+	   		}
+			htmlTags+='<input type="checkbox" value="'+kind+'"'+selected+' onclick="clickkindListSelect(this.value, this.checked);" /><label>'+kind+'</label>\n';
+		});
+		kindListSelect.innerHTML=htmlTags;
 		// 市区町村選択
 		if(myParam.locality!='-') {
 			document.getElementById("selectLocalityList").querySelector("option[value='"+myParam.locality+"']").setAttribute("selected", "selected");
@@ -306,7 +322,7 @@ div#close {
 		// 近隣距離選択
 		document.getElementById("selectDistanceList").querySelector("option[value='"+myParam.distance+"']").setAttribute("selected", "selected");
 		// 現在住所表示
-		let codeName=getCenterAddress();
+		let codeName=getCenterAddress(mapCenter);
 		centerLocalityCode=codeName[0];
 		centerLocalityName=codeName[1];
 		document.getElementById("centerAddress").innerHTML=centerLocalityName;
@@ -342,7 +358,7 @@ div#close {
 		if(DEBUG) console.log(nowToString()+' selectLocality() ended');
 		return false;
 	}
-	// 種別選択
+	// 種別選択（表示対象）
 	function selectKind(kind) {
 		if(DEBUG) console.log(nowToString()+' selectKind() start, kind='+kind);
 		if(typeof kind=='undefined') {
@@ -357,6 +373,32 @@ div#close {
 		// マーカー表示
 		showMarkers();
 		if(DEBUG) console.log(nowToString()+' selectKind() ended');
+		return false;
+	}
+	// 種別選択（検索対象）
+	function clickkindListSelect(kind, checked) {
+		if(DEBUG) console.log(nowToString()+' clickkindListSelect() start, kind='+kind);
+		if(typeof kind=='undefined') {
+			if(DEBUG) console.log('invalid kind');
+			return false;
+		}
+		if(checked) {
+			if(myParam.kind_selected.indexOf(kind) == -1) {
+				myParam.kind_selected.push(kind);
+			}
+		} else {
+			kind_index=myParam.kind_selected.indexOf(kind);
+			if(kind_index>=0) {
+				myParam.kind_selected.pop(kind_index);
+			}
+		}
+		readData();
+		delMarkers=true;
+		// 表更新
+		showTable();
+		// マーカー表示
+		showMarkers();
+		if(DEBUG) console.log(nowToString()+' clickkindListSelect() ended');
 		return false;
 	}
 	// 近隣距離選択
@@ -385,27 +427,31 @@ div#close {
 	function readDataRetry(retry) {
 		if(DEBUG) console.log(nowToString()+' readDataRetry() start, retry='+retry);
 		data=[];
+		let kinds='';
+		if(myParam.kind_selected.length>0) {
+			kinds='&kind=';
+			let sep='';
+			myParam.kind_selected.forEach(function(kind) {
+				kinds+=sep;
+				kinds+=kind;
+				sep=',';
+			});
+		}
 		let url='';
 		if(myParam.mode=='code') {
 			if(myParam.locality==null || myParam.locality=='-') {
 				if(DEBUG) console.log('invalid myParam.locality');
 				return false;
 			}
-			if(myParam.kind==null || myParam.kind=='-') {
-				if(DEBUG) console.log('invalid myParam.kind');
-				return false;
-			}
-			url=urlApiFacilityQuery+'by=code&code='+myParam.locality+'&kind='+myParam.kind;
+			url=urlApiFacilityQuery+'by=code&code='+myParam.locality;
 		} else 
 		if(myParam.mode=='center') {
 			url=urlApiFacilityQuery+'by=center&distance='+myParam.distance+'&lat='+mapCenter.lat()+'&lng='+mapCenter.lng();
-			if(myParam.kind!=null && myParam.kind!='-') {
-				url+='&kind='+myParam.kind;
-			}
 		} else {
 			if(DEBUG) console.log('invalid myParam.mode');
 			return false
 		}
+		url+=kinds;
 		console.log('url='+url);
 		let httpObj=new XMLHttpRequest();
 		var httpRetryCount=retry;
@@ -524,6 +570,8 @@ div#close {
 					myMarker.zIndex=0;
 				}
 				let moveCenter=false;
+				let getAddress=false;
+				let rereadData=false;
 				if(mapCenterPrev==null) {
 					if(DEBUG) console.log(nowToString()+' センター設定：'+mapCenter);
 					moveCenter=true;
@@ -534,6 +582,33 @@ div#close {
 					moveCenter=true;
 				}
 				if(moveCenter) {
+					if(myParam.mode == 'center') {
+						if(mapCenterPrev10==null) {
+							getAddress=true;
+						} else 
+						if(Math.floor(mapCenter.lat()*1000)/1000!=mapCenterPrev10.lat()
+						|| Math.floor(mapCenter.lng()*1000)/1000!=mapCenterPrev10.lng()) {
+							// 約10m移動した：
+							// 近隣の施設を再取得する
+							// 中心の住所を取得する
+							getAddress=true;
+							rereadData=true;
+						}
+						mapCenterPrev10=new google.maps.LatLng(
+								Math.floor(mapCenter.lat()*1000)/1000,
+								Math.floor(mapCenter.lng()*1000)/1000);
+					}
+					if(getAddress) {
+						let codeName=getCenterAddress(mapCenter);
+						centerLocalityCode=codeName[0];
+						centerLocalityName=codeName[1];
+						document.getElementById("centerAddress").innerHTML=centerLocalityName;
+					}
+				}
+				if(moveCenter) {
+					if(rereadData) {
+						readData();
+					}
 					// 表更新
 					showTable('no');
 					// マーカー再表示
@@ -545,32 +620,6 @@ div#close {
 					}
 				}
 				mapCenterPrev=new google.maps.LatLng(mapCenter.lat(), mapCenter.lng());
-				if(myParam.mode == 'center') {
-					if(mapCenterPrev10==null) {
-						let codeName=getCenterAddress();
-						centerLocalityCode=codeName[0];
-						centerLocalityName=codeName[1];
-						mapCenterPrev10=new google.maps.LatLng(
-								Math.floor(mapCenter.lat()*1000)/1000,
-								Math.floor(mapCenter.lng()*1000)/1000);
-					} else 
-					if(Math.floor(mapCenter.lat()*1000)/1000!=mapCenterPrev10.lat()
-					|| Math.floor(mapCenter.lng()*1000)/1000!=mapCenterPrev10.lng()) {
-						// 約10m移動した：
-						// 近隣の施設を再取得する
-						// 中心の住所を取得する
-						let codeName=getCenterAddress();
-						if(codeName[0]!=centerLocaliryCode) {
-							// 市区町村を移動した：
-							centerLocalityCode=codeName[0];
-							centerLocalityName=codeName[1];
-							document.getElementById("centerAddress").innerHTML=centerLocalityName;
-						}
-						mapCenterPrev10=new google.maps.LatLng(
-								Math.floor(mapCenter.lat()*1000)/1000,
-								Math.floor(mapCenter.lng()*1000)/1000);
-					}
-				}
 			}
 			if(DEBUG) console.log(nowToString()+' watchPosition() ended');
 		}, function() {
@@ -609,16 +658,16 @@ div#close {
 		if (DEBUG) console.log(nowToString()+' httpGetToJson() ended, result='+JSON.stringify(result));
 		return result;
 	}
-	function getCenterAddress() {
-		if (DEBUG) console.log(nowToString()+' getCenterAddress() start');
+	function getCenterAddress(center) {
+		if (DEBUG) console.log(nowToString()+' getCenterAddress() start, center='+center);
 		let codeName=['', ''];
-		let url=googleApiLatLonToAddr.replace('{lat}',''+mapCenter.lat()).replace('{lon}',''+mapCenter.lng());
+		let url=googleApiLatLonToAddr.replace('{lat}',''+center.lat()).replace('{lon}',''+center.lng());
 		let rjson=httpGetToJson(url);	// 例：{"results":{"muniCd":"22206","lv01Nm":"文教町二丁目"}}
 		if(rjson!=null) {
 			codeName[0]=codeFromLocalityDict(rjson.results.muniCd);
 			codeName[1]=myParam.locality_dict[codeName[0]].name+rjson.results.lv01Nm;
 		}
-		if (DEBUG) console.log(nowToString()+' getCenterAddress() ended, codeName='+codeName);
+		if (DEBUG) console.log(nowToString()+' getCenterAddress() ended, codeName=['+codeName+']');
 		return codeName;
 	}
 	function codeFromLocalityDict(code) {
@@ -962,7 +1011,7 @@ div#close {
 						<option value="5000">5,000m</option>
 						</select>
 						</td></tr>
-					<!-- tr><td>種別</td><td id="kindData"></td></tr -->
+					<tr><td>種別</td><td id="kindListSelect"></td></tr>
 					<tr><td>市区町村名</td><td id="localityData"></td></tr>
 				</table>
 				<div>
