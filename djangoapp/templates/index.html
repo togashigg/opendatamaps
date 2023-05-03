@@ -140,6 +140,7 @@ div#close {
 	var centerLocalityName=null;
 	var myParam=null;
 	var data=[];
+	var dataTable=[];
 	var myWatchID=null;
 	var myGeolocation=true;
 	var myMarker=null;
@@ -366,7 +367,7 @@ div#close {
 			return false;
 		}
 		myParam.kind=kind;
-		readData();
+		// ToDo: readData();
 		delMarkers=true;
 		// 表更新
 		showTable();
@@ -723,16 +724,16 @@ div#close {
 			markers=new Array();
 		}
 		if(markers.length==0) {
-			for(no=0; no<data.length; no++) {
+			for(no=0; no<dataTable.length; no++) {
 				markers.push(new google.maps.Marker({
-						position: new google.maps.LatLng(data[no].lat, data[no].lng),
+						position: new google.maps.LatLng(dataTable[no].lat, dataTable[no].lng),
 						map: myMap,
-						title: data[no].label,
-						icon: 'https://chart.googleapis.com/chart?chst=d_map_spin&chld=0.8|0|FF4F4F|14|b|'+data[no].no,
+						title: dataTable[no].label,
+						icon: 'https://chart.googleapis.com/chart?chst=d_map_spin&chld=0.8|0|FF4F4F|14|b|'+dataTable[no].no,
 						scaledSize: new google.maps.Size(80, 80)
 					}));
-				// ToDo:		icon: 'https://chart.googleapis.com/chart?chst=d_map_pin_letter&chld='+data[no].no+'|FF4F4F|000000',
-				dispInfo(markers[markers.length-1], data[no].label);
+				// ToDo:		icon: 'https://chart.googleapis.com/chart?chst=d_map_pin_letter&chld='+dataTable[no].no+'|FF4F4F|000000',
+				dispInfo(markers[markers.length-1], dataTable[no].label);
 				if(myParam.count>0 && (no+1)>=myParam.count) {
 					break;
 				}
@@ -753,19 +754,27 @@ div#close {
 		} else {
 			showLocation=false;
 		}
-		var showKind=false;
+		dataTable=data;
+		let showKind=false;
 		if(myParam.kind==null || myParam.kind=='-') {
 			showKind=true;
-		}
-		// 現在地から近い順にソート
-		for(no=0; no<data.length; no++) {
-			if(data[no].lat=='' || data[no].lng=='') {
-			    data[no].distance=NaN;
-			} else {
-				data[no].distance=distanceLatlng(data[no].lat,data[no].lng);
+		} else {
+			dataTable=[];
+			for(no=0; no<data.length; no++) {
+				if(data[no].kind == myParam.kind) {
+					dataTable.push(data[no]);
+				}
 			}
 		}
-		data.sort(function(a, b) {
+		// 現在地から近い順にソート
+		for(no=0; no<dataTable.length; no++) {
+			if(dataTable[no].lat=='' || dataTable[no].lng=='') {
+				dataTable[no].distance=NaN;
+			} else {
+				dataTable[no].distance=distanceLatlng(dataTable[no].lat,dataTable[no].lng);
+			}
+		}
+		dataTable.sort(function(a, b) {
 			if(isNaN(a.distance)) return 1;
 			if(isNaN(b.distance)) return -1;
 			return (a.distance < b.distance)?-1:1;
@@ -795,17 +804,17 @@ div#close {
 			tableTags+='<td>'+Math.round(mapCenter.lat()*1000000)/1000000+'</td><td>'+Math.round(mapCenter.lng()*1000000)/1000000+'</td>';
 		}
 		tableTags+='</tr>';
-		for(no=0; no<data.length; no++) {
+		for(no=0; no<dataTable.length; no++) {
 			tableTags+='<tr>'
-						+'<td><input type="button" value="'+data[no].no+'" onClick="showTrabelRoute('+no+');"></td>';
+						+'<td><input type="button" value="'+dataTable[no].no+'" onClick="showTrabelRoute('+no+');"></td>';
 			if(showKind) {
-				tableTags+='<td>'+data[no].kind+'</td>';
+				tableTags+='<td>'+dataTable[no].kind+'</td>';
 			}
-			tableTags+='<td onClick="showDetail('+no+');">'+data[no].label+'</td>'
-						+'<td align="RIGHT">'+data[no].distance.toLocaleString()+'</td>';
+			tableTags+='<td onClick="showDetail('+no+');">'+dataTable[no].label+'</td>'
+						+'<td align="RIGHT">'+dataTable[no].distance.toLocaleString()+'</td>';
 			if(showLocation) {
-				tableTags+='<td>'+data[no].lat+'</td>'
-						+'<td>'+data[no].lng+'</td>';
+				tableTags+='<td>'+dataTable[no].lat+'</td>'
+						+'<td>'+dataTable[no].lng+'</td>';
 			}
 			tableTags+='</tr>';
 		}
@@ -829,12 +838,12 @@ div#close {
 			detail+='<tr><td>緯度</td><td>'+mapCenter.lat()+'</td></tr>\n';
 			detail+='<tr><td>経度</td><td>'+mapCenter.lng()+'</td></tr>\n';
 		} else {
-			detail+='<tr><td>名称</td><td>'+data[no].label+'</td></tr>\n';
-			detail+='<tr><td>情報</td><td>'+data[no].info+'</td></tr>\n';
-			detail+='<tr><td>緯度</td><td>'+data[no].lat+'</td></tr>\n';
-			detail+='<tr><td>経度</td><td>'+data[no].lng+'</td></tr>\n';
-			if('error' in data[no]) {
-				detail+='<tr bgcolor="red"><td>msg</td><td>'+data[no].error+'</td></tr>\n';
+			detail+='<tr><td>名称</td><td>'+dataTable[no].label+'</td></tr>\n';
+			detail+='<tr><td>情報</td><td>'+dataTable[no].info+'</td></tr>\n';
+			detail+='<tr><td>緯度</td><td>'+dataTable[no].lat+'</td></tr>\n';
+			detail+='<tr><td>経度</td><td>'+dataTable[no].lng+'</td></tr>\n';
+			if('error' in dataTable[no]) {
+				detail+='<tr bgcolor="red"><td>msg</td><td>'+dataTable[no].error+'</td></tr>\n';
 			}
 		}
 		detail+='</table>\n';
@@ -858,7 +867,7 @@ div#close {
 	function markToCenter(no) {
 		if(DEBUG) console.log(nowToString()+' markToCenter('+no+') start');
 		stopTraceCurrentPosition();
-		mapCenter=new google.maps.LatLng(data[no].lat, data[no].lng);
+		mapCenter=new google.maps.LatLng(dataTable[no].lat, dataTable[no].lng);
 		myMap.setCenter(mapCenter);
 		if(DEBUG) console.log(nowToString()+' markToCenter('+no+') ended');
 	}
@@ -879,7 +888,7 @@ div#close {
 		if(no>=0) {
 			let request = {
 				origin: mapCenter,	//スタート地点
-				destination: new google.maps.LatLng(data[no].lat, data[no].lng),	//ゴール地点
+				destination: new google.maps.LatLng(dataTable[no].lat, dataTable[no].lng),	//ゴール地点
 				travelMode: google.maps.DirectionsTravelMode.WALKING	//移動手段
 			};
 			directionsService.route(request, function(result, status) {
