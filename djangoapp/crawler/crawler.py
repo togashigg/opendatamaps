@@ -12,7 +12,8 @@ import csv
 import json
 import pathlib
 import requests
-import chardet
+# ToDo: import chardet
+from charset_normalizer import detect
 import unicodedata
 import openpyxl
 import xlrd
@@ -31,7 +32,30 @@ OPENDATA_SITES = [
 LOCALITY_CODE_FILE = '都道府県コード及び市区町村コード_20190501.csv'
 IGNORE_WORD_IN_DATASET_NAME = ['台帳','統計','人口','カレンダー','コロナ','登録簿']
 KIND_LIST_NORMALIZED = {
-    # 'ADE': ['AED設置場所']
+    None: re.compile('(クリーニング所|毒物劇物販売業|オープンデータ一覧|台帳|統計|人口|カレンダー|コロナ|登録簿)'),
+    'AED設置箇所': re.compile('AED'),
+    '介護サービス事業所': re.compile('介護'),
+    '医療機関': re.compile('(病院|医療[^品]|医院|歯科|助産所|健診|応急救護|施術所|診療所)'),
+    '文化財': re.compile('文化財'),
+    '観光施設': re.compile('(観光(施設|場所|情報|マップ)|名所|眺望|見所|ブランド|るるぶ)'),
+    '公衆無線LANアクセスポイント': re.compile('((公衆|公共)?無線(LAN|ＬＡＮ)|公衆無線|Wi\-Fi|WiFi)'),
+    '公衆トイレ': re.compile('(トイレ|便所)'),
+    '消防水利施設': re.compile('(消防水利施設|消火栓|防火水槽)'),
+    '指定緊急避難場所': re.compile('(津波|緊急避難)'),
+    '公共施設': re.compile('((市|区|町|村)役所|(都|道|府|県|市|区|町|村)(の|内)(施設|機関)|庁舎|公共施設|施設情報|文化|教養|スポーツ|公民館|集会所|公会堂|(都|道|府|県|市|区|町|村)民会館|図書館|文化施設|(都|道|府|県|市|区|町|村)営住宅|斎場|墓地|環境施設|焼却施設|し尿処理)'),
+    '子育て施設': re.compile('子育て'),
+    '学校・保育施設': re.compile('(学校|こども園|幼稚園|保育|児童館|保育施設|保育所|放課後)'),
+    '薬局': re.compile('(薬局|医薬品|医療品)'),
+    '駐車場': re.compile('駐車場'),
+    '公園': re.compile('(公園|花壇)'),
+    '公衆浴場': re.compile('公衆浴場'),
+    '防災': re.compile('(防災|救護所|同報無線|飲料水|ヨウ素剤|ため池)'),
+    '避難所': re.compile('避難(所|地|場所)'),
+    '消防': re.compile('消防(署|団|施設)'),
+    '投票所': re.compile('投票所'),
+    '福祉施設': re.compile('(老人ホーム|生活支援ハウス|交流センター|高齢者相談センター)'),
+    '健康': re.compile('健康'),
+    '飲食店・物販': re.compile('(認定店|飲食店|直売所)')
 }
 HEADER_ROWS = 3
 LINKDATA_URL_BASE = 'http://linkdata.org'
@@ -79,6 +103,8 @@ class Crawler:
         """
         logger = logging.getLogger(__name__)
         logger.debug('__init__() start.')
+        if 'BASE_DIR' not in locals():
+            BASE_DIR=os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         self.APP_DIR=os.path.join(BASE_DIR, 'djangoapp')
         self.site_names = [v['name'] for v in OPENDATA_SITES]
         logger.debug('site_names=' + str(self.site_names))
@@ -287,19 +313,25 @@ class Crawler:
             cont = lines[0]
             for i in range(1, len(lines)):
                 cont += lines[i]
-        detect = {'encoding': 'UTF-8', 'confidence': 0.5, 'language': 'Japanese'}
+        res = {'encoding': 'utf-8', 'confidence': 0.5, 'language': 'Japanese'}
         try:
-            detect = chardet.detect(cont)
-            # detect = {'encoding': 'SHIFT_JIS', 'confidence': 0.8719851576994434, 'language': 'Japanese'}
+            # ToDo: res = chardet.detect(cont)
+            res = detect(cont)
+            # res = {'encoding': 'SHIFT_JIS', 'confidence': 0.8719851576994434, 'language': 'Japanese'}
         except Exception as e:
             logger.exception(e)
-        logger.debug('detect=' + str(detect))
-        if detect['encoding'] != 'ascii':
-            detect['encoding'] = 'UTF-8'
-        elif detect['encoding'] != 'UTF-8':
-            detect['encoding'] = 'CP932'
+        logger.debug('detect=' + str(res))
+        """ ToDo:
+        if res['encoding'] is not None:
+            res['encoding'] = res['encoding'].upper()
+        if res['encoding'] is None or res['encoding'] == 'ASCII' \
+        or res['encoding'] == 'SHIFT_JIS' or res['encoding'] == 'CP932':
+            res['encoding'] = 'CP932'
+        elif res['encoding'] != 'UTF-8':
+            res['encoding'] = 'CP932'
+        """
         try:
-            data = cont.decode(detect['encoding'])
+            data = cont.decode(res['encoding'])
         except Exception as e:
             logger.exception(e)
             data = str(cont)
@@ -384,12 +416,12 @@ class Crawler:
         self.__data_name_dict = {}
         for i, rec in enumerate(data):
             if i >= info['header'] and len(rec) > 0 \
-            and (type(rec[0]) != 'str' or (len(rec[0]) > 0 and rec[0][0] != '#')):
+            and (type(rec[0]) != str or (len(rec[0]) > 0 and rec[0][0] != '#')):
                 name = ''
                 for n in info['name']:
-                    if type(n) == 'int':
+                    if type(n) == int:
                         if len(rec) > n:
-                            name += rec[n]
+                            name += str(rec[n])
                     else:
                         name += str(n)
                 if name in self.__data_name_dict:
@@ -402,23 +434,26 @@ class Crawler:
         for i in range(len(data)):
             if len(data[i]) == 0:
                 continue;
-            if type(data[i][0]) == 'str' and data[i][0][0] == '#':
+            if type(data[i][0]) == str and len(data[i][0]) > 0 and data[i][0][0] == '#':
                 continue;
             if i < info['header']:
                 continue;
             name = ''
             for n in info['name']:
                 if type(n) == int:
-                    name += str(data[i][n])
+                    if len(data[i]) > n:
+                        name += str(data[i][n])
                 else:
                     name += str(n)
-            info_items = {}
+            info_items = []
+            info_items.append({'データセット': info['title']})
             for j in info['info']:
                 if len(data[i]) <= j:
                     continue
                 if data[i][j] == '':
                     continue
-                info_items['item'+('0'+str(j))[-2:]] = {'key': headers[j], 'value': data[i][j]}
+                info_items.append({headers[j]: data[i][j]})
+            # info_items.append({'データセットURL': info['url']})
             error = ''
             no += 1
             id_value = ('000' + str(no))[-4:]
@@ -524,7 +559,7 @@ class Crawler:
         :return: (緯度, 経度, メッセージ)、緯度=float型、経度=float型、メッセージ=str型
         """
         logger = logging.getLogger(__name__)
-        logger.debug('lat_lng_from_data() start.')
+        # logger.debug('lat_lng_from_data() start.')
         # logger.debug('lat_lng_from_data() start, data=' + str(data) + ', info=' + str(info))
         # 実行
         lat = ''
@@ -532,13 +567,14 @@ class Crawler:
         msg = ''
         name = ''
         for n in info['name']:
-            if type(n) == 'int':
+            if type(n) == int:
                 name += str(data[n])
             else:
                 name += str(n)
         if name in self.__data_name_dict \
         and self.__data_name_dict[name] > 1:
             msg += '名称が重複。'
+            logger.debug('名称が重複, name=' + name + ', count=' + str(self.__data_name_dict[name]))
         if info['lat'] == -1 or info['lng'] == -1:
             msg += '緯度・経度が未定義。'
         elif data[info['lat']] == '' or data[info['lng']] == '':
@@ -564,7 +600,7 @@ class Crawler:
                             # 都道ぬ件名が重複指定された場合→加工不要
                             pass
                         else:
-                            param_addr = self.state + self.name + address[len(self.stage):]
+                            param_addr = self.state + self.name + address[len(self.state):]
                 else:
                     if address[:len(self.name)] == self.name:
                         # 住所に市区町村名が含まれている→都道府県名を追加する
@@ -710,7 +746,7 @@ class Crawler:
             if m != '':
                 msg += '経度：' + m
         # 復帰
-        logger.debug('lat_lng_from_data() ended, lat=' + str(lat) + ', lng=' + str(lng) + ', msg=' + msg)
+        # logger.debug('lat_lng_from_data() ended, lat=' + str(lat) + ', lng=' + str(lng) + ', msg=' + msg)
         return (lat, lng, msg)
 
     def string_to_float(self, v_str):
@@ -818,7 +854,11 @@ class Crawler:
                     logger.debug('package=' + package)
                     # パッケージファイルを取得する
                     jpackage = self.get_package_json(package, site)
-                    locality_name = jpackage['result']['groups'][0]['trailing_name']
+                    i_group = 0
+                    if len(jpackage['result']['groups']) > 1:
+                        if jpackage['result']['groups'][0]['id'] == 1:
+                            i_group = 1
+                    locality_name = jpackage['result']['groups'][i_group]['trailing_name']
                     if locality_name not in self.locality_dict:
                         locality_code = site['code']
                     else:
@@ -837,8 +877,8 @@ class Crawler:
                     if dataset_name not in info_list or info_list[dataset_name] == {}:
                         # データセットのマップ情報を作成する
                         info = self.make_map_info(dataset_name, jpackage, site)
-                        if dataset_name in info_list \
-                        and info_list[dataset_name] != info:
+                        if dataset_name not in info_list \
+                        or info_list[dataset_name] != info:
                             info_list[dataset_name] = info
                             info_list_update = True
                     info = info_list[dataset_name]
@@ -945,7 +985,11 @@ class Crawler:
         packages_dir = os.path.join(self.download_dir, 
                 MY_CONFIG['dir_name'].format(code=site['code'], name=site['name']))
         # データセットの所有者
-        locality_name = jpackage['result']['groups'][0]['trailing_name']
+        i_group = 0
+        if len(jpackage['result']['groups']) > 1:
+            if jpackage['result']['groups'][0]['id'] == 1:
+                i_group = 1
+        locality_name = jpackage['result']['groups'][i_group]['trailing_name']
         # 市区町村名から市区町村コードを求める
         if locality_name in self.locality_dict:
             locality_code = self.locality_dict[locality_name]
@@ -1005,6 +1049,9 @@ class Crawler:
         if 'download_url' in resource:
             url = resource['download_url']
         kind = self.get_kind_normalized(dataset_name)
+        if kind is None:
+            logger.debug('kind is not found.')
+            return {}
         info = {
             "title": dataset_name,			# 例：AED設置場所
             "kind": kind,					# 例：AED設置場所
@@ -1219,11 +1266,14 @@ class Crawler:
 
     def get_kind_normalized(self, kind):
         # 正規化種別リストに従って種別を決定する
-        for key in KIND_LIST_NORMALIZED.keys():
-            if kind in KIND_LIST_NORMALIZED[key]:
-                kind = key
-                break
-        return kind
+        n_kind = None
+        for key, value in KIND_LIST_NORMALIZED.items():
+            match = value.search(kind)
+            if match is None:
+                continue
+            n_kind = key
+            break
+        return n_kind
 
     def content_to_mapping_data(self, content, info, file):
         """
@@ -1382,7 +1432,7 @@ def setup_logger(name, level, log_file='crawler.log', log_dir='log'):
     logger.parent.setLevel(level)
     log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     log_handler_format = logging.Formatter(log_format)
-    if type(log_file) is str:
+    if type(log_file) == str:
         # ファイル出力ハンドラ
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
@@ -1418,7 +1468,6 @@ if __name__ == '__main__':
         logger.info(msg)
         print(msg, file=sys.stderr)
         # 取得開始
-        BASE_DIR=os.path.join(os.environ['HOME'], 'github', 'opendatamaps')
         cobj = Crawler()
         names_all = cobj.get_names()
         if args.site_list:

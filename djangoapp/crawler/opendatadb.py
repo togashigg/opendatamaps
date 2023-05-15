@@ -262,9 +262,20 @@ class opendatadb:
                     logger.debug(msg)
                 except psycopg2.errors.UniqueViolation as e:
                     logger.exception(e)
-                    logger.error('sql=' + sql)
+                    logger.error('loading about, file=' + file + ', sql=' + sql)
                     self.conn.rollback()
                     print('ユニークキー例外が発生', file=sys.stderr)
+                except psycopg2.OperationalError as e:
+                    logger.exception(e)
+                    logger.error('loading about, file=' + file)
+                    if len(e.args) > 0 and e.args[0] == 'SSL connection has been closed unexpectedly':
+                        self.conn = None
+                        self.connect()
+                        cur = self.conn.cursor()
+                        logger.warning('DBのコネクションを再接続済')
+                        print('DBへのコネクションが切断され、再接続済', file=sys.stderr)
+                    else:
+                        raise Exception('SQLの実行失敗')
         # 復帰
         logger.debug('load_opendatamaps_dir() ended.')
         return True

@@ -244,7 +244,6 @@ div#close {
 		startTraceCurrentPosition();
 		resizeWindows();
 		readData();
-		showDataList();
 		if(DEBUG) console.log(nowToString()+' initMap() ended');
 	}
 	// データ一覧作成
@@ -257,26 +256,32 @@ div#close {
 		// 種別一覧作成（表示選択）
 		htmlTags='<table><tr>';
 		selected='';
-		htmlTags+='<td><select id="selectKindList" name="selectKindList" style="width:128px;" onChange="selectKind(this.options[this.selectedIndex].value);">\n';
+		htmlTags+='<td nowrap><select id="selectKindList" name="selectKindList" style="width:128px;" onChange="selectKind(this.options[this.selectedIndex].value);">\n';
 		htmlTags+='<option value="-"'+selected+'>(未選択)</option>\n';
 		selected='';
-		let kind_list=myParam.allKinds;
-		if(myParam.locality!='-') {
+		// ToDo: let kind_list=myParam.allKinds;
+		let kind_list=[];
+		if(myParam.locality=='-') {
+			for(let i=0; i<data.length; i++) {
+				kind_list.push(data[i].kind);
+			}
+			kind_list=Array.from(new Set(kind_list)).sort();
+		} else {
 			kind_list=myParam.locality_dict[myParam.locality].kinds;
 		}
 		kind_list.forEach(function(kind) {
 			htmlTags+='<option value="'+kind+'"'+selected+'>'+kind+'</option>\n';
 		});
 		htmlTags+='</select></td>\n';
-		htmlTags+='<td><select name="markCountList" id="markCountList" style="width:64px;" onChange="myParam.count=parseInt(this.options[this.selectedIndex].value,10);delMarkers=true;showMarkers();">\n';
+		htmlTags+='<td nowrap><select name="markCountList" id="markCountList" style="width:64px;" onChange="myParam.count=parseInt(this.options[this.selectedIndex].value,10);delMarkers=true;showMarkers();">\n';
 		htmlTags+='<option value="10">10件</option>\n';
 		htmlTags+='<option value="20">20件</option>\n';
 		htmlTags+='<option value="50">50件</option>\n';
 		htmlTags+='<option value="0">全て</option>\n';
 		htmlTags+='</select></td>\n';
-		htmlTags+='<td><input id="traceButton" type="button" value="'+buttonLabel+'" onClick="toggleTraceButton();" /></td>\n';
-		htmlTags+='<td><input id="settingsButton" type="button" value="☸" onClick="showSettings();" /></td>\n';
-		htmlTags+='<td><span id="centerAddress" style="text-overflow:ellipsis; white-space:nowrap; overflow:hidden; padding:10px;"></span></td>';
+		htmlTags+='<td nowrap><input id="traceButton" type="button" value="'+buttonLabel+'" onClick="toggleTraceButton();" /></td>\n';
+		htmlTags+='<td nowrap><input id="settingsButton" type="button" value="☸" onClick="showSettings();" /></td>\n';
+		htmlTags+='<td nowrap><span id="centerAddress" style="text-overflow:ellipsis; white-space:nowrap; overflow:hidden; padding:10px;"></span></td>';
 		htmlTags+='</tr></table>';
 		operationMenu.innerHTML=htmlTags;
 		document.getElementById("markCountList").querySelector("option[value='"+myParam.count+"']").setAttribute("selected", "selected");
@@ -305,10 +310,10 @@ div#close {
 			kind_list=myParam.locality_dict[myParam.locality].kinds;
 		}
 		kind_list.forEach(function(kind) {
-	   		selected='';
-	   		if(myParam.kind_selected.indexOf(kind) >= 0) {
-	   		    selected=' selected';
-	   		}
+			selected='';
+			if(myParam.kind_selected.indexOf(kind) >= 0) {
+				selected=' checked';
+			}
 			htmlTags+='<input type="checkbox" value="'+kind+'"'+selected+' onclick="clickkindListSelect(this.value, this.checked);" /><label>'+kind+'</label>\n';
 		});
 		kindListSelect.innerHTML=htmlTags;
@@ -337,12 +342,6 @@ div#close {
 			return false;
 		}
 		myParam.mode=mode;
-		readData();
-		delMarkers=true;
-		// 表更新
-		showTable();
-		// マーカー表示
-		showMarkers();
 		if(DEBUG) console.log(nowToString()+' selectMode() ended');
 	}
 	// 自治体選択
@@ -354,8 +353,6 @@ div#close {
 			return false;
 		}
 		myParam.locality=locality;
-		showDataList();
-		readData();
 		if(DEBUG) console.log(nowToString()+' selectLocality() ended');
 		return false;
 	}
@@ -388,17 +385,11 @@ div#close {
 				myParam.kind_selected.push(kind);
 			}
 		} else {
-			kind_index=myParam.kind_selected.indexOf(kind);
+			let kind_index=myParam.kind_selected.indexOf(kind);
 			if(kind_index>=0) {
 				myParam.kind_selected.pop(kind_index);
 			}
 		}
-		readData();
-		delMarkers=true;
-		// 表更新
-		showTable();
-		// マーカー表示
-		showMarkers();
 		if(DEBUG) console.log(nowToString()+' clickkindListSelect() ended');
 		return false;
 	}
@@ -410,13 +401,18 @@ div#close {
 			return false;
 		}
 		myParam.distance=distance;
+		if(DEBUG) console.log(nowToString()+' selectDistance() ended');
+		return false;
+	}
+	// データ更新
+	function updateMapsData() {
 		readData();
 		delMarkers=true;
 		// 表更新
 		showTable();
 		// マーカー表示
 		showMarkers();
-		if(DEBUG) console.log(nowToString()+' selectDistance() ended');
+		// 復帰
 		return false;
 	}
 	// データファイル読み込み
@@ -465,6 +461,7 @@ div#close {
 					data=[];
 					data=dataFromJson(readText);
 					if(DEBUG) console.log(nowToString()+' readData().OK, data.length='+data.length);
+					showDataList();
 					delMarkers=true;
 					// 表更新
 					showTable();
@@ -495,19 +492,21 @@ div#close {
 		let json=JSON.parse(readText);
 		let reg=new RegExp("((https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+))", 'g');
 		for(i=0; i<json.length; i++) {
-			jinfo=JSON.parse(json[i].info);
+			let jinfo=JSON.parse(json[i].info);
 			let infos='';
-			Object.keys(jinfo).forEach(function(key) {
+			jinfo.forEach(function(item) {
 				if(infos!='') {
 					infos+='<BR>';
 				}
-				if(jinfo[key].value!='') {
-					let text=String(jinfo[key].value).replace(reg, function(match) {
+				let key = Object.keys(item)[0];
+				let value = item[key];
+				if(value!='') {
+					let text=String(value).replace(reg, function(match) {
 						return '<a href="' + match + '" target="_blank">' + match + '</a>';
 					});
-					infos+=jinfo[key].key+'：'+text;
+					infos+=key+'：'+text;
 				} else {
-					infos+=jinfo[key].key+'：'+jinfo[key].value;
+					infos+=key+'：'+value;
 				}
 			});
 			no++;
@@ -1024,7 +1023,10 @@ div#close {
 					<tr><td>市区町村名</td><td id="localityData"></td></tr>
 				</table>
 				<div>
-					<center><input type="button" value="クローズ" onClick="closeSettings();" /></center>
+					<center>
+						<input type="button" value="クローズ" onClick="closeSettings();" />&nbsp;&nbsp;&nbsp;
+						<input type="button" value="データ更新" onClick="updateMapsData(); closeSettings();" />
+					</center>
 				</div>
 			</div>
 		</div>
