@@ -309,6 +309,20 @@ div#close {
 		if(myParam.locality!='-') {
 			kind_list=myParam.locality_dict[myParam.locality].kinds;
 		}
+		// ToDo:
+		htmlTags+='<select id="settingsKindList" name="settingsKindList" size="5" multiple style="height:7.6em;" onChange="clickkindListSelect(this);">\n';
+		let id_no=0;
+		kind_list.forEach(function(kind) {
+			let selected='';
+			let checked='□ ';
+			if(myParam.kind_selected.indexOf(kind) >= 0) {
+				selected=' selected';
+				checked='☑ ';
+			}
+			htmlTags+='<option value="'+kind+'"'+selected+'>'+checked+kind+'</option>\n';
+		});
+		htmlTags+='</select>\n';
+/* ToDo:
 		kind_list.forEach(function(kind) {
 			selected='';
 			if(myParam.kind_selected.indexOf(kind) >= 0) {
@@ -316,6 +330,7 @@ div#close {
 			}
 			htmlTags+='<input type="checkbox" value="'+kind+'"'+selected+' onclick="clickkindListSelect(this.value, this.checked);" /><label>'+kind+'</label>\n';
 		});
+*/
 		kindListSelect.innerHTML=htmlTags;
 		// 市区町村選択
 		if(myParam.locality!='-') {
@@ -348,7 +363,7 @@ div#close {
 	function selectLocality(locality) {
 		if(DEBUG) console.log(nowToString()
 				+' selectLocality() start, locality='+locality);
-		if(typeof locality=='undefined' || isNaN(locality)) {
+		if(typeof locality=='undefined') {
 			if(DEBUG) console.log('invalid locality');
 			return false;
 		}
@@ -367,31 +382,34 @@ div#close {
 		// ToDo: readData();
 		delMarkers=true;
 		// 表更新
-		showTable();
+			showTable();
 		// マーカー表示
 		showMarkers();
 		if(DEBUG) console.log(nowToString()+' selectKind() ended');
 		return false;
 	}
 	// 種別選択（検索対象）
-	function clickkindListSelect(kind, checked) {
-		if(DEBUG) console.log(nowToString()+' clickkindListSelect() start, kind='+kind);
-		if(typeof kind=='undefined') {
-			if(DEBUG) console.log('invalid kind');
-			return false;
-		}
-		if(checked) {
-			if(myParam.kind_selected.indexOf(kind) == -1) {
-				myParam.kind_selected.push(kind);
+	function clickkindListSelect(elm) {
+		if(DEBUG) console.log(nowToString()+' clickkindListSelect() start');
+		for(let i=0; i<elm.options.length; i++) {
+			let kind=elm.options[i].value;
+			let text='';
+			if(elm.options[i].selected) {
+				if(myParam.kind_selected.indexOf(kind) == -1) {
+					myParam.kind_selected.push(kind);
+				}
+				text='☑ '+kind;
+			} else {
+				let kind_index=myParam.kind_selected.indexOf(kind);
+				if(kind_index>=0) {
+					myParam.kind_selected.pop(kind_index);
+				}
+				text='□ '+kind;
 			}
-		} else {
-			let kind_index=myParam.kind_selected.indexOf(kind);
-			if(kind_index>=0) {
-				myParam.kind_selected.pop(kind_index);
-			}
+			elm.options[i].text=text;
 		}
 		if(DEBUG) console.log(nowToString()+' clickkindListSelect() ended');
-		return false;
+		return true;
 	}
 	// 近隣距離選択
 	function selectDistance(distance) {
@@ -509,6 +527,7 @@ div#close {
 					infos+=key+'：'+value;
 				}
 			});
+			infos+='<BR>id：' + json[i].id;
 			no++;
 			rec = {
 				no:no,
@@ -602,7 +621,10 @@ div#close {
 						let codeName=getCenterAddress(mapCenter);
 						centerLocalityCode=codeName[0];
 						centerLocalityName=codeName[1];
-						document.getElementById("centerAddress").innerHTML=centerLocalityName;
+						let centerAddress=document.getElementById("centerAddress");
+						if(centerAddress!=null) {
+							centerAddress.innerHTML=centerLocalityName;
+						}
 					}
 				}
 				if(moveCenter) {
@@ -665,6 +687,10 @@ div#close {
 		let rjson=httpGetToJson(url);	// 例：{"results":{"muniCd":"22206","lv01Nm":"文教町二丁目"}}
 		if(rjson!=null) {
 			codeName[0]=codeFromLocalityDict(rjson.results.muniCd);
+			if(!(codeName[0] in myParam.locality_dict)) {
+				console.log(ESCAPE_RED+nowToString()+' ERROR:市区町村コードが見付からない。code='+codeName[0]+ESCAPE_RESET);
+				return ['', ''];
+			}
 			codeName[1]=myParam.locality_dict[codeName[0]].name+rjson.results.lv01Nm;
 		}
 		if (DEBUG) console.log(nowToString()+' getCenterAddress() ended, codeName=['+codeName+']');

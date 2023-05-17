@@ -37,7 +37,7 @@ KIND_LIST_NORMALIZED = {
     '介護サービス事業所': re.compile('介護'),
     '医療機関': re.compile('(病院|医療[^品]|医院|歯科|助産所|健診|応急救護|施術所|診療所)'),
     '文化財': re.compile('文化財'),
-    '観光施設': re.compile('(観光(施設|場所|情報|マップ)|名所|眺望|見所|ブランド|るるぶ)'),
+    '観光施設・場所': re.compile('(観光(施設|場所|情報|マップ)|名所|眺望|見所|ブランド|るるぶ)'),
     '公衆無線LANアクセスポイント': re.compile('((公衆|公共)?無線(LAN|ＬＡＮ)|公衆無線|Wi\-Fi|WiFi)'),
     '公衆トイレ': re.compile('(トイレ|便所)'),
     '消防水利施設': re.compile('(消防水利施設|消火栓|防火水槽)'),
@@ -47,7 +47,7 @@ KIND_LIST_NORMALIZED = {
     '学校・保育施設': re.compile('(学校|こども園|幼稚園|保育|児童館|保育施設|保育所|放課後)'),
     '薬局': re.compile('(薬局|医薬品|医療品)'),
     '駐車場': re.compile('駐車場'),
-    '公園': re.compile('(公園|花壇)'),
+    '公園・花壇': re.compile('(公園|花壇)'),
     '公衆浴場': re.compile('公衆浴場'),
     '防災': re.compile('(防災|救護所|同報無線|飲料水|ヨウ素剤|ため池)'),
     '避難所': re.compile('避難(所|地|場所)'),
@@ -55,7 +55,7 @@ KIND_LIST_NORMALIZED = {
     '投票所': re.compile('投票所'),
     '福祉施設': re.compile('(老人ホーム|生活支援ハウス|交流センター|高齢者相談センター)'),
     '健康': re.compile('健康'),
-    '飲食店・物販': re.compile('(認定店|飲食店|直売所)')
+    '飲食店・販売店': re.compile('(認定店|飲食店|直売所)')
 }
 HEADER_ROWS = 3
 LINKDATA_URL_BASE = 'http://linkdata.org'
@@ -415,6 +415,8 @@ class Crawler:
         # 名称リスト作成
         self.__data_name_dict = {}
         for i, rec in enumerate(data):
+            if len(rec) == 0 or (type(rec[0]) == str and (len(rec[0]) == 0 or rec[0][0] == '#')):
+                continue
             if i >= info['header'] and len(rec) > 0 \
             and (type(rec[0]) != str or (len(rec[0]) > 0 and rec[0][0] != '#')):
                 name = ''
@@ -432,11 +434,9 @@ class Crawler:
         headers = data[info['header']-1]
         no = 0;
         for i in range(len(data)):
-            if len(data[i]) == 0:
-                continue;
-            if type(data[i][0]) == str and len(data[i][0]) > 0 and data[i][0][0] == '#':
-                continue;
             if i < info['header']:
+                continue;
+            if len(data[i]) == 0 or (type(data[i][0]) == str and (len(data[i][0]) == 0 or data[i][0][0] == '#')):
                 continue;
             name = ''
             for n in info['name']:
@@ -842,7 +842,7 @@ class Crawler:
                 hcsv = csv.reader(hf)
                 self.locality_dict = {rec[2]:rec[0] for rec in hcsv if rec[1] == site['name']}
             info_list = {}
-            info_list_file = os.path.join(packages_dir, 'info_list.json')
+            info_list_file = os.path.join(packages_dir, '.info_list.json')
             info_list_update = False
             if os.path.exists(info_list_file):
                 # データセットのマップ情報を読み込む
@@ -874,14 +874,16 @@ class Crawler:
                         print('特定単語を含むデータセットは除外', file=sys.stderr)
                         logger.debug('特定単語を含むデータセットは除外')
                         continue
-                    if dataset_name not in info_list or info_list[dataset_name] == {}:
+                    info_key = self.state + '_' + self.name + '_' + dataset_name
+                    if info_key not in info_list or info_list[info_key] == {}:
                         # データセットのマップ情報を作成する
                         info = self.make_map_info(dataset_name, jpackage, site)
-                        if dataset_name not in info_list \
-                        or info_list[dataset_name] != info:
-                            info_list[dataset_name] = info
+                        if info_key not in info_list \
+                        or info_list[info_key] != info:
+                            info_list[info_key] = info
                             info_list_update = True
-                    info = info_list[dataset_name]
+                    info = info_list[info_key]
+                    logger.debug(info_key + ' info=' + str(info))
                     if info == {}:
                         print('マップ情報不足', file=sys.stderr)
                         logger.debug('マップ情報不足')
@@ -927,7 +929,7 @@ class Crawler:
             # データセットのマップ情報を保存する
             if info_list_update:
                 with open(info_list_file, 'w') as hf:
-                    hf.write(json.dumps(info_list, ensure_ascii=False).replace('}, {', '},\n{'))
+                    hf.write(json.dumps(info_list, ensure_ascii=False).replace('}, "', '},\n"'))
             # geocode検索結果キャッシュを保存
             if self.__geocode_cache_update:
                 cache_json = json.dumps(self.__geocode_cache, ensure_ascii=False).replace('"OK"}, "', '"OK"},\n"')

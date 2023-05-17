@@ -10,6 +10,7 @@ import sys
 import csv
 import json
 import math
+import time
 import psycopg2
 import logging
 
@@ -156,7 +157,7 @@ class opendatadb:
             hcsv = csv.reader(hf)
             with self.conn.cursor() as cur:
                 for i, rec in enumerate(hcsv):
-                    logger.debug('rec['+str(i)+']=' + str(rec))
+                    # logger.debug('rec['+str(i)+']=' + str(rec))
                     if i < 1:
                         continue
                     jdata = {'code': rec[0], 'state_name': rec[1], 'locality_name': rec[2],
@@ -230,7 +231,7 @@ class opendatadb:
                         jrecs = json.loads(fh.read())
                         # logger.debug('jrecs='+jfile+', content='+str(jrecs))
                         for i, rec in enumerate(jrecs):
-                            logger.debug('rec['+str(i)+']=' + str(rec))
+                            # logger.debug('rec['+str(i)+']=' + str(rec))
                             jdata = {'locality_code': rec['locality_code'], 'kind': rec['kind'],
                                     'id': rec['id'], 'label': rec['label'],
                                     'lat': rec['lat'], 'lng': rec['lng'],
@@ -262,14 +263,15 @@ class opendatadb:
                     logger.debug(msg)
                 except psycopg2.errors.UniqueViolation as e:
                     logger.exception(e)
-                    logger.error('loading about, file=' + file + ', sql=' + sql)
+                    logger.error('loading about, sql=' + sql)
                     self.conn.rollback()
                     print('ユニークキー例外が発生', file=sys.stderr)
                 except psycopg2.OperationalError as e:
                     logger.exception(e)
-                    logger.error('loading about, file=' + file)
+                    logger.error('loading about, e.args=' + str(e.args))
                     if len(e.args) > 0 and e.args[0] == 'SSL connection has been closed unexpectedly':
                         self.conn = None
+                        time.sleep(5)
                         self.connect()
                         cur = self.conn.cursor()
                         logger.warning('DBのコネクションを再接続済')
