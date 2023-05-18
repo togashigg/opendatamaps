@@ -1354,11 +1354,13 @@ class Crawler:
                 row_value = []
                 for col in range(excel_sheet.ncols):
                     v = excel_sheet.cell(row, col).value
-                    if isinstance(v, datetime.time):
+                    if v is None:
+                        v = ''
+                    elif isinstance(v, datetime.time):
                         v = str(v)
                         if v[-3:] == ':00':
                             v = v[:-3]
-                    if isinstance(v, datetime.datetime):
+                    elif isinstance(v, datetime.datetime):
                         v = str(v)
                         if v[-9:] == ' 00:00:00':
                             v = v[:-9]
@@ -1395,11 +1397,13 @@ class Crawler:
                 row_value = []
                 for cell in row:
                     v = cell.value
-                    if isinstance(v, datetime.time):
+                    if v is None:
+                        v = ''
+                    elif isinstance(v, datetime.time):
                         v = str(v)
                         if v[-3:] == ':00':
                             v = v[:-3]
-                    if isinstance(v, datetime.datetime):
+                    elif isinstance(v, datetime.datetime):
                         v = str(v)
                         if v[-9:] == ' 00:00:00':
                             v = v[:-9]

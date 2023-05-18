@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<!-- Copyright (C) N.Togashi 2023 -->
 	<!-- opendatamaps v01 -->
-	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
 	<title>オープンデータ on Google Maps</title>
 	<script defer type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZa9fI3N-L1OHnkiaGQODmOcPRP-HaWlA&callback=initMap"></script>
@@ -243,7 +243,6 @@ div#close {
 		myMap=new google.maps.Map(gmapTag, options);
 		startTraceCurrentPosition();
 		resizeWindows();
-		readData();
 		if(DEBUG) console.log(nowToString()+' initMap() ended');
 	}
 	// データ一覧作成
@@ -259,7 +258,6 @@ div#close {
 		htmlTags+='<td nowrap><select id="selectKindList" name="selectKindList" style="width:128px;" onChange="selectKind(this.options[this.selectedIndex].value);">\n';
 		htmlTags+='<option value="-"'+selected+'>(未選択)</option>\n';
 		selected='';
-		// ToDo: let kind_list=myParam.allKinds;
 		let kind_list=[];
 		if(myParam.locality=='-') {
 			for(let i=0; i<data.length; i++) {
@@ -280,8 +278,8 @@ div#close {
 		htmlTags+='<option value="0">全て</option>\n';
 		htmlTags+='</select></td>\n';
 		htmlTags+='<td nowrap><input id="traceButton" type="button" value="'+buttonLabel+'" onClick="toggleTraceButton();" /></td>\n';
-		htmlTags+='<td nowrap><input id="settingsButton" type="button" value="☸" onClick="showSettings();" /></td>\n';
-		htmlTags+='<td nowrap><span id="centerAddress" style="text-overflow:ellipsis; white-space:nowrap; overflow:hidden; padding:10px;"></span></td>';
+		htmlTags+='<td nowrap><input id="settingsButton" type="button" value="☸" onClick="showSettings();" style="width:2em;" /></td>\n';
+		// htmlTags+='<td colspan="4" nowrap><span id="centerAddress" style="text-overflow:ellipsis; white-space:nowrap; overflow:hidden; padding:10px;"></span></td>';
 		htmlTags+='</tr></table>';
 		operationMenu.innerHTML=htmlTags;
 		document.getElementById("markCountList").querySelector("option[value='"+myParam.count+"']").setAttribute("selected", "selected");
@@ -309,7 +307,7 @@ div#close {
 		if(myParam.locality!='-') {
 			kind_list=myParam.locality_dict[myParam.locality].kinds;
 		}
-		// ToDo:
+		// ToDo: 複数選択リストボックスとチェックボックスのどちらが良いか？
 		htmlTags+='<select id="settingsKindList" name="settingsKindList" size="5" multiple style="height:7.6em;" onChange="clickkindListSelect(this);">\n';
 		let id_no=0;
 		kind_list.forEach(function(kind) {
@@ -379,7 +377,6 @@ div#close {
 			return false;
 		}
 		myParam.kind=kind;
-		// ToDo: readData();
 		delMarkers=true;
 		// 表更新
 			showTable();
@@ -437,10 +434,6 @@ div#close {
 	function readData() {
 		if(DEBUG) console.log(nowToString()+' readData() start');
 		myMap.setOptions({ draggableCursor: 'progress' });
-		return readDataRetry(httpRetryMax);
-	}
-	function readDataRetry(retry) {
-		if(DEBUG) console.log(nowToString()+' readDataRetry() start, retry='+retry);
 		data=[];
 		let kinds='';
 		if(myParam.kind_selected.length>0) {
@@ -468,6 +461,10 @@ div#close {
 		}
 		url+=kinds;
 		console.log('url='+url);
+		return readDataRetry(url, httpRetryMax);
+	}
+	function readDataRetry(url, retry) {
+		if(DEBUG) console.log(nowToString()+' readDataRetry() start, retry='+retry);
 		let httpObj=new XMLHttpRequest();
 		var httpRetryCount=retry;
 		httpObj.open("GET", url, true);	// 非同期
@@ -604,6 +601,7 @@ div#close {
 					if(myParam.mode == 'center') {
 						if(mapCenterPrev10==null) {
 							getAddress=true;
+							rereadData=true;
 						} else 
 						if(Math.floor(mapCenter.lat()*1000)/1000!=mapCenterPrev10.lat()
 						|| Math.floor(mapCenter.lng()*1000)/1000!=mapCenterPrev10.lng()) {
@@ -757,7 +755,7 @@ div#close {
 						icon: 'https://chart.googleapis.com/chart?chst=d_map_spin&chld=0.8|0|FF4F4F|14|b|'+dataTable[no].no,
 						scaledSize: new google.maps.Size(80, 80)
 					}));
-				// ToDo:		icon: 'https://chart.googleapis.com/chart?chst=d_map_pin_letter&chld='+dataTable[no].no+'|FF4F4F|000000',
+					// ToDo:	icon: 'https://chart.googleapis.com/chart?chst=d_map_pin_letter&chld='+dataTable[no].no+'|FF4F4F|000000',
 				dispInfo(markers[markers.length-1], dataTable[no].label);
 				if(myParam.count>0 && (no+1)>=myParam.count) {
 					break;
@@ -812,19 +810,18 @@ div#close {
 		tableTags+='<table id="list" border="1">';
 		tableTags+='<tbody>';
 		tableTags+='<tr><th>ﾙｰﾄ</th>';
+		let colspan='';
 		if(showKind) {
 			tableTags+='<th>分類</th>';
+			colspan=' colspan="2"';
 		}
-		tableTags+='<th>名称</th><th nowrap>直線距離(m)</th>';
+		tableTags+='<th>名称</th><th nowrap>直線距離</th>';
 		if(showLocation) {
 			tableTags+='<th>緯度</th><th>経度</th>';
 		}
 		tableTags+='</tr>';
 		tableTags+='<tr onClick="showDetail(-1);">';
-		if(showKind) {
-			tableTags+='<td>−</td>';
-		}
-		tableTags+='<td>−</td><td>現在地</td><td align="RIGHT">0</td>';
+		tableTags+='<td>−</td><td'+colspan+'>現在地：<span id="centerAddress">'+centerLocalityName+'</span></td><td align="RIGHT">0</td>';
 		if(showLocation) {
 			tableTags+='<td>'+Math.round(mapCenter.lat()*1000000)/1000000+'</td><td>'+Math.round(mapCenter.lng()*1000000)/1000000+'</td>';
 		}
@@ -873,13 +870,13 @@ div#close {
 		}
 		detail+='</table>\n';
 		divTag.innerHTML=detail;
-		divTag=document.getElementById("popupDitail");
+		divTag=document.getElementById("popupDetail");
 		divTag.style.display="block";
 		if(DEBUG) console.log(nowToString()+' showDetail() ended');
 	}
 	function closeDetail() {
 		if(DEBUG) console.log(nowToString()+' closeDetail() start');
-		var divTag=document.getElementById("popupDitail");
+		var divTag=document.getElementById("popupDetail");
 		divTag.style.display="none";
 		if(DEBUG) console.log(nowToString()+' closeDetail() ended');
 	}
@@ -1009,8 +1006,8 @@ div#close {
 				</div>
 			</fieldset>
 		</div>
-		<div id="modalDitail">
-			<div id="popupDitail" class="modalWindow">
+		<div id="modalDetail">
+			<div id="popupDetail" class="modalWindow">
 				<table border="0" class="modalTitle">
 					<tr>
 						<th width="80%">詳細情報</th>
