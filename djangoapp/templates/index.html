@@ -157,7 +157,8 @@ div#close {
 		let myUrlParams=myUrl.searchParams;
 		let myParam={locality_list: null, datalist: null, 
 				mode: myInitialMode, locality: myInitialLocality, kind: myInitialKind,
-				distance: myInitialDistance, count: myInitialCount, kind_selected: []};
+				distance: myInitialDistance, count: myInitialCount,
+				kind_selected: [], not_kind_selected: ['消防水利施設']};
 		myParam.mode=myUrlParams.get('mode');	// 動作モード：center=近隣施設、code=市区町村単位の施設
 		myParam.locality=myUrlParams.get('locality');	// 市区町村コード、例：22206
 		myParam.kind=myUrlParams.get('kind');	// 種別、例：公衆トイレ
@@ -278,7 +279,7 @@ div#close {
 		htmlTags+='<option value="0">全て</option>\n';
 		htmlTags+='</select></td>\n';
 		htmlTags+='<td nowrap><input id="traceButton" type="button" value="'+buttonLabel+'" onClick="toggleTraceButton();" /></td>\n';
-		htmlTags+='<td nowrap><input id="settingsButton" type="button" value="☸" onClick="showSettings();" style="width:2em;" /></td>\n';
+		htmlTags+='<td nowrap><input id="settingsButton" type="button" value="☸" onClick="showSettings();" style="width:3em;" /></td>\n';
 		// htmlTags+='<td colspan="4" nowrap><span id="centerAddress" style="text-overflow:ellipsis; white-space:nowrap; overflow:hidden; padding:10px;"></span></td>';
 		htmlTags+='</tr></table>';
 		operationMenu.innerHTML=htmlTags;
@@ -330,6 +331,27 @@ div#close {
 		});
 */
 		kindListSelect.innerHTML=htmlTags;
+		// 除外種別一覧作成（検索条件）
+		let notKindListSelect=document.getElementById("notKindListSelect");
+		htmlTags='';
+		kind_list=myParam.allKinds;
+		if(myParam.locality!='-') {
+			kind_list=myParam.locality_dict[myParam.locality].kinds;
+		}
+		// ToDo: 複数選択リストボックスとチェックボックスのどちらが良いか？
+		htmlTags+='<select id="settingsNotKindList" name="settingsNotKindList" size="5" multiple style="height:7.6em;" onChange="clickNotkindListSelect(this);">\n';
+		id_no=0;
+		kind_list.forEach(function(kind) {
+			let selected='';
+			let checked='□ ';
+			if(myParam.not_kind_selected.indexOf(kind) >= 0) {
+				selected=' selected';
+				checked='☑ ';
+			}
+			htmlTags+='<option value="'+kind+'"'+selected+'>'+checked+kind+'</option>\n';
+		});
+		htmlTags+='</select>\n';
+		notKindListSelect.innerHTML=htmlTags;
 		// 市区町村選択
 		if(myParam.locality!='-') {
 			document.getElementById("selectLocalityList").querySelector("option[value='"+myParam.locality+"']").setAttribute("selected", "selected");
@@ -408,6 +430,29 @@ div#close {
 		if(DEBUG) console.log(nowToString()+' clickkindListSelect() ended');
 		return true;
 	}
+	// 除外種別選択（検索対象）
+	function clickNotkindListSelect(elm) {
+		if(DEBUG) console.log(nowToString()+' clickNotkindListSelect() start');
+		for(let i=0; i<elm.options.length; i++) {
+			let kind=elm.options[i].value;
+			let text='';
+			if(elm.options[i].selected) {
+				if(myParam.not_kind_selected.indexOf(kind) == -1) {
+					myParam.not_kind_selected.push(kind);
+				}
+				text='☑ '+kind;
+			} else {
+				let kind_index=myParam.not_kind_selected.indexOf(kind);
+				if(kind_index>=0) {
+					myParam.not_kind_selected.pop(kind_index);
+				}
+				text='□ '+kind;
+			}
+			elm.options[i].text=text;
+		}
+		if(DEBUG) console.log(nowToString()+' clickNotkindListSelect() ended');
+		return true;
+	}
 	// 近隣距離選択
 	function selectDistance(distance) {
 		if(DEBUG) console.log(nowToString()+' selectDistance() start, distance='+distance);
@@ -442,6 +487,18 @@ div#close {
 			myParam.kind_selected.forEach(function(kind) {
 				kinds+=sep;
 				kinds+=kind;
+				sep=',';
+			});
+		}
+		if(myParam.not_kind_selected.length>0) {
+			let sep=',';
+			if(kinds=='') {
+				kinds='&kind=';
+				sep='';
+			}
+			myParam.not_kind_selected.forEach(function(kind) {
+				kinds+=sep;
+				kinds+='!'+kind;
 				sep=',';
 			});
 		}
@@ -485,9 +542,9 @@ div#close {
 					myMap.setOptions({ draggableCursor: 'hand' });
 				} else {
 					if(httpRetryCount>0) {
-						console.log(ESCAPE_RED+'error in HTTP GET(1) '+httpGetUrl+', retryCount='+httpRetryCount+', httpObj='+JSON.stringify(httpObj)+ESCAPE_RESET);
+						console.log(ESCAPE_RED+'error in HTTP GET(1) '+url+', retryCount='+httpRetryCount+', httpObj='+JSON.stringify(httpObj)+ESCAPE_RESET);
 						httpRetryCount--;
-						setTimeout(readDataRetry(httpRetryCount), 3000);
+						setTimeout(readDataRetry(url,httpRetryCount), 3000);
 					} else {
 						alert('データファイルの読み込みに失敗.\n'+url+'\nstatus='+httpObj.status+')。');
 						myMap.setOptions({ draggableCursor: 'hand' });
@@ -509,6 +566,7 @@ div#close {
 		for(i=0; i<json.length; i++) {
 			let jinfo=JSON.parse(json[i].info);
 			let infos='';
+			infos+='データセット：'+json[i].dataset;
 			jinfo.forEach(function(item) {
 				if(infos!='') {
 					infos+='<BR>';
@@ -1043,6 +1101,7 @@ div#close {
 						</select>
 						</td></tr>
 					<tr><td>種別</td><td id="kindListSelect"></td></tr>
+					<tr><td>種別(除外)</td><td id="notKindListSelect"></td></tr>
 					<tr><td>市区町村名</td><td id="localityData"></td></tr>
 				</table>
 				<div>

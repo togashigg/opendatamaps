@@ -98,20 +98,21 @@ class opendatadb:
             # opendatamapsテーブルを作成する
             sql = '''CREATE TABLE opendatamaps (
                       locality_code CHAR(6) NOT NULL,
-                      kind     VARCHAR(64) NOT NULL,
+                      kind     VARCHAR(60) NOT NULL,
+                      dataset  VARCHAR(90) NOT NULL,
                       id       VARCHAR(16) NOT NULL,
                       label    VARCHAR(128) NOT NULL,
                       lat      FLOAT NOT NULL,
                       lng      FLOAT NOT NULL,
                       info     TEXT,
-                      CONSTRAINT opendatamaps_pkey PRIMARY KEY (locality_code, kind, id, label)
+                      CONSTRAINT opendatamaps_pkey PRIMARY KEY (locality_code, dataset, id, label)
                   );
                   '''
             # SQL実行
             cur.execute(sql)
             cur.close()
             logger.debug('TABLE(opendatamaps) created.')
-        if False:
+        if True:
             with self.conn.cursor() as cur:
                 # インデックスを作成する
                 sql = '''CREATE INDEX opendatamaps_index1 ON opendatamaps (
@@ -186,7 +187,7 @@ class opendatadb:
         msg = 'opendatamapsテーブルにデータをロードします。'
         logger.info(msg)
         print(msg, file=sys.stderr)
-        for dir in os.listdir(self.cache_dir):
+        for dir in sorted(os.listdir(self.cache_dir)):
             if dir[0] == '.':
                 continue
             msg = 'dir=' + dir
@@ -212,10 +213,11 @@ class opendatadb:
             return False
         # opendatamapsテーブルにJSON形式データをロードする
         sql_insert = "INSERT INTO opendatamaps" \
-                + " (locality_code, kind, id, label, lat, lng, info)" \
-                + " VALUES ('{locality_code}',{ekind}'{kind}','{id}'," \
+                + " (locality_code, kind, dataset, id, label, lat, lng, info)" \
+                + " VALUES ('{locality_code}',{ekind}'{kind}'," \
+                + "{edataset}'{dataset}','{id}'," \
                 + "{elabel}'{label}',{lat},{lng},{einfo}'{info}');"
-        for file in os.listdir(dir):
+        for file in sorted(os.listdir(dir)):
             if file[0] == '.':
                 continue
             msg = 'loading file=' + file
@@ -233,11 +235,12 @@ class opendatadb:
                         for i, rec in enumerate(jrecs):
                             # logger.debug('rec['+str(i)+']=' + str(rec))
                             jdata = {'locality_code': rec['locality_code'], 'kind': rec['kind'],
+                                    'dataset': rec['dataset'],
                                     'id': rec['id'], 'label': rec['label'],
                                     'lat': rec['lat'], 'lng': rec['lng'],
                                     'info': json.dumps(rec['info'], ensure_ascii=False),
-                                    'ekind': '', 'elabel': '', 'einfo': ''}
-                            for key in ['kind', 'label', 'info']:
+                                    'ekind': '', 'edataset': '', 'elabel': '', 'einfo': ''}
+                            for key in ['kind', 'dataset', 'label', 'info']:
                                 ev = jdata[key].replace('\\','\\\\').replace("'","\\'")
                                 if ev != jdata[key]:
                                     jdata['e'+key] = 'E'
@@ -269,7 +272,7 @@ class opendatadb:
                 except psycopg2.OperationalError as e:
                     logger.exception(e)
                     logger.error('loading about, e.args=' + str(e.args))
-                    if len(e.args) > 0 and e.args[0] == 'SSL connection has been closed unexpectedly':
+                    if len(e.args) > 0 and e.args[0] == 'SSL connection has been closed unexpectedly\n':
                         self.conn = None
                         time.sleep(5)
                         self.connect()
@@ -295,7 +298,7 @@ class opendatadb:
             if dir == 'localitycode' or dir == 'opendatamaps':
                 continue
             dir_list.append(dir.split('/'))
-        for dir1 in os.listdir(self.cache_dir):
+        for dir1 in sorted(os.listdir(self.cache_dir)):
             if dir1[0] == '.':
                 continue
             logger.debug('dir1=' + dir1)
@@ -315,7 +318,7 @@ class opendatadb:
             dir1_path = os.path.join(self.cache_dir, dir1)
             if not os.path.isdir(dir1_path):
                 continue
-            for dir2 in os.listdir(os.path.join(dir1_path)):
+            for dir2 in sorted(os.listdir(os.path.join(dir1_path))):
                 if dir2[0] == '.':
                     continue
                 logger.debug('dir2=' + dir2)
@@ -480,7 +483,12 @@ class opendatadb:
             if adding != '(':
                 sel_dict['codes'] += ")"
         if kinds is not None:
-            sel_dict['kinds'] = "kind IN " + "('" + "','".join(kinds) + "')"
+            in_kinds = [k for k in kinds if k[0] != '!']
+            not_in_kinds = [k[1:] for k in kinds if [k[0] == '!' and len(k) > 1]
+            if len(in_kinds) > 0:
+                sel_dict['kinds'] = "AND kind IN " + "('" + "','".join(in_kinds) + "')"
+            if len(not_in_kinds) > 0:
+                sel_dict['kinds'] = "AND kind NOT IN " + "('" + "','".join(not_in_kinds) + "')"
         if sel_dict['codes'] != '' and sel_dict['kinds'] != '':
             sel_dict['AND'] = ' AND '
         if limit is not None and limit > 0:
@@ -536,7 +544,12 @@ class opendatadb:
                 + " WHERE lat BETWEEN {lat_start} AND {lat_end} AND lng BETWEEN {lng_start} AND {lng_end}" \
                 + " {kinds} LIMIT {limit};"
         if kinds is not None:
-            sel_dict['kinds'] = "AND kind IN " + "('" + "','".join(kinds) + "')"
+            in_kinds = [k for k in kinds if k[0] != '!']
+            not_in_kinds = [k[1:] for k in kinds if [k[0] == '!' and len(k) > 1]
+            if len(in_kinds) > 0:
+                sel_dict['kinds'] = "AND kind IN " + "('" + "','".join(in_kinds) + "')"
+            if len(not_in_kinds) > 0:
+                sel_dict['kinds'] = "AND kind NOT IN " + "('" + "','".join(not_in_kinds) + "')"
         if limit is None:
             limit = QUERY_LIMIT
         with self.conn.cursor() as cur:

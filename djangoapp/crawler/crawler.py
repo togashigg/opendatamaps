@@ -12,7 +12,6 @@ import csv
 import json
 import pathlib
 import requests
-# ToDo: import chardet
 from charset_normalizer import detect
 import unicodedata
 import openpyxl
@@ -197,26 +196,29 @@ class Crawler:
                 file = info['url'].split('/')[-1]
                 file_cache = str(pathlib.Path(file).with_suffix('.json'))
                 if self.exists_in_cache(file_cache):
-                    msg = info['title'] + '：' + file_cache + ' 取得済'
+                    msg = info['dataset'] + '：' + file_cache + ' 取得済'
                     logger.info(msg)
                     print(msg, file=sys.stderr)
                 else:
-                    msg = info['title'] + '：' + file + ' 取得開始'
+                    msg = info['dataset'] + '：' + file + ' 取得開始'
                     logger.info(msg)
                     print(msg, file=sys.stderr, end=' ... ')
                     content = self.url_get(info['url'], file)
-                    print('変換開始', file=sys.stderr, end=' ... ')
-                    if info['format'] in ['CSV', 'TEXT', 'TXT', 'TSV']:
-                        content = self.convert_to_utf8(content)
                     if content is None:
-                        print('形式誤り', file=sys.stderr)
+                        print('データ取得失敗', file=sys.stderr)
                     else:
-                        download_path = os.path.join(self.download_dir, file)
-                        map_data = self.convert_to_mapping_data(content, info, download_path)
-                        print('保存開始', file=sys.stderr, end=' ... ')
-                        self.save_to_cache(map_data, file_cache)
-                        logger.info(info['title'] + ' 取得完了')
-                        print('取得完了', file=sys.stderr)
+                        print('変換開始', file=sys.stderr, end=' ... ')
+                        if info['format'] in ['CSV', 'TEXT', 'TXT', 'TSV']:
+                            content = self.convert_to_utf8(content)
+                        if content is None:
+                            print('形式誤り', file=sys.stderr)
+                        else:
+                            download_path = os.path.join(self.download_dir, file)
+                            map_data = self.convert_to_mapping_data(content, info, download_path)
+                            print('保存開始', file=sys.stderr, end=' ... ')
+                            self.save_to_cache(map_data, file_cache)
+                            logger.info(info['dataset'] + ' 取得完了')
+                            print('取得完了', file=sys.stderr)
         except Exception as e:
             logger.exception(e)
             rc = 99
@@ -321,6 +323,8 @@ class Crawler:
         except Exception as e:
             logger.exception(e)
         logger.debug('detect=' + str(res))
+        if res['encoding'] is None:
+            res['encoding'] = 'CP932'
         """ ToDo:
         if res['encoding'] is not None:
             res['encoding'] = res['encoding'].upper()
@@ -446,7 +450,6 @@ class Crawler:
                 else:
                     name += str(n)
             info_items = []
-            info_items.append({'データセット': info['title']})
             for j in info['info']:
                 if len(data[i]) <= j:
                     continue
@@ -462,6 +465,9 @@ class Crawler:
                     id_value = data[i][info['id']]
             else:
                 error += 'id未設定。'
+            loc_name = self.state + self.name
+            if self.state == self.name:
+                loc_name = self.name
             address = ''
             if info['address'] >= 0 and len(data[i]) > info['address']:
                 address = data[i][info['address']]
@@ -469,8 +475,9 @@ class Crawler:
             data_value = {
                     "id": id_value,
                     "locality_code": self.code,
-                    "locality_name": self.state + self.name,
+                    "locality_name": loc_name,
                     "kind": info['kind'],
+                    "dataset": info['dataset'],
                     "label": name,
                     "lat": lat,
                     "lng": lng,
@@ -584,7 +591,6 @@ class Crawler:
             lng = data[info['lng']]
 
         if lat == '' or lng == '':
-            # ToDo: msg += '名称から取得できず。'
             # 住所から緯度・経度を取得する
             if address == '':
                 msg += '住所未設定。'
@@ -621,9 +627,12 @@ class Crawler:
                     else:
                         geo_url = self.__geocode_url.format(address=param_addr, key=self.__google_maps_api_key)
                         content = self.url_get(geo_url, None, cache=False)
-                        result = json.loads(content)
-                        self.__geocode_cache[param_addr] = result
-                        self.__geocode_cache_update = True
+                        if content is None:
+                            result = {'status': 'NG'}
+                        else:
+                            result = json.loads(content)
+                            self.__geocode_cache[param_addr] = result
+                            self.__geocode_cache_update = True
                 logger.debug(param_addr + '：' + str(result))
                 if result['status'] == 'OK':
                     if len(result['results']) == 1:
@@ -663,9 +672,12 @@ class Crawler:
                 else:
                     geo_url = self.__geocode_url.format(address=param_name, key=self.__google_maps_api_key)
                     content = self.url_get(geo_url, None, cache=False)
-                    result = json.loads(content)
-                    self.__geocode_cache[param_name] = result
-                    self.__geocode_cache_update = True
+                    if content is None:
+                        result = {'status': 'NG'}
+                    else:
+                        result = json.loads(content)
+                        self.__geocode_cache[param_name] = result
+                        self.__geocode_cache_update = True
             logger.debug(param_name + '：' + str(result))
             if result['status'] == 'OK':
                 for res in result['results']:
@@ -854,21 +866,21 @@ class Crawler:
                     logger.debug('package=' + package)
                     # パッケージファイルを取得する
                     jpackage = self.get_package_json(package, site)
-                    i_group = 0
-                    if len(jpackage['result']['groups']) > 1:
-                        if jpackage['result']['groups'][0]['id'] == 1:
-                            i_group = 1
-                    locality_name = jpackage['result']['groups'][i_group]['trailing_name']
-                    if locality_name not in self.locality_dict:
-                        locality_code = site['code']
-                    else:
-                        locality_code = self.locality_dict[locality_name]
+                    if 'result' not in jpackage:
+                        print(str(pkg_i+1) + '/' + str(len(jpackages['result'])) \
+                                + '：不正なパッケージ', file=sys.stderr)
+                        logger.debug('不正なパッケージ')
+                        continue
+                    locality_name, locality_code = self.get_locality_from_package(jpackage, site['code'])
                     self.name = locality_name
                     self.code = locality_code
                     print(str(pkg_i+1) + '/' + str(len(jpackages['result'])) + '：' \
                             + locality_code + locality_name + '：', file=sys.stderr, end='')
                     # データセットのマップ情報を確認する
                     dataset_name = jpackage['result']['name']
+                    if 'title' in jpackage['result']:
+                        if len(jpackage['result']['title']) <= 128:
+                            dataset_name = jpackage['result']['title']
                     print(dataset_name + '：', file=sys.stderr, end='')
                     if any([dataset_name.find(w)>=0 for w in IGNORE_WORD_IN_DATASET_NAME]):
                         print('特定単語を含むデータセットは除外', file=sys.stderr)
@@ -903,6 +915,9 @@ class Crawler:
                         os.mkdir(dataset_dir)
                     dataset_path = os.path.join(dataset_dir, info['file'])
                     content = self.url_get(info['url'], info['file'], dir=dataset_dir)
+                    if content is None:
+                        print('データセット取得失敗', file=sys.stderr)
+                        continue
                     print('データセット取得済：', file=sys.stderr, end='')
                     # 必要ならコード変換を行う
                     if info['format'] in ['CSV', 'TEXT', 'TXT', 'TSV']:
@@ -940,10 +955,51 @@ class Crawler:
         logger.debug('download_datasets_in_site() ended')
         return rc
 
+    def get_locality_from_package(self, jpackage, default_code):
+        """
+        """
+        logger = logging.getLogger(__name__)
+        logger.debug('get_locality_from_package() start')
+        locality_name = ''
+        locality_code = ''
+        if ('groups' not in jpackage['result'] \
+          or len(jpackage['result']['groups']) < 1) \
+        and ('areas' not in jpackage['result'] \
+          or len(jpackage['result']['areas']) < 1) \
+        and ('organization' not in jpackage['result'] \
+          or len(jpackage['result']['organization']) < 1):
+            locality_name = self.state
+        else:
+            if 'groups' in jpackage['result'] \
+            and len(jpackage['result']['groups']) > 0:
+                i_group = 0
+                if len(jpackage['result']['groups']) > 1:
+                    if jpackage['result']['groups'][0]['id'] == 1:
+                        i_group = 1
+                if 'trailing_name' in jpackage['result']['groups'][i_group]:
+                    locality_name = jpackage['result']['groups'][i_group]['trailing_name']
+                    if locality_name == jpackage['result']['groups'][i_group]['name'].split('/')[0]:
+                        locality_name = jpackage['result']['areas'][0]['name']
+            if locality_name == '' \
+            and 'areas' in jpackage['result']:
+                locality_name = jpackage['result']['areas'][0]['name']
+            if locality_name == '' \
+            and 'organization' in jpackage['result']:
+                locality_name = jpackage['result']['organization']['name']
+            else:
+                locality_name = self.state
+        if locality_name not in self.locality_dict:
+            locality_code = default_code
+        else:
+            locality_code = self.locality_dict[locality_name]
+        logger.debug('get_locality_from_package() ended, locality_name=' + locality_name + ', locality_code=' + locality_code)
+        return locality_name, locality_code
+
     def get_package_list(self, site):
         # パッケージリストを取得する
         logger = logging.getLogger(__name__)
         logger.debug('get_package_list() start, site=' + str(site))
+        jpackages = []
         packages_dir = os.path.join(self.download_dir, 
                 MY_CONFIG['dir_name'].format(code=site['code'], name=site['name']))
         if not os.path.exists(packages_dir):
@@ -952,7 +1008,8 @@ class Crawler:
         packages_file = 'package_list.json'
         url = site['api_url'] + 'package_list'
         content = self.url_get(url, packages_file, dir=packages_dir)
-        jpackages = json.loads(content)
+        if content is not None:
+            jpackages = json.loads(content)
         # 復帰
         logger.debug('get_package_list() ended')
         return jpackages
@@ -962,19 +1019,21 @@ class Crawler:
         logger = logging.getLogger(__name__)
         logger.debug('get_package_json() start, package=' + str(package))
         # 実行
+        jpackage = {}
         packages_dir = os.path.join(self.download_dir, 
                 MY_CONFIG['dir_name'].format(code=site['code'], name=site['name']))
         package_file = package+'.package'
         url = site['api_url'] + 'package_show?id=' + package
         content = self.url_get(url, package_file, dir=packages_dir)
-        jpackage = json.loads(content)
-        logger.debug('jpackage=' + str(jpackage))
-        if not jpackage['success']:
-            logger.error('ERROR: error in result, result=' + str(jpackage))
-            raise Exception('msg:パッケージ取得失敗：' + str(jpackage))
-        if jpackage['result']['type'] != 'dataset':
-            logger.error('ERROR: error in dataset type, type=' + jpackage['result']['type'])
-            raise Exception('msg:datasetを含まないパッケージ：' + str(jpackage))
+        if content is not None:
+            jpackage = json.loads(content)
+            logger.debug('jpackage=' + str(jpackage))
+            if not jpackage['success']:
+                logger.error('ERROR: error in result, result=' + str(jpackage))
+                raise Exception('msg:パッケージ取得失敗：' + str(jpackage))
+            if jpackage['result']['type'] != 'dataset':
+                logger.error('ERROR: error in dataset type, type=' + jpackage['result']['type'])
+                raise Exception('msg:datasetを含まないパッケージ：' + str(jpackage))
         # 復帰
         logger.debug('get_package_json() ended')
         return jpackage
@@ -987,17 +1046,7 @@ class Crawler:
         packages_dir = os.path.join(self.download_dir, 
                 MY_CONFIG['dir_name'].format(code=site['code'], name=site['name']))
         # データセットの所有者
-        i_group = 0
-        if len(jpackage['result']['groups']) > 1:
-            if jpackage['result']['groups'][0]['id'] == 1:
-                i_group = 1
-        locality_name = jpackage['result']['groups'][i_group]['trailing_name']
-        # 市区町村名から市区町村コードを求める
-        if locality_name in self.locality_dict:
-            locality_code = self.locality_dict[locality_name]
-        else:
-            locality_code = site['code']
-        logger.debug('自治体：code=' + locality_code + ', name=' + locality_name)
+        logger.debug('自治体：code=' + self.code + ', name=' + self.name)
         # データセットの形式確認：CSV>TEXT>TXT>TSV>XLS>XLSX
         formats_fi = [(jpackage['result']['resources'][i]['format'],i) for i in range(len(jpackage['result']['resources']))]
         formats_f = [v[0] for v in formats_fi]
@@ -1009,7 +1058,8 @@ class Crawler:
                 for f, i in formats_fi:
                     if f == 'CSV':
                         if 'mimetype' in jpackage['result']['resources'][i]:
-                            if jpackage['result']['resources'][i]['mimetype'] == 'application/csv':
+                            if jpackage['result']['resources'][i]['mimetype'] == 'application/csv' \
+                            or jpackage['result']['resources'][i]['mimetype'] is None:
                                 fi = i
                                 break
                         else:
@@ -1035,10 +1085,12 @@ class Crawler:
         if 'filename' in resource:
             if resource['filename'] is not None and resource['filename'] != '':
                 dataset_file = resource['filename']
+        if len(dataset_file) == 0 or len(dataset_file) >= 64:
+            dataset_file = resource['url'].split('/')[-1]
         if dataset_file.find('/') >= 0:
             dataset_file = dataset_file.replace('/', '_')
         dataset_dir = os.path.join(packages_dir, \
-                MY_CONFIG['dir_name'].format(code=locality_code, name=locality_name))
+                MY_CONFIG['dir_name'].format(code=self.code, name=self.name))
         if not os.path.exists(dataset_dir):
             os.mkdir(dataset_dir)
             logger.info('mkdir locality directory=' + dataset_dir)
@@ -1055,7 +1107,7 @@ class Crawler:
             logger.debug('kind is not found.')
             return {}
         info = {
-            "title": dataset_name,			# 例：AED設置場所
+            "dataset": dataset_name,		# 例：AED設置場所
             "kind": kind,					# 例：AED設置場所
             "url": url,						# 例：http://linkdata.org/download/rdf1s1732i/link/mishima_aed.txt
             "file": dataset_file,			# 例：mishima_aed.txt
