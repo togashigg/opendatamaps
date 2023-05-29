@@ -278,8 +278,8 @@ div#close {
 		htmlTags+='<option value="50">50件</option>\n';
 		htmlTags+='<option value="0">全て</option>\n';
 		htmlTags+='</select></td>\n';
-		htmlTags+='<td nowrap><input id="traceButton" type="button" value="'+buttonLabel+'" onClick="toggleTraceButton();" /></td>\n';
-		htmlTags+='<td nowrap><input id="settingsButton" type="button" value="☸" onClick="showSettings();" style="width:3em;" /></td>\n';
+		htmlTags+='<td nowrap><input id="traceButton" type="button" value="'+buttonLabel+'" onClick="toggleTraceButton();" style="width:5em;" /></td>\n';
+		htmlTags+='<td nowrap><input id="settingsButton" type="button" value="設定" onClick="showSettings();" style="width:3em;" /></td>\n';
 		// htmlTags+='<td colspan="4" nowrap><span id="centerAddress" style="text-overflow:ellipsis; white-space:nowrap; overflow:hidden; padding:10px;"></span></td>';
 		htmlTags+='</tr></table>';
 		operationMenu.innerHTML=htmlTags;
@@ -623,7 +623,7 @@ div#close {
 		if(!myGeolocation) {
 			var tag=document.getElementById("traceButton");
 			if(tag!=null) {
-				tag.value='追尾無';
+				tag.value='追尾不可';
 				tag.disabled=true;
 			}
 			console.log(ESCAPE_RED+nowToString()+' ※現在位置情報が取得できないブラウザです。'+ESCAPE_RESET);
@@ -792,7 +792,7 @@ div#close {
 	function stopTraceCurrentPosition() {
 		if(DEBUG) console.log(nowToString()+' stopTraceCurrentPosition() start');
 		navigator.geolocation.clearWatch(myWatchID);
-		buttonLabel='追尾始';
+		buttonLabel='追尾開始';
 		var buttonTag=document.getElementById("traceButton");
 		buttonTag.value=buttonLabel;
 		if(DEBUG) console.log(nowToString()+' stopTraceCurrentPosition() ended');
@@ -1117,7 +1117,7 @@ div#close {
 						</select>
 						</td></tr>
 					<tr><td>種別</td><td id="kindListSelect"></td></tr>
-					<tr><td>種別<BR（除外）</td><td id="notKindListSelect"></td></tr>
+					<tr><td>種別<BR>（除外）</td><td id="notKindListSelect"></td></tr>
 					<tr><td>市区町村名</td><td id="localityData"></td></tr>
 				</table>
 				<div>
