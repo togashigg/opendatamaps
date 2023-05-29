@@ -486,9 +486,11 @@ class opendatadb:
             in_kinds = [k for k in kinds if k[0] != '!']
             not_in_kinds = [k[1:] for k in kinds if k[0] == '!' and len(k) > 1]
             if len(in_kinds) > 0:
-                sel_dict['kinds'] = "AND kind IN " + "('" + "','".join(in_kinds) + "')"
+                sel_dict['kinds'] += "kind IN " + "('" + "','".join(in_kinds) + "')"
             if len(not_in_kinds) > 0:
-                sel_dict['kinds'] = "AND kind NOT IN " + "('" + "','".join(not_in_kinds) + "')"
+                if sel_dict['kinds'] != '':
+                    sel_dict['kinds'] += ' AND '
+                sel_dict['kinds'] += "kind NOT IN " + "('" + "','".join(not_in_kinds) + "')"
         if sel_dict['codes'] != '' and sel_dict['kinds'] != '':
             sel_dict['AND'] = ' AND '
         if limit is not None and limit > 0:

@@ -296,10 +296,22 @@ div#close {
 		selected='';
 		htmlTags+='<select id="selectLocalityList" name="selectLocalityList" onChange="selectLocality(this.options[this.selectedIndex].value);">\n';
 		htmlTags+='<option value="-" '+selected+'>(未選択)</option>\n';
+		let state_name='';
 		Object.keys(myParam.locality_dict).forEach(function(code) {
+			if(myParam.locality_dict[code].state_name!=state_name) {
+				if(state_name!='') {
+					htmlTags+='</optgroup>\n';
+				}
+				state_name=myParam.locality_dict[code].state_name;
+				if(myParam.locality_dict[code].locality_name=='') {
+					htmlTags+='<optgroup label="'+state_name+'（'+code+'）">\n';
+				} else {
+					htmlTags+='<optgroup label="'+state_name+'">\n';
+				}
+			}
 			htmlTags+='<option value="'+code+'"'+selected+'>'+code+':'+myParam.locality_dict[code].name+'</option>\n';
 		});
-		htmlTags+='</select>\n';
+		htmlTags+='</optgroup></select>\n';
 		localityData.innerHTML=htmlTags;
 		// 種別一覧作成（検索条件）
 		let kindListSelect=document.getElementById("kindListSelect");
