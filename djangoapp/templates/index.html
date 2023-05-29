@@ -884,10 +884,10 @@ div#close {
 		tableTags+='<table id="list" border="1">';
 		tableTags+='<tbody>';
 		tableTags+='<tr><th>ﾙｰﾄ</th>';
-		let colspan='';
+		let colspan=' colspan="3"';
 		if(showKind) {
 			tableTags+='<th>分類</th>';
-			colspan=' colspan="2"';
+			colspan=' colspan="4"';
 		}
 		tableTags+='<th>名称</th><th nowrap>直線距離</th>';
 		if(showLocation) {
@@ -895,7 +895,7 @@ div#close {
 		}
 		tableTags+='</tr>';
 		tableTags+='<tr onClick="showDetail(-1);">';
-		tableTags+='<td>−</td><td'+colspan+'>現在地：<span id="centerAddress">'+centerLocalityName+'</span></td><td align="RIGHT">0</td>';
+		tableTags+='<td'+colspan+'>現在地：<span id="centerAddress">'+centerLocalityName+'</span></td>';
 		if(showLocation) {
 			tableTags+='<td>'+Math.round(mapCenter.lat()*1000000)/1000000+'</td><td>'+Math.round(mapCenter.lng()*1000000)/1000000+'</td>';
 		}
