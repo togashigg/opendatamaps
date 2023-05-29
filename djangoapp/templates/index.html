@@ -309,7 +309,7 @@ div#close {
 			kind_list=myParam.locality_dict[myParam.locality].kinds;
 		}
 		// ToDo: 複数選択リストボックスとチェックボックスのどちらが良いか？
-		htmlTags+='<select id="settingsKindList" name="settingsKindList" size="5" multiple style="height:7.6em;" onChange="clickkindListSelect(this);">\n';
+		htmlTags+='<select id="settingsKindList" name="settingsKindList" size="5" multiple style="height:7.6em;">\n';
 		let id_no=0;
 		kind_list.forEach(function(kind) {
 			let selected='';
@@ -318,7 +318,7 @@ div#close {
 				selected=' selected';
 				checked='☑ ';
 			}
-			htmlTags+='<option value="'+kind+'"'+selected+'>'+checked+kind+'</option>\n';
+			htmlTags+='<option value="'+kind+'" onClick="clickkindListOption(this);"'+selected+'>'+checked+kind+'</option>\n';
 		});
 		htmlTags+='</select>\n';
 /* ToDo:
@@ -327,7 +327,7 @@ div#close {
 			if(myParam.kind_selected.indexOf(kind) >= 0) {
 				selected=' checked';
 			}
-			htmlTags+='<input type="checkbox" value="'+kind+'"'+selected+' onclick="clickkindListSelect(this.value, this.checked);" /><label>'+kind+'</label>\n';
+			htmlTags+='<input type="checkbox" value="'+kind+'"'+selected+' onclick="clickkindListOption(this.value, this.checked);" /><label>'+kind+'</label>\n';
 		});
 */
 		kindListSelect.innerHTML=htmlTags;
@@ -339,26 +339,30 @@ div#close {
 			kind_list=myParam.locality_dict[myParam.locality].kinds;
 		}
 		// ToDo: 複数選択リストボックスとチェックボックスのどちらが良いか？
-		htmlTags+='<select id="settingsNotKindList" name="settingsNotKindList" size="5" multiple style="height:7.6em;" onChange="clickNotkindListSelect(this);">\n';
+		htmlTags+='<select id="settingsNotKindList" name="settingsNotKindList" size="5" multiple style="height:7.6em;">\n';
 		id_no=0;
 		kind_list.forEach(function(kind) {
 			let selected='';
 			let checked='□ ';
-			if(myParam.not_kind_selected.indexOf(kind) >= 0) {
+			if(myParam.not_kind_selected.indexOf(kind)>=0) {
 				selected=' selected';
 				checked='☑ ';
 			}
-			htmlTags+='<option value="'+kind+'"'+selected+'>'+checked+kind+'</option>\n';
+			htmlTags+='<option value="'+kind+'" onClick="clickNotkindListOption(this);"'+selected+'>'+checked+kind+'</option>\n';
 		});
 		htmlTags+='</select>\n';
 		notKindListSelect.innerHTML=htmlTags;
 		// 市区町村選択
 		if(myParam.locality!='-') {
-			document.getElementById("selectLocalityList").querySelector("option[value='"+myParam.locality+"']").setAttribute("selected", "selected");
+			if(document.getElementById("selectLocalityList").querySelector("option[value='"+myParam.locality+"']")!=null) {
+				document.getElementById("selectLocalityList").querySelector("option[value='"+myParam.locality+"']").setAttribute("selected", "selected");
+			}
 		}
 		// 種別選択
 		if(myParam.kind!='-') {
-			document.getElementById("selectKindList").querySelector("option[value='"+myParam.kind+"']").setAttribute("selected", "selected");
+			if(document.getElementById("selectKindList").querySelector("option[value='"+myParam.kind+"']")!=null) {
+				document.getElementById("selectKindList").querySelector("option[value='"+myParam.kind+"']").setAttribute("selected", "selected");
+			}
 		}
 		// 近隣距離選択
 		document.getElementById("selectDistanceList").querySelector("option[value='"+myParam.distance+"']").setAttribute("selected", "selected");
@@ -408,50 +412,50 @@ div#close {
 		return false;
 	}
 	// 種別選択（検索対象）
-	function clickkindListSelect(elm) {
-		if(DEBUG) console.log(nowToString()+' clickkindListSelect() start');
-		for(let i=0; i<elm.options.length; i++) {
-			let kind=elm.options[i].value;
-			let text='';
-			if(elm.options[i].selected) {
-				if(myParam.kind_selected.indexOf(kind) == -1) {
-					myParam.kind_selected.push(kind);
-				}
-				text='☑ '+kind;
-			} else {
-				let kind_index=myParam.kind_selected.indexOf(kind);
-				if(kind_index>=0) {
-					myParam.kind_selected.pop(kind_index);
-				}
-				text='□ '+kind;
+	function clickkindListOption(opt) {
+		if(DEBUG) console.log(nowToString()+' clickkindListOption() start');
+		let kind=opt.value;
+		let text=opt.text;
+		if(text.substr(0,1)=='☑') {
+			let kind_index=myParam.kind_selected.indexOf(kind);
+			if(kind_index>=0) {
+				myParam.kind_selected.pop(kind_index);
 			}
-			elm.options[i].text=text;
+			opt.selected = false;
+			text='□ '+kind;
+		} else {
+			if(myParam.kind_selected.indexOf(kind) == -1) {
+				myParam.kind_selected.push(kind);
+			}
+			opt.selected = true;
+			text='☑ '+kind;
 		}
-		if(DEBUG) console.log(nowToString()+' clickkindListSelect() ended');
-		return true;
+		opt.text=text;
+		if(DEBUG) console.log(nowToString()+' clickkindListOption() ended');
+		return false;
 	}
 	// 除外種別選択（検索対象）
-	function clickNotkindListSelect(elm) {
-		if(DEBUG) console.log(nowToString()+' clickNotkindListSelect() start');
-		for(let i=0; i<elm.options.length; i++) {
-			let kind=elm.options[i].value;
-			let text='';
-			if(elm.options[i].selected) {
-				if(myParam.not_kind_selected.indexOf(kind) == -1) {
-					myParam.not_kind_selected.push(kind);
-				}
-				text='☑ '+kind;
-			} else {
-				let kind_index=myParam.not_kind_selected.indexOf(kind);
-				if(kind_index>=0) {
-					myParam.not_kind_selected.pop(kind_index);
-				}
-				text='□ '+kind;
+	function clickNotkindListOption(opt) {
+		if(DEBUG) console.log(nowToString()+' clickNotkindListOption() start');
+		let kind=opt.value;
+		let text=opt.text;
+		if(text.substr(0,1)=='☑') {
+			let kind_index=myParam.not_kind_selected.indexOf(kind);
+			if(kind_index>=0) {
+				myParam.not_kind_selected.pop(kind_index);
 			}
-			elm.options[i].text=text;
+			opt.selected=false;
+			text='□ '+kind;
+		} else {
+			if(myParam.not_kind_selected.indexOf(kind) == -1) {
+				myParam.not_kind_selected.push(kind);
+			}
+			opt.selected=true;
+			text='☑ '+kind;
 		}
-		if(DEBUG) console.log(nowToString()+' clickNotkindListSelect() ended');
-		return true;
+		opt.text=text;
+		if(DEBUG) console.log(nowToString()+' clickNotkindListOption() ended');
+		return false;
 	}
 	// 近隣距離選択
 	function selectDistance(distance) {
@@ -1101,7 +1105,7 @@ div#close {
 						</select>
 						</td></tr>
 					<tr><td>種別</td><td id="kindListSelect"></td></tr>
-					<tr><td>種別(除外)</td><td id="notKindListSelect"></td></tr>
+					<tr><td>種別<BR（除外）</td><td id="notKindListSelect"></td></tr>
 					<tr><td>市区町村名</td><td id="localityData"></td></tr>
 				</table>
 				<div>

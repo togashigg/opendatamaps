@@ -505,11 +505,12 @@ class opendatadb:
         # JSON形式に嫌韓する
         rc = [{'locality_code': rec[0],
                'kind': rec[1],
-               'id': rec[2],
-               'label': rec[3],
-               'lat': rec[4],
-               'lng': rec[5],
-               'info': rec[6],
+               'dataset': rec[2],
+               'id': rec[3],
+               'label': rec[4],
+               'lat': rec[5],
+               'lng': rec[6],
+               'info': rec[7],
               } for rec in recs]
         logger.debug('get_by_localitycode() ended, len(rc)=' + str(len(rc)))
         return rc
@@ -528,6 +529,7 @@ class opendatadb:
         """
         logger = logging.getLogger(__name__)
         logger.debug('get_by_distance_from_center() start.')
+        logger.debug('c_lat=' + str(c_lat) + ', c_lng=' + str(c_lng) + ', distance=' + str(distance) + ', kinds=' + str(kinds) + ', limit=' + str(limit))
         rc = None
         sel_dict = {'kinds': '', 'limit': SELECT_LIMIT}
         # 中心と距離から検索範囲とする緯度・経度を求める
@@ -544,12 +546,12 @@ class opendatadb:
                 + " WHERE lat BETWEEN {lat_start} AND {lat_end} AND lng BETWEEN {lng_start} AND {lng_end}" \
                 + " {kinds} LIMIT {limit};"
         if kinds is not None:
-            in_kinds = [k for k in kinds if k[0] != '!']
-            not_in_kinds = [k[1:] for k in kinds if k[0] == '!' and len(k) > 1]
+            in_kinds = [k for k in kinds if len(k) > 0 and k[0] != '!']
+            not_in_kinds = [k[1:] for k in kinds if len(k) > 1 and k[0] == '!']
             if len(in_kinds) > 0:
-                sel_dict['kinds'] = "AND kind IN " + "('" + "','".join(in_kinds) + "')"
+                sel_dict['kinds'] += "AND kind IN " + "('" + "','".join(in_kinds) + "')"
             if len(not_in_kinds) > 0:
-                sel_dict['kinds'] = "AND kind NOT IN " + "('" + "','".join(not_in_kinds) + "')"
+                sel_dict['kinds'] += "AND kind NOT IN " + "('" + "','".join(not_in_kinds) + "')"
         if limit is None:
             limit = QUERY_LIMIT
         with self.conn.cursor() as cur:
@@ -564,12 +566,13 @@ class opendatadb:
         # JSON形式に嫌韓する
         rc = [{'locality_code': rec[0],
                'kind': rec[1],
-               'id': rec[2],
-               'label': rec[3],
-               'lat': rec[4],
-               'lng': rec[5],
-               'info': rec[6],
-               'distance': self.calc_distance((c_lat,c_lng), (rec[4],rec[5]))
+               'dataset': rec[2],
+               'id': rec[3],
+               'label': rec[4],
+               'lat': rec[5],
+               'lng': rec[6],
+               'info': rec[7],
+               'distance': self.calc_distance((c_lat,c_lng), (rec[5],rec[6]))
               } for rec in recs]
         # logger.debug('rc=' + str(rc))
         # 中心からの距離の近い順にソートする
@@ -588,8 +591,10 @@ class opendatadb:
         :param target: list型、対象の緯度・経度を(lat, lng)で指定する。緯度・経度はfloat型。
         :return: int型、対象までの直線距離。単位はメートル(m)。
         """
-        if target[0] is None or target[0] == 0.0 \
-        or target[1] is None or target[1] == 0.0:
+        if center[0] is None or type(center[0]) != float or center[0] == 0.0 \
+        or center[1] is None or type(center[1]) != float or center[1] == 0.0 \
+        or target[0] is None or type(target[0]) != float or target[0] == 0.0 \
+        or target[1] is None or type(target[1]) != float or target[1] == 0.0:
             return 999999999
         return round(math.sqrt(
                 math.pow((center[0] - target[0]) * 100000, 2)
