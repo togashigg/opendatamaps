@@ -484,7 +484,7 @@ class opendatadb:
                 sel_dict['codes'] += ")"
         if kinds is not None:
             in_kinds = [k for k in kinds if k[0] != '!']
-            not_in_kinds = [k[1:] for k in kinds if [k[0] == '!' and len(k) > 1]
+            not_in_kinds = [k[1:] for k in kinds if k[0] == '!' and len(k) > 1]
             if len(in_kinds) > 0:
                 sel_dict['kinds'] = "AND kind IN " + "('" + "','".join(in_kinds) + "')"
             if len(not_in_kinds) > 0:
@@ -545,7 +545,7 @@ class opendatadb:
                 + " {kinds} LIMIT {limit};"
         if kinds is not None:
             in_kinds = [k for k in kinds if k[0] != '!']
-            not_in_kinds = [k[1:] for k in kinds if [k[0] == '!' and len(k) > 1]
+            not_in_kinds = [k[1:] for k in kinds if k[0] == '!' and len(k) > 1]
             if len(in_kinds) > 0:
                 sel_dict['kinds'] = "AND kind IN " + "('" + "','".join(in_kinds) + "')"
             if len(not_in_kinds) > 0:

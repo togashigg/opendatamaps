@@ -41,14 +41,14 @@ KIND_LIST_NORMALIZED = {
     '公衆トイレ': re.compile('(トイレ|便所)'),
     '消防水利施設': re.compile('(消防水利施設|消火栓|防火水槽)'),
     '指定緊急避難場所': re.compile('(津波|緊急避難)'),
-    '公共施設': re.compile('((市|区|町|村)役所|(都|道|府|県|市|区|町|村)(の|内)(施設|機関)|庁舎|公共施設|施設情報|文化|教養|スポーツ|公民館|集会所|公会堂|(都|道|府|県|市|区|町|村)民会館|図書館|文化施設|(都|道|府|県|市|区|町|村)営住宅|斎場|墓地|環境施設|焼却施設|し尿処理)'),
+    '公共施設': re.compile('((市|区|町|村)役所|(都|道|府|県|市|区|町|村)(の|内)(施設|機関)|庁舎|公共施設|施設情報|文化|教養|スポーツ|公民館|集会所|公会堂|(都|道|府|県|市|区|町|村)民会館|図書館|文化施設|(都|道|府|県|市|区|町|村)営住宅|斎場|墓地|環境施設|焼却施設|し尿処理|衛生検査)'),
     '子育て施設': re.compile('子育て'),
     '学校・保育施設': re.compile('(学校|こども園|幼稚園|保育|児童館|保育施設|保育所|放課後)'),
     '薬局': re.compile('(薬局|医薬品|医療品)'),
     '駐車場': re.compile('駐車場'),
     '公園・花壇': re.compile('(公園|花壇)'),
     '公衆浴場': re.compile('公衆浴場'),
-    '防災': re.compile('(防災|救護所|同報無線|飲料水|ヨウ素剤|ため池)'),
+    '防災': re.compile('(防災|救護所|同報無線|飲料水|ヨウ素剤|ため池|河川カメラ)'),
     '避難所': re.compile('避難(所|地|場所)'),
     '消防': re.compile('消防(署|団|施設)'),
     '投票所': re.compile('投票所'),
@@ -70,6 +70,8 @@ _/  _/  _/    _/  _/    _/    _/_/_/    _/_/_/      _/_/    _/_/_/  _/    _/_/  
                                                                                             _/_/
 Link and Publish your data as RDF to the Linked Open Data Community
 -->"""
+XHTML_PAGE = '<!DOCTYPE html>'
+RE_FLOAT_FORMAT = re.compile('([0-9]+\.[0-9]+)')
 
 class Crawler:
 
@@ -323,7 +325,8 @@ class Crawler:
         except Exception as e:
             logger.exception(e)
         logger.debug('detect=' + str(res))
-        if res['encoding'] is None:
+        if res['encoding'] is None \
+        or (len(res['encoding']) >= 5 and res['encoding'].upper()[:5] != 'UTF-8'):
             res['encoding'] = 'CP932'
         """ ToDo:
         if res['encoding'] is not None:
@@ -584,6 +587,8 @@ class Crawler:
             logger.debug('名称が重複, name=' + name + ', count=' + str(self.__data_name_dict[name]))
         if info['lat'] == -1 or info['lng'] == -1:
             msg += '緯度・経度が未定義。'
+        elif len(data) <= info['lat'] or len(data) <= info['lng']:
+            msg += '緯度・経度の値無し。'
         elif data[info['lat']] == '' or data[info['lng']] == '':
             msg += '緯度・経度が未設定。'
         else:
@@ -773,8 +778,12 @@ class Crawler:
         try:
             if v_str is None:
                 raise Exception('msg:値なし。')
-            if v_str == '':
+            if v_str == '' or v_str == ' ' or v_str == '　' or v_str == '-' or v_str == '－':
                 raise Exception('msg:値が空。')
+            v_str = v_str.replace(' ', '').replace(',', '')
+            match = RE_FLOAT_FORMAT.search(v_str)
+            if match is not None:
+                v_str = match.group(1)
             v_strs = v_str.split('.')
             if len(v_strs) == 2:
                 # 正しい形式
@@ -861,6 +870,7 @@ class Crawler:
                 with open(info_list_file, 'r') as hf:
                     info_list = json.loads(hf.read())
             # 全パッケージを処理する
+            # ToDo: jpackages['result'] = ['t131156d0000000017']
             for pkg_i, package in enumerate(jpackages['result']):
                 try:
                     logger.debug('package=' + package)
@@ -895,42 +905,46 @@ class Crawler:
                             info_list[info_key] = info
                             info_list_update = True
                     info = info_list[info_key]
-                    logger.debug(info_key + ' info=' + str(info))
-                    if info == {}:
+                    logger.debug(info_key + ' info('+str(len(info))+')=' + str(info))
+                    if info == []:
                         print('マップ情報不足', file=sys.stderr)
                         logger.debug('マップ情報不足')
                         continue
-                    # マップデータのキャッシュを確認する
-                    cache_dir = os.path.join(cache_site_dir, \
-                            MY_CONFIG['dir_name'].format(code=locality_code, name=locality_name))
-                    file_cache = str(pathlib.Path(info['file']).with_suffix('.json'))
-                    if self.exists_in_cache(file_cache, dir=cache_dir):
-                        # キャッシュに存在する
-                        print('マップデータがキャッシュに存在する', file=sys.stderr)
-                        continue
-                    # データーセットを取得する
-                    dataset_dir = os.path.join(packages_dir, \
-                            MY_CONFIG['dir_name'].format(code=locality_code, name=locality_name))
-                    if not os.path.exists(dataset_dir):
-                        os.mkdir(dataset_dir)
-                    dataset_path = os.path.join(dataset_dir, info['file'])
-                    content = self.url_get(info['url'], info['file'], dir=dataset_dir)
-                    if content is None:
-                        print('データセット取得失敗', file=sys.stderr)
-                        continue
-                    print('データセット取得済：', file=sys.stderr, end='')
-                    # 必要ならコード変換を行う
-                    if info['format'] in ['CSV', 'TEXT', 'TXT', 'TSV']:
-                       content = self.convert_to_utf8(content)
-                       if content is None:
-                           raise Exception('msg:形式誤り')
-                    # 表形式をマップデータ(JSON形式)に変換する
-                    map_data = self.content_to_mapping_data(content, info, dataset_path)
-                    print('マップデータ作成済：', file=sys.stderr, end='')
-                    # マップデータをキャッシュに保存する
-                    self.save_to_cache(map_data, file_cache, dir=cache_dir)
-                    print('キャッシュ済', file=sys.stderr)
-                    logger.info('保存完了：')
+
+                    # リソース毎に処理する
+                    for res_i, res_def in enumerate(info):
+                        # マップデータのキャッシュを確認する
+                        cache_dir = os.path.join(cache_site_dir, \
+                                MY_CONFIG['dir_name'].format(code=locality_code, name=locality_name))
+                        file_cache = str(pathlib.Path(res_def['file']).with_suffix('.json'))
+                        if self.exists_in_cache(file_cache, dir=cache_dir):
+                            # キャッシュに存在する
+                            print('[' + str(res_i) + ']マップデータがキャッシュに存在する', file=sys.stderr)
+                            continue
+                        # データーセットを取得する
+                        dataset_dir = os.path.join(packages_dir, \
+                                MY_CONFIG['dir_name'].format(code=locality_code, name=locality_name))
+                        if not os.path.exists(dataset_dir):
+                            os.mkdir(dataset_dir)
+                        dataset_path = os.path.join(dataset_dir, res_def['file'])
+                        content = self.url_get(res_def['url'], res_def['file'], dir=dataset_dir)
+                        if content is None:
+                            print('[' + str(res_i) + ']データセット取得失敗', file=sys.stderr)
+                            continue
+                        print('[' + str(res_i) + ']データセット取得済：', file=sys.stderr, end='')
+                        # 必要ならコード変換を行う
+                        if res_def['format'] in ['CSV', 'TEXT', 'TXT', 'TSV']:
+                           content = self.convert_to_utf8(content)
+                           if content is None:
+                               print('[' + str(res_i) + ']形式誤り', file=sys.stderr)
+                               continue
+                        # 表形式をマップデータ(JSON形式)に変換する
+                        map_data = self.content_to_mapping_data(content, res_def, dataset_path)
+                        print('[' + str(res_i) + ']マップデータ作成済：', file=sys.stderr, end='')
+                        # マップデータをキャッシュに保存する
+                        self.save_to_cache(map_data, file_cache, dir=cache_dir)
+                        print('[' + str(res_i) + ']キャッシュ済', file=sys.stderr)
+                        logger.info('[' + str(res_i) + ']保存完了：')
 
                 except Exception as e:
                     if len(e.args) > 0 and type(e.args[0]) == str and e.args[0][:4] == 'msg:':
@@ -944,7 +958,7 @@ class Crawler:
             # データセットのマップ情報を保存する
             if info_list_update:
                 with open(info_list_file, 'w') as hf:
-                    hf.write(json.dumps(info_list, ensure_ascii=False).replace('}, "', '},\n"'))
+                    hf.write(json.dumps(info_list, ensure_ascii=False).replace('], "', '],\n"'))
             # geocode検索結果キャッシュを保存
             if self.__geocode_cache_update:
                 cache_json = json.dumps(self.__geocode_cache, ensure_ascii=False).replace('"OK"}, "', '"OK"},\n"')
@@ -985,9 +999,15 @@ class Crawler:
                 locality_name = jpackage['result']['areas'][0]['name']
             if locality_name == '' \
             and 'organization' in jpackage['result']:
-                locality_name = jpackage['result']['organization']['name']
-            else:
-                locality_name = self.state
+                if re.match('^[0-9a-zA-Z]+$', jpackage['result']['organization']['name']) == None:
+                    locality_name = jpackage['result']['organization']['name']
+                elif jpackage['result']['organization']['title'][-1] in ['市','区','町','村']:
+                    if jpackage['result']['organization']['title'][:len(self.state)] == self.state:
+                        locality_name = jpackage['result']['organization']['title'][len(self.state):]
+                    else:
+                        locality_name = jpackage['result']['organization']['title']
+        if locality_name == '':
+            locality_name = self.state
         if locality_name not in self.locality_dict:
             locality_code = default_code
         else:
@@ -1043,196 +1063,372 @@ class Crawler:
         logger = logging.getLogger(__name__)
         logger.debug('make_map_info() start, dataset_name=' + str(dataset_name))
         # 実行
+        info = []
         packages_dir = os.path.join(self.download_dir, 
                 MY_CONFIG['dir_name'].format(code=site['code'], name=site['name']))
         # データセットの所有者
         logger.debug('自治体：code=' + self.code + ', name=' + self.name)
-        # データセットの形式確認：CSV>TEXT>TXT>TSV>XLS>XLSX
-        formats_fi = [(jpackage['result']['resources'][i]['format'],i) for i in range(len(jpackage['result']['resources']))]
-        formats_f = [v[0] for v in formats_fi]
-        fi = -1
-        for format in ['CSV', 'TEXT', 'TXT', 'TSV', 'XLS', 'XLSX', 'HTML']:
-            if format not in formats_f:
-                continue
-            if format == 'CSV':
-                for f, i in formats_fi:
-                    if f == 'CSV':
-                        if 'mimetype' in jpackage['result']['resources'][i]:
-                            if jpackage['result']['resources'][i]['mimetype'] == 'application/csv' \
-                            or jpackage['result']['resources'][i]['mimetype'] is None:
-                                fi = i
-                                break
-                        else:
-                            fi = i
-                            break
-            else:
-                fi = formats_fi[formats_f.index(format)][1]
-                break
-        if fi == -1:
-            logger.error('ERROR: unknown format in resources, formats_fi=' + str(formats_fi))
-            # ToDo: raise Exception('error in dataset format.')
-            return {}
-        resource = jpackage['result']['resources'][fi]
-        logger.debug('resource=' + str(resource))
-        # データセットを取得する
-        # パッケージファイルの内容確認
-        # jpackage['result']['name']	# "観光施設一覧"
-        # jpackage['result']['resources'][0]['filename']	# "222062_tourism.xlsx"
-        # jpackage['result']['resources'][0]['updated']	# "2023-03-10T16:42:27.981+09:00"
-        # jpackage['result']['resources'][0]['download_url']	# "https://opendata.pref.shizuoka.jp/dataset/9732/resource/65915/222062_tourism.xlsx"
-        # jpackage['result']['resources'][0]['format']	# "XLSX"
-        dataset_file = resource['name']
-        if 'filename' in resource:
-            if resource['filename'] is not None and resource['filename'] != '':
-                dataset_file = resource['filename']
-        if len(dataset_file) == 0 or len(dataset_file) >= 64:
-            dataset_file = resource['url'].split('/')[-1]
-        if dataset_file.find('/') >= 0:
-            dataset_file = dataset_file.replace('/', '_')
-        dataset_dir = os.path.join(packages_dir, \
-                MY_CONFIG['dir_name'].format(code=self.code, name=self.name))
-        if not os.path.exists(dataset_dir):
-            os.mkdir(dataset_dir)
-            logger.info('mkdir locality directory=' + dataset_dir)
-        dataset_path = os.path.join(dataset_dir, dataset_file)
-        if 'url' not in resource and 'download_url' not in resource:
-            logger.debug('url and download_url key not found.')
-            return {}
-        if 'url' in resource:
-            url = resource['url']
-        if 'download_url' in resource:
-            url = resource['download_url']
+        # 処理対象のリソースを抽出する
+        rNos = self.get_unique_resources(jpackage)
+        if len(rNos) == 0:
+            return info
         kind = self.get_kind_normalized(dataset_name)
         if kind is None:
             logger.debug('kind is not found.')
-            return {}
-        info = {
-            "dataset": dataset_name,		# 例：AED設置場所
-            "kind": kind,					# 例：AED設置場所
-            "url": url,						# 例：http://linkdata.org/download/rdf1s1732i/link/mishima_aed.txt
-            "file": dataset_file,			# 例：mishima_aed.txt
-            "format": resource['format'],	# 例：CSV/TEXT/TXT/TSV/XLS/XLSX/...
-            "lat": -1,
-            "lng": -1,
-            "name": [-1],
-            "id": -1,
-            "info": [-1],
-            "address": -1,
-            "header": -1
-        }
-        # データセットを取得する
-        content = self.url_get(url, info['file'], dir=dataset_dir)
-        if content is None:
-            logger.error('content not found, url=' + url)
-            return {}
-        # HTML形式でダウンロードページならダウンロードする
-        if info['format'] == 'HTML':
-            redirect = self.check_html_page(content, dataset_dir)
-            if redirect == None:
-                return {}
-            info['format'] = redirect['format']
-            info['file'] = redirect['file']
-            info['url'] = redirect['url']
-            content = redirect['content']
-            dataset_path = os.path.join(dataset_dir, info['file'])
-
-        # 必要ならコード変換を行う
-        if info['format'] in ['CSV', 'TEXT', 'TXT', 'TSV']:
-            content = self.convert_to_utf8(content, rows=HEADER_ROWS)
-            if content is None:
-                logger.error('content format error, format=' + info['format'])
-                return {}
-        # ダウンロードデータを表形式に変換する
-        if info['format'] == 'CSV':
-            # CSV形式
-            logger.debug('format is CSV')
-            table = self.table_from_csv(content)
-        elif info['format'] in ['TEXT', 'TXT', 'TSV']:
-            # テキスト形式(TSV)
-            logger.debug('format is TEXT')
-            table = self.table_from_tsv(content)
-        elif info['format'] == 'XLS':
-            # Excel形式(XLS)
-            logger.debug('format is ' + info['format'])
-            table = self.table_from_xls(dataset_path, rows=HEADER_ROWS)
-        elif info['format'] == 'XLSX':
-            # Excel形式(XLSX)
-            logger.debug('format is XLSX')
-            table = self.table_from_xlsx(dataset_path, rows=HEADER_ROWS)
-        else:
-            # 未サポートの形式
-            logger.error('ERROR in format, format=' + resource['format'])
-            # raise Exception('ToDo: format=' + resource['format'])
-            return {}
-        # データの項目名からマップ情報を完成する
-        title_rows = [list(row) for row in table[:min(HEADER_ROWS , len(table))]]
-        for i_row in range(len(title_rows)):
-            for i_col in range(len(title_rows[i_row])):
-                if title_rows[i_row][i_col] is None:
-                    title_rows[i_row][i_col] = ''
-        for t in range(len(title_rows)):
-            if title_rows[t] == []:
+            return info
+        # リソース毎に処理する
+        for rNo in rNos:
+            resource = jpackage['result']['resources'][rNo]
+            logger.debug('resource=' + str(resource))
+            # データセットを取得する
+            # パッケージのリソース内容確認
+            dataset_file = ''
+            if 'filename' in resource:
+                if resource['filename'] is not None and resource['filename'] != '':
+                    dataset_file = resource['filename']
+            if dataset_file == '' and 'download_url' in resource:
+                if resource['download_url'] is not None and resource['download_url'] != '':
+                    dataset_file = resource['download_url'].split('/')[-1]
+            if dataset_file == '' and 'url' in resource:
+                if resource['url'] is not None and resource['url'] != '':
+                    dataset_file = resource['url'].split('/')[-1]
+            if dataset_file == '':
+                dataset_file = resource['name'] + '.' + resource['format'].lower()
+            if len(dataset_file.encode('UTF-8')) >= 128:
+                dataset_file = dataset_file[:63] + '_' + dataset_file[-63:]
+            if dataset_file.find('/') >= 0:
+                dataset_file = dataset_file.replace('/', '_')
+            if dataset_file.find('\n') >= 0:
+                dataset_file = dataset_file.replace('\n', '_')
+            if len(dataset_file.split('.')) == 1:
+                dataset_file += '.' + resource['format'].lower()
+            elif dataset_file.split('.')[-1].upper() != resource['format'].upper():
+                dataset_file = '.'.join(dataset_file.split('.')[:-1]) + '.' + resource['format'].lower()
+            dataset_dir = os.path.join(packages_dir, \
+                    MY_CONFIG['dir_name'].format(code=self.code, name=self.name))
+            if not os.path.exists(dataset_dir):
+                os.mkdir(dataset_dir)
+                logger.info('mkdir locality directory=' + dataset_dir)
+            dataset_path = os.path.join(dataset_dir, dataset_file)
+            if 'url' not in resource and 'download_url' not in resource:
+                logger.debug('url and download_url key not found.')
                 continue
-            address = [i for i in range(len(title_rows[t])) if title_rows[t][i] in ['住所','所在地']]
-            if len(address) == 0:
-                # 住所項目なし
-                address = [-1]
-            address = address[0]
-            lat = [i for i in range(len(title_rows[t])) if title_rows[t][i] in ['緯度','北緯','lat','LAT'] or (type(title_rows[t][i])==str and len(title_rows[t][i])>4 and title_rows[t][i][-4:]=='#lat')]
-            if len(lat) == 0:
-                # 緯度項目なし
-                lat = [-1]
-            lat = lat[0]
-            lng = [i for i in range(len(title_rows[t])) if title_rows[t][i] in ['経度','東経','lng','LNG'] or (type(title_rows[t][i])==str and len(title_rows[t][i])>5 and title_rows[t][i][-5:]=='#long')]
-            if len(lng) == 0:
-                # 経度項目なし
-                lng = [-1]
-            lng = lng[0]
-            name = [i for i in range(len(title_rows[t])) if title_rows[t][i] in ['名称','施設名','施設名称','場所名','店名','薬局名','駐輪場名','介護サービス事業所名称'] or (type(title_rows[t][i])==str and len(title_rows[t][i])>6 and title_rows[t][i][-6:]=='#label')]
-            if len(name) > 0:
-                name = [name[0]]
+            if 'url' in resource:
+                url = resource['url']
+            if 'download_url' in resource:
+                url = resource['download_url']
+            # リソース定義の初期化
+            res_def = {
+                "kind": kind,
+                "dataset": dataset_name,
+                "url": url,
+                "file": dataset_file,
+                "format": resource['format'],
+                "lat": -1,
+                "lng": -1,
+                "name": [-1],
+                "id": -1,
+                "info": [-1],
+                "address": -1,
+                "header": -1
+            }
+            # データセットを取得する
+            content = self.url_get(url, res_def['file'], dir=dataset_dir)
+            if content is None:
+                logger.error('content not found, url=' + url)
+                continue
+            # HTML形式でダウンロードページならダウンロードする
+            redirect = self.check_html_page(content, res_def['url'], dataset_dir)
+            if redirect is not None:
+                res_def['format'] = redirect['format']
+                res_def['file'] = redirect['file']
+                res_def['url'] = redirect['url']
+                content = redirect['content']
+                dataset_path = os.path.join(dataset_dir, res_def['file'])
+            # コンテンツの内容でformatを検査する
+            head_bytes8 = bytes(content[:8])
+            if len(content) > 8 and head_bytes8 == bytes.fromhex('d0cf11e0a1b11ae1'):
+                # XLS形式：DOC/XLS/PPTも同じだが判定省略
+                if res_def['format'].upper() != 'XLS':
+                    logger.warning('format変更, ' + res_def['format'] + ' -> XLS')
+                    res_def['format'] = 'XLS'
+            elif len(content) > 6 and head_bytes8[:6] == bytes.fromhex('504b03041400'):
+                # XLSX形式：ZIP/DOCX/XLSX/PPTXも同じだが判定省略
+                if res_def['format'].upper() != 'XLSX':
+                    logger.warning('format変更, ' + res_def['format'] + ' -> XLSX')
+                    res_def['format'] = 'XLSX'
+            elif content.count(b'\n') <= content.count(b','):
+                # CSV形式
+                if res_def['format'].upper() != 'CSV':
+                    logger.warning('format変更, ' + res_def['format'] + ' -> CSV')
+                    res_def['format'] = 'CSV'
+            elif content.count(b'\n') <= content.count(b'\t'):
+                # TSV形式：TXT/TEXTも同じ
+                if res_def['format'].upper() not in ['TXT', 'TSV', 'TEXT']:
+                    logger.warning('format変更, ' + res_def['format'] + ' -> TXT')
+                    res_def['format'] = 'TXT'
             else:
-                # 名称項目なし
-                name = [-1]
-                if '種別' in title_rows[t] and '住所' in title_rows[t]:
-                    name = [title_rows[t].index('種別'), title_rows[t].index('住所')]
-            id = [i for i in range(len(title_rows[t])) if title_rows[t][i] in ['ID','id','NO','no']]
-            if len(id) == 0:
-                # ID項目なし
-                id = [-1]
-            id = id[0]
+                # 指定のまま
+                logger.warning('format不明, ' + res_def['format'])
+            # Excel形式でファイルの拡張子が違っている場合は変更する
+            if res_def['format'] in ['XLSX', 'XLS'] \
+            and res_def['file'].split('.')[-1].upper() != res_def['format'].upper():
+                dist_name = '.'.join(res_def['file'].split('.')[:-1]) + '.' + res_def['format'].lower()
+                os.rename(os.path.join(dataset_dir, res_def['file']),
+                        os.path.join(dataset_dir, dist_name))
+                res_def['file'] = dist_name
+                dataset_path = os.path.join(dataset_dir, res_def['file'])
+            # 必要ならコード変換を行う
+            if res_def['format'] in ['CSV', 'TEXT', 'TSV', 'TXT']:
+                content = self.convert_to_utf8(content, rows=HEADER_ROWS)
+                if content is None:
+                    logger.error('content format error, format=' + res_def['format'])
+                    continue
+            # ダウンロードデータを表形式に変換する
+            if res_def['format'] == 'CSV':
+                # CSV形式
+                logger.debug('format is ' + res_def['format'])
+                table = self.table_from_csv(content)
+            elif res_def['format'] in ['TEXT', 'TXT', 'TSV']:
+                # テキスト形式(TSV)
+                logger.debug('format is ' + res_def['format'])
+                table = self.table_from_tsv(content)
+            elif res_def['format'] == 'XLS':
+                # Excel形式(XLS)
+                logger.debug('format is ' + res_def['format'])
+                table = self.table_from_xls(dataset_path, rows=HEADER_ROWS)
+            elif res_def['format'] == 'XLSX':
+                # Excel形式(XLSX)
+                logger.debug('format is ' + res_def['format'])
+                table = self.table_from_xlsx(dataset_path, rows=HEADER_ROWS)
+            else:
+                # 未サポートの形式
+                logger.error('ERROR in format, format=' + resource['format'])
+                # raise Exception('ToDo: format=' + resource['format'])
+                continue
+            # データの項目名からマップ情報を完成する
+            title_rows = [list(row) for row in table[:min(HEADER_ROWS , len(table))]]
+            for i_row in range(len(title_rows)):
+                for i_col in range(len(title_rows[i_row])):
+                    if title_rows[i_row][i_col] is None:
+                        title_rows[i_row][i_col] = ''
+            for t in range(len(title_rows)):
+                if title_rows[t] == []:
+                    continue
+                address = [i for i in range(len(title_rows[t])) if title_rows[t][i] in ['住所','所在地']]
+                if len(address) == 0:
+                    # 住所項目なし
+                    address = [-1]
+                address = address[0]
+                lat = [i for i in range(len(title_rows[t])) if title_rows[t][i] in ['緯度','北緯','lat','LAT'] or (type(title_rows[t][i])==str and len(title_rows[t][i])>4 and title_rows[t][i][-4:]=='#lat')]
+                if len(lat) == 0:
+                    # 緯度項目なし
+                    lat = [-1]
+                lat = lat[0]
+                lng = [i for i in range(len(title_rows[t])) if title_rows[t][i] in ['経度','東経','lng','LNG'] or (type(title_rows[t][i])==str and len(title_rows[t][i])>5 and title_rows[t][i][-5:]=='#long')]
+                if len(lng) == 0:
+                    # 経度項目なし
+                    lng = [-1]
+                lng = lng[0]
+                name = [i for i in range(len(title_rows[t])) if title_rows[t][i] in ['名称','施設名','施設名称','場所名','店名','薬局名','駐輪場名','介護サービス事業所名称'] or (type(title_rows[t][i])==str and len(title_rows[t][i])>6 and title_rows[t][i][-6:]=='#label')]
+                if len(name) > 0:
+                    name = [name[0]]
+                else:
+                    # 名称項目なし
+                    name = [-1]
+                    if '種別' in title_rows[t] and '住所' in title_rows[t]:
+                        name = [title_rows[t].index('種別'), title_rows[t].index('住所')]
+                id = [i for i in range(len(title_rows[t])) if title_rows[t][i] in ['ID','id','NO','no']]
+                if len(id) == 0:
+                    # ID項目なし
+                    id = [-1]
+                id = id[0]
 
-            info['lat'] = lat
-            info['lng'] = lng
-            info['name'] = name
-            info['id'] = id
-            info['address'] = address
-            info['header'] = t + 1
-            used_index = [info['lat'],info['lng'],info['id']]
-            used_index.extend(info['name'])
-            info['info'] = [i for i in range(len(title_rows[info['header']-1])) if i not in used_index]
-            logger.debug('info('+str(t)+')=' + str(info))
-            if (info['lat'] >= 0 and info['lng'] >= 0) \
-            and info['name'] != [-1]:
-                break
-            # 必須項目なし
-            # raise Exception('ToDo: 必須項目なし')
-        # 最終確認
-        if (info['lat'] < 0 or info['lng'] < 0) \
-        or info['name'] == [-1]:
-            # 必須項目なし
-            info = {}
-        else:
-            logger.debug('headers=' + str(title_rows[info['header']-1]))
+                res_def['lat'] = lat
+                res_def['lng'] = lng
+                res_def['name'] = name
+                res_def['id'] = id
+                res_def['address'] = address
+                res_def['header'] = t + 1
+                used_index = [res_def['lat'],res_def['lng'],res_def['id']]
+                used_index.extend(res_def['name'])
+                res_def['info'] = [i for i in range(len(title_rows[res_def['header']-1])) if i not in used_index]
+                if (res_def['lat'] >= 0 and res_def['lng'] >= 0) \
+                and res_def['name'] != [-1]:
+                    logger.debug('res_def=' + str(res_def))
+                    break
+                # 必須項目なし
+                # raise Exception('ToDo: 必須項目なし')
+            # 最終確認
+            if (res_def['lat'] < 0 or res_def['lng'] < 0) \
+            or res_def['name'] == [-1]:
+                # 必須項目なし
+                pass
+            else:
+                logger.debug('headers=' + str(title_rows[res_def['header']-1]))
+                info.append(res_def)
+
         # 復帰
         logger.debug('make_map_info() ended, info=' + str(info))
         return info
 
-    def check_html_page(self, content, dir):
+    def get_unique_resources(self, jpackage):
+        """ リソース群の中から処理対象とするリソースを抽出する
+        """
+        logger = logging.getLogger(__name__)
+        logger.debug('get_unique_resources() start.')
+        # 実行
+        # 判断材料を抽出する
+        names =     [v['name']     if 'name'     in v else None for v in jpackage['result']['resources']]
+        formats =   [v['format']   if 'format'   in v else None for v in jpackage['result']['resources']]
+        urls =      [v['url']      if 'url'      in v else None for v in jpackage['result']['resources']]
+        downloads = [v['download_url'] if 'download_url' in v else None for v in jpackage['result']['resources']]
+        urls = [downloads[i] if downloads[i] is not None else urls[i] for i in range(len(urls))]
+        urls = [v.split('/')[-1] if v is not None else None for v in urls]
+        pkg_resources = [
+            {'no': i, 'name': names[i], 'format': formats[i], 'url': urls[i]} for i in range(len(names))
+        ]
+        # logger.debug('pkg_resources=' + str(pkg_resources).replace('}, {', '},\n{'))
+        target_resources = pkg_resources
+        # (1)formatが「CSV、TXT、XLSX、XLS、HTML」以外を削除する
+        target_resources = [v for v in target_resources if v['format'] in ['CSV','TXT','XLSX','XLS','HTML']]
+        # logger.debug('[1]target_resources=' + str(target_resources))
+        # (2)１件以下なら終了
+        if len(target_resources) <= 1:
+            # logger.debug('[2]target_resources=' + str(target_resources))
+            rNos = [v['no'] for v in target_resources]
+            logger.debug('get_unique_resources() ended, rNos=' + str(rNos))
+            return rNos
+        # logger.debug('[2]target_resources=' + str(target_resources))
+        # (3)「関連ホームページ」を削除する
+        target_resources = [v for v in target_resources if not (v['name'] == '関連ホームページ' and v['format'] == 'HTML')]
+        # logger.debug('[3]target_resources=' + str(target_resources))
+        # (4)nameに拡張子が設定されている場合は削除する
+        for i in range(len(target_resources)):
+            for s in ['.', '_']:
+                name_split = target_resources[i]['name'].split(s)
+                # logger.debug('[4]name_split=' + str(name_split))
+                if len(name_split) > 1:
+                    if name_split[-1].upper() == target_resources[i]['format'].upper():
+                        # logger.debug('[5]format SAME!')
+                        target_resources[i]['name'] = s.join(name_split[:-1])
+        # logger.debug('[6]target_resources=' + str(target_resources))
+        # (5)nameが同じでformatが異なるものは、優先順位「CSV>TXT>XLSX>XLS>HTML」で１つにする
+        names = [v['name'] for v in target_resources]
+        uniq_names = set(names)
+        if len(names) > len(uniq_names):
+            uniq_resources = []
+            uniq_urls = []
+            for n in uniq_names:
+                f_exists = False
+                for f in ['CSV','TXT','XLSX','XLS','HTML']:
+                    for i in range(len(target_resources)):
+                        if target_resources[i]['name'] != n:
+                            continue
+                        if target_resources[i]['format'] != f:
+                            continue
+                        if target_resources[i]['url'] is None:
+                            continue
+                        if target_resources[i]['url'] in uniq_urls:
+                            continue
+                        # logger.debug('[7]target_resources[i]=' + str(target_resources[i]))
+                        uniq_resources.append(target_resources[i])
+                        uniq_urls.append(target_resources[i]['url'])
+                        f_exists = True
+                    if f_exists:
+                        break
+            target_resources = uniq_resources
+        # logger.debug('[8]target_resources=' + str(target_resources))
+        rNos = [v['no'] for v in target_resources]
+        # 復帰
+        logger.debug('get_unique_resources() ended, rNos=' + str(rNos))
+        return rNos
+
+    def check_html_page(self, content, url, dir):
         """
         """
         logger = logging.getLogger(__name__)
         logger.debug('check_html_page() start.')
+        # 実行
+        redirect = None
+        cont_str = content.decode('UTF-8','ignore').replace('\r\n','\n')
+        if len(cont_str) > len(XHTML_PAGE) and cont_str[:len(XHTML_PAGE)] != XHTML_PAGE:
+            logger.debug('content is not HTML')
+        elif cont_str[:len(LINKDATA_DOWNLOAD_PAGE)] == LINKDATA_DOWNLOAD_PAGE:
+            redirect = self.check_html_page_linkdata(cont_str, url, dir)
+        else:
+            redirect = self.check_html_page_xhtml(cont_str, url, dir)
+        # 復帰
+        logger.debug('check_html_page() ended.')
+        return redirect
+
+    def check_html_page_xhtml(self, cont_str, url, dir):
+        """
+        """
+        logger = logging.getLogger(__name__)
+        logger.debug('check_html_page_xhtml() start.')
+        # 実行
+        redirect = None
+        soup = None
+        format = None
+        re_url = None
+        try:
+            soup = BeautifulSoup(cont_str, 'html.parser')
+            if soup is None:
+                logger.warning('content is not HTML.')
+                return redirect
+            list_download = soup.select('.list-download')
+            if list_download is None or len(list_download) == 0:
+                logger.warning('content not have list-download class.')
+                return redirect
+            downloads = list_download[0].select('.download')
+            if downloads is None:
+                logger.warning('content not have download class.')
+                return redirect
+            for download in downloads:
+                if 'data-downloadpath' not in download.attrs \
+                or download.attrs['data-downloadpath'] == '':
+                    logger.warning('content not have data-downloadpath attribute.')
+                    continue
+                path = download.attrs['data-downloadpath']
+                format = None
+                text = download.text.upper()
+                for f in ['CSV', 'TEXT', 'TXT', 'TSV', 'XLSX', 'XLS']:
+                    if text.find(f) < 0:
+                        continue
+                    format = f
+                    break
+                if format is None:
+                    continue
+                re_url = path
+                if re_url[0] == '/':
+                    re_url = '/'.join(url.split('/')[:3]) + path
+                break
+
+        except Exception as e:
+            logger.exception(e)
+            return redirect
+        finally:
+            if soup is not None:
+                soup.clear()
+                soup = None
+
+        if format is not None and re_url is not None:
+            redirect = { 'url': re_url, 'file': re_url.split('/')[-1], 'format': format }
+            redirect['content'] = self.url_get(redirect['url'], redirect['file'], dir=dir)
+            if redirect['content'] is None:
+                logger.warning('faild in getting redirect content')
+                redirect = None
+
+        # 復帰
+        logger.debug('check_html_page_xhtml() ended, redirect=' + str(redirect is not None))
+        return redirect
+
+    def check_html_page_linkdata(self, cont_str, dir):
+        """
+        """
+        logger = logging.getLogger(__name__)
+        logger.debug('check_html_page_linkdata() start.')
         TYPE_TO_FORMAT = {
                 'Table Data(CSV)': 'CSV',
                 'Table Data(Text)': 'TEXT',
@@ -1241,11 +1437,6 @@ class Crawler:
         }
         # 実行
         redirect = None
-        cont_str = content.decode('UTF-8','ignore').replace('\r\n','\n')
-        if cont_str[:len(LINKDATA_DOWNLOAD_PAGE)] != LINKDATA_DOWNLOAD_PAGE:
-            logger.debug('check_html_page() ended, faild-1')
-            logger.debug('content=' + cont_str[:len(LINKDATA_DOWNLOAD_PAGE)])
-            return redirect
         url_base = LINKDATA_URL_BASE
         match = re.search(r"LD.systemUrl = '([^']+)';", cont_str)
         if match is not None:
@@ -1253,7 +1444,7 @@ class Crawler:
             if url_base[-1] == '/':
                 url_base = url_base[:-1]
         else:
-            logger.debug('check_html_page() ended, faild-2')
+            logger.debug('check_html_page_linkdata() ended, faild-2')
             # return redirect
         attrs = []
         soup = None
@@ -1276,7 +1467,7 @@ class Crawler:
                         elif file[-5:].upper() == '.XLSX':
                             format = 'XLSX'
                         else:
-                            logger.debug('check_html_page() ended, faild-3')
+                            logger.debug('check_html_page_linkdata() ended, faild-3')
                             return redirect
                 attrs.append({
                     'format': format,
@@ -1288,7 +1479,7 @@ class Crawler:
 
         except Exception as e:
             logger.exception(e)
-            logger.debug('check_html_page() ended, faild-4')
+            logger.debug('check_html_page_linkdata() ended, faild-4')
             return redirect
         finally:
             if soup is not None:
@@ -1297,7 +1488,7 @@ class Crawler:
         logger.debug('attrs=' + str(attrs))
 
         if len(attrs) == 0:
-            logger.debug('check_html_page() ended, faild-5')
+            logger.debug('check_html_page_linkdata() ended, faild-5')
             return redirect
         for format in ['CSV', 'TEXT', 'TXT', 'TSV', 'XLSX', 'XLS']:
             for attr in attrs:
@@ -1307,15 +1498,15 @@ class Crawler:
             if redirect is not None:
                 break
         if redirect is None:
-            logger.debug('check_html_page() ended, faild-5')
+            logger.debug('check_html_page_linkdata() ended, faild-5')
             return redirect
         # リダイレクト先をダウンロードする
         redirect['content'] = self.url_get(redirect['url'], redirect['file'], dir=dir)
         if redirect['content'] is None:
-            logger.debug('check_html_page() ended, faild()')
+            logger.debug('check_html_page_linkdata() ended, faild()')
             redirect = None
         # 復帰
-        logger.debug('check_html_page() ended, format=' + redirect['format'])
+        logger.debug('check_html_page_linkdata() ended, format=' + redirect['format'])
         return redirect
 
     def get_kind_normalized(self, kind):
