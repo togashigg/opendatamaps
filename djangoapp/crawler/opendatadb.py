@@ -157,14 +157,20 @@ class opendatadb:
         with open(os.path.join(crawler_dir, self.LOCALITYCODE_CSV), 'r') as hf:
             hcsv = csv.reader(hf)
             with self.conn.cursor() as cur:
+                uniq_code = {}
                 for i, rec in enumerate(hcsv):
                     # logger.debug('rec['+str(i)+']=' + str(rec))
                     if i < 1:
                         continue
+                    if rec[0] in uniq_code:
+                        logger.warning('市区町村コードが重複, rec['+str(i)+']=' + str(rec))
+                        uniq_code[rec[0]] += 1
+                        continue
+                    uniq_code[rec[0]] = 1
                     jdata = {'code': rec[0], 'state_name': rec[1], 'locality_name': rec[2],
                             'state_yomi': rec[3], 'locality_yomi': rec[4]}
                     sql = sql_insert.format(**jdata)
-                    logger.debug('sql=' + sql)
+                    # logger.debug('sql=' + sql)
                     cur.execute(sql)
                     commit = True
                     if self.COMMIT_COUNT > 0 and (i % self.COMMIT_COUNT) == (self.COMMIT_COUNT - 1):
@@ -211,78 +217,149 @@ class opendatadb:
             logger.debug(msg)
             print(msg, file=sys.stderr)
             return False
-        # opendatamapsテーブルにJSON形式データをロードする
+        for file in sorted(os.listdir(dir)):
+            if file[0] == '.':
+                continue
+            # １ファイルを登録する
+            msg = 'loading file=' + file
+            logger.debug(msg)
+            print('  '+msg+'：', file=sys.stderr, end='')
+            jfile = os.path.join(dir, file)
+            uniq_key_error = False
+            try:
+                with self.conn.cursor() as cur:
+                    rc = insert_opendatamaps_file(cur, jfile)
+            except psycopg2.errors.UniqueViolation as e:
+                uniq_key_error = True
+
+            # ユニークキーエラーが発生していれば１件づつ登録する
+            if uniq_key_error:
+                with self.conn.cursor() as cur:
+                    rc = insert_opendatamaps_file(cur, jfile, commit1=True)
+
+        # 復帰
+        logger.debug('load_opendatamaps_dir() ended.')
+        return True
+
+    def insert_opendatamaps_file(self, cur, file, commit1=False):
+        """
+        """
+        logger = logging.getLogger(__name__)
+        logger.debug('insert_record() start.')
+        # 実行
         sql_insert = "INSERT INTO opendatamaps" \
                 + " (locality_code, kind, dataset, id, label, lat, lng, info)" \
                 + " VALUES ('{locality_code}',{ekind}'{kind}'," \
                 + "{edataset}'{dataset}','{id}'," \
                 + "{elabel}'{label}',{lat},{lng},{einfo}'{info}');"
-        for file in sorted(os.listdir(dir)):
-            if file[0] == '.':
-                continue
-            msg = 'loading file=' + file
-            logger.debug(msg)
-            print('  '+msg+'：', file=sys.stderr, end='')
-            with self.conn.cursor() as cur:
-                jfile = os.path.join(dir, file)
-                sql = ''
-                r_count = 0
-                commit = False
-                try:
-                    with open(jfile, 'r') as fh:
-                        jrecs = json.loads(fh.read())
-                        # logger.debug('jrecs='+jfile+', content='+str(jrecs))
-                        for i, rec in enumerate(jrecs):
-                            # logger.debug('rec['+str(i)+']=' + str(rec))
-                            jdata = {'locality_code': rec['locality_code'], 'kind': rec['kind'],
-                                    'dataset': rec['dataset'],
-                                    'id': rec['id'], 'label': rec['label'],
-                                    'lat': rec['lat'], 'lng': rec['lng'],
-                                    'info': json.dumps(rec['info'], ensure_ascii=False),
-                                    'ekind': '', 'edataset': '', 'elabel': '', 'einfo': ''}
-                            for key in ['kind', 'dataset', 'label', 'info']:
-                                ev = jdata[key].replace('\\','\\\\').replace("'","\\'")
-                                if ev != jdata[key]:
-                                    jdata['e'+key] = 'E'
-                                    jdata[key] = ev
-                            if jdata['lat'] == '':
-                                jdata['lat'] = 0.0
-                            if jdata['lng'] == '':
-                                jdata['lng'] = 0.0
-                            sql = sql_insert.format(**jdata)
-                            # logger.debug('sql=' + sql)
-                            cur.execute(sql)
-                            r_count += 1
-                            commit = True
-                            if self.COMMIT_COUNT > 0 and (i % self.COMMIT_COUNT) == (self.COMMIT_COUNT - 1):
-                                self.conn.commit()
+        sql = ''
+        r_count = 0
+        commit = False
+        with open(file, 'r') as hf:
+            jrecs = json.loads(hf.read())
+            # logger.debug('jrecs='+file+', content='+str(jrecs))
+            for i, rec in enumerate(jrecs):
+                # logger.debug('rec['+str(i)+']=' + str(rec))
+                jdata = {'locality_code': rec['locality_code'], 'kind': rec['kind'],
+                        'dataset': rec['dataset'],
+                        'id': rec['id'], 'label': rec['label'],
+                        'lat': rec['lat'], 'lng': rec['lng'],
+                        'info': json.dumps(rec['info'], ensure_ascii=False),
+                        'ekind': '', 'edataset': '', 'elabel': '', 'einfo': ''}
+                for key in ['kind', 'dataset', 'label', 'info']:
+                    ev = jdata[key].replace('\\','\\\\').replace("'","\\'")
+                    if ev != jdata[key]:
+                        jdata['e'+key] = 'E'
+                        jdata[key] = ev
+                if jdata['lat'] == '':
+                    jdata['lat'] = 0.0
+                if jdata['lng'] == '':
+                    jdata['lng'] = 0.0
+                sql = sql_insert.format(**jdata)
+                # logger.debug('sql=' + sql)
+                complete = False
+                while not complete:
+                    try:
+                        cur.execute(sql)
+                        commit = True
+                        if commit1 \
+                        or self.COMMIT_COUNT > 0 and (i % self.COMMIT_COUNT) == (self.COMMIT_COUNT - 1):
+                            self.conn.commit()
+                            commit = False
+                            if not commit1:
                                 logger.debug('committed, count=' + str(i+1))
-                                commit = False
-                    if commit:
-                        self.conn.commit()
-                        logger.debug('committed last.')
-                    msg = str(r_count) + '件'
+                        r_count += 1
+                        complete = True
+                    except psycopg2.errors.UniqueViolation as e:
+                        logger.exception(e)
+                        self.conn.rollback()
+                        msg = 'ユニークキー例外が発生1'
+                        logger.error(msg)
+                        print(msg, file=sys.stderr)
+                        if not commit1:
+                            raise e
+                        complete = True
+                    except psycopg2.OperationalError as e:
+                        logger.exception(e)
+                        logger.debug('loading about, e.args=' + str(e.args))
+                        if len(e.args) > 0 and e.args[0] == 'SSL connection has been closed unexpectedly\n':
+                            self.conn = None
+                            time.sleep(5)
+                            self.connect()
+                            cur = self.conn.cursor()
+                            msg = 'DBへのコネクションが切断され、再接続済1'
+                            logger.warning(msg)
+                            print(msg, file=sys.stderr)
+                            if not commit1:
+                                raise e
+                        else:
+                            msg = 'SQLの実行失敗1'
+                            logger.warning(msg)
+                            print(msg, file=sys.stderr)
+                            raise Exception(msg)
+                    except Exception as e:
+                        logger.exception(e)
+                        msg = 'SQLの実行失敗2'
+                        logger.warning(msg)
+                        print(msg, file=sys.stderr)
+                        raise Exception(msg)
+        if commit:
+            try:
+                self.conn.commit()
+            except psycopg2.errors.UniqueViolation as e:
+                logger.exception(e)
+                self.conn.rollback()
+                msg = 'ユニークキー例外が発生2'
+                logger.error(msg)
+                print(msg, file=sys.stderr)
+                raise e
+            except psycopg2.OperationalError as e:
+                logger.exception(e)
+                logger.debug('loading about, e.args=' + str(e.args))
+                if len(e.args) > 0 and e.args[0] == 'SSL connection has been closed unexpectedly\n':
+                    self.conn = None
+                    time.sleep(5)
+                    self.connect()
+                    # cur = self.conn.cursor()
+                    msg = 'DBへのコネクションが切断され、再接続済2'
+                    logger.warning(msg)
+                    print(msg + '：', file=sys.stderr, end='')
+                else:
+                    msg = 'SQLの実行失敗3'
                     print(msg, file=sys.stderr)
-                    logger.debug(msg)
-                except psycopg2.errors.UniqueViolation as e:
-                    logger.exception(e)
-                    logger.error('loading about, sql=' + sql)
-                    self.conn.rollback()
-                    print('ユニークキー例外が発生', file=sys.stderr)
-                except psycopg2.OperationalError as e:
-                    logger.exception(e)
-                    logger.error('loading about, e.args=' + str(e.args))
-                    if len(e.args) > 0 and e.args[0] == 'SSL connection has been closed unexpectedly\n':
-                        self.conn = None
-                        time.sleep(5)
-                        self.connect()
-                        cur = self.conn.cursor()
-                        logger.warning('DBのコネクションを再接続済')
-                        print('DBへのコネクションが切断され、再接続済', file=sys.stderr)
-                    else:
-                        raise Exception('SQLの実行失敗')
+                raise Exception(msg)
+            except Exception as e:
+                logger.exception(e)
+                msg = 'SQLの実行失敗4'
+                print(msg, file=sys.stderr)
+                raise Exception(msg)
+            logger.debug('committed last.')
+
+        msg = str(r_count) + '件'
+        print(msg, file=sys.stderr)
+        logger.debug(msg)
         # 復帰
-        logger.debug('load_opendatamaps_dir() ended.')
+        logger.debug('insert_record() ended, rc=' + str(rc))
         return True
 
     def load_opendatamaps_in_dir(self, dirs):

@@ -29,7 +29,7 @@ OPENDATA_SITES = [
     {'name': '静岡県', 'code': '220001', 'api_url': 'https://opendata.pref.shizuoka.jp/api/'}
 ]
 LOCALITY_CODE_FILE = '都道府県コード及び市区町村コード_20190501.csv'
-IGNORE_WORD_IN_DATASET_NAME = ['台帳','統計','人口','カレンダー','コロナ','登録簿']
+IGNORE_WORD_IN_DATASET_NAME = ['台帳','統計','人口','カレンダー','コロナ','登録簿', '公共施設に関するデータ']
 KIND_LIST_NORMALIZED = {
     None: re.compile('(クリーニング所|毒物劇物販売業|オープンデータ一覧|台帳|統計|人口|カレンダー|コロナ|登録簿)'),
     'AED設置箇所': re.compile('AED'),
@@ -1087,15 +1087,17 @@ class Crawler:
                 if resource['filename'] is not None and resource['filename'] != '':
                     dataset_file = resource['filename']
             if dataset_file == '' and 'download_url' in resource:
-                if resource['download_url'] is not None and resource['download_url'] != '':
+                if resource['download_url'] is not None and resource['download_url'] != '' \
+                and resource['download_url'].split('.')[-1].upper() == resource['format'].upper():
                     dataset_file = resource['download_url'].split('/')[-1]
             if dataset_file == '' and 'url' in resource:
-                if resource['url'] is not None and resource['url'] != '':
+                if resource['url'] is not None and resource['url'] != '' \
+                and resource['url'].split('.')[-1].upper() == resource['format'].upper():
                     dataset_file = resource['url'].split('/')[-1]
             if dataset_file == '':
                 dataset_file = resource['name'] + '.' + resource['format'].lower()
             if len(dataset_file.encode('UTF-8')) >= 128:
-                dataset_file = dataset_file[:63] + '_' + dataset_file[-63:]
+                dataset_file = dataset_file[:20] + '_' + dataset_file[-20:]
             if dataset_file.find('/') >= 0:
                 dataset_file = dataset_file.replace('/', '_')
             if dataset_file.find('\n') >= 0:
@@ -1355,7 +1357,7 @@ class Crawler:
         if len(cont_str) > len(XHTML_PAGE) and cont_str[:len(XHTML_PAGE)] != XHTML_PAGE:
             logger.debug('content is not HTML')
         elif cont_str[:len(LINKDATA_DOWNLOAD_PAGE)] == LINKDATA_DOWNLOAD_PAGE:
-            redirect = self.check_html_page_linkdata(cont_str, url, dir)
+            redirect = self.check_html_page_linkdata(cont_str, dir)
         else:
             redirect = self.check_html_page_xhtml(cont_str, url, dir)
         # 復帰
