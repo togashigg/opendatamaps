@@ -20,7 +20,7 @@ from django.views.generic.base import RedirectView
 from django.conf.urls.static import static
 from djangoapp import views
 
-favicon_view = RedirectView.as_view(url='/static/favicon.ico', permanent=True)
+favicon_view = RedirectView.as_view(url='static/favicon.ico', permanent=True)
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -29,7 +29,6 @@ urlpatterns = [
     re_path(r'^cache/(?P<filePath>[^\.]+\.json)$', views.opendataJson),
     re_path(r'^cache/(?P<filePath>[^\.]+\.txt)$', views.opendataCsv),
     re_path(r'^cache/(?P<filePath>[^\.]+\.csv)$', views.opendataCsv),
-    re_path(r'^(?P<Locality>/d+)(?P<ID>\d+)$', views.opendataID),
     re_path(r'^api/localitycode/query', views.localitycodeQuery),
     re_path(r'^api/facility/kinds', views.facilityKinds),
     re_path(r'^api/facility/query', views.facilityQuery),

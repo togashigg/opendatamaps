@@ -1,0 +1,955 @@
+/* -----
+	opendatamaps.js: オープンデータMaps API用サンプルJavaScript（オープンデータ on Google Maps）。
+	Copyright (C) N.Togashi 2023
+----- */
+	var DEBUG=true;
+	if(DEBUG) console.log(nowToString()+' javascript start');
+	var ESCAPE_RED='\u001b[31m';
+	var ESCAPE_RESET='\u001b[0m';
+	var urlApiFacilitySummary='/api/facility/summary';
+	var urlApiFacilityQuery='/api/facility/query?';
+	var urlApiFacilitykinds='/api/facility/kinds?';
+	var googleApiLatLonToAddr='https://mreversegeocoder.gsi.go.jp/reverse-geocoder/LonLatToAddress?lat={lat}&lon={lon}';
+	var myMap=null;
+	var directionsService=null;
+	var directionsRenderer=null;
+	var directionRouteNo=-1;
+	var buttonLabel='追尾中';
+	var myInitialCenter={lat:35.118590536070734, lng:138.91855992264092};	// 初期位置、三島市役所→どこにしようか？
+	var myInitialMode='center';	// center:近隣施設表示、code:市区町村単位の施設表示
+	var myInitialLocality='-';	// 市区町村コード：三島市='222062'
+	var myInitialKind='-';		// 種別：'公衆トイレ'
+	var myInitialDistance=1000; // 近隣の距離：500/1000/2000/5000(m)
+	var myInitialCount=10;	// マーカーの表示数：10/20/50/0(全て)
+	var mapCenter=null;
+	var mapCenterPrev=null;
+	var mapCenterPrev10=null;
+	var centerLocalityCode=null;
+	var centerLocalityName=null;
+	var myParam=null;
+	var data=[];
+	var dataTable=[];
+	var myWatchID=null;
+	var myGeolocation=true;
+	var myMarker=null;
+	var markers=new Array();
+	var delMarkers=false;
+	var markTableTag="markTableV";
+	var httpRetryMax=3;
+	setTimeout(window.scrollTo(0,1),1);
+
+	// GoogleMapsApiのjsを読み込む
+	function onLoad() {
+		let script=document.createElement('script');
+		script.type='text/javascript';
+		let api_key=atob(document.getElementById("GoogleMapsApiKey").getAttribute('value'));
+		script.src='https://maps.googleapis.com/maps/api/js?key='+api_key+'&callback=initMap';
+		let firstScript=document.getElementsByTagName('script')[0];
+		firstScript.parentNode.insertBefore(script, firstScript);
+		return false;
+	}
+	// パラメタチェック
+	function checkParameters() {
+		if(DEBUG) console.log(nowToString()+' checkParameters() start');
+		let myUrl=new URL(window.location.href);
+		let myUrlParams=myUrl.searchParams;
+		let myParam={locality_list: null, datalist: null, 
+				mode: myInitialMode, locality: myInitialLocality, kind: myInitialKind,
+				distance: myInitialDistance, count: myInitialCount,
+				kind_selected: [], not_kind_selected: ['消防水利施設']};
+		myParam.mode=myUrlParams.get('mode');	// 動作モード：center=近隣施設、code=市区町村単位の施設
+		myParam.locality=myUrlParams.get('locality');	// 市区町村コード、例：22206
+		myParam.kind=myUrlParams.get('kind');	// 種別、例：公衆トイレ
+		myParam.distance=myUrlParams.get('distance');	// 近隣距離、例：500
+		myParam.count=myUrlParams.get('count');	// 表示件数、例：0/10/20/50
+		if(myParam.mode==null) {
+			myParam.mode=myInitialMode;
+		}
+		if(myParam.locality==null) {
+			myParam.locality=myInitialLocality;
+		}
+		if(myParam.kind==null) {
+			myParam.kind=myInitialKind;
+		}
+		if(myParam.distance==null) {
+			myParam.distance=myInitialDistance;
+		}
+		if(myParam.count==null) {
+			myParam.count=myInitialCount;
+		}
+		// 市区町村単位データリストを取得
+		myParam.locality_list=httpGetToJson(urlApiFacilitySummary);
+/* [
+	{"code": "131156", "state_name": "東京都", "locality_name": "杉並区", "kinds": ["公衆トイレ"], "kind_count": [246]}, 
+	{"code": "222038", "state_name": "静岡県", "locality_name": "沼津市", "kinds": ["AED", "Wi-Fiスポット", "介護サービス事業所", "公共施設", "公衆トイレ", "包括支援センター", "医療機関", "子育て施設", "文化財", "津波緊急避難施設", "津波避難ビル", "消防水利施設", "消防署", "緊急避難場所", "観光施設", "避難所", "駐輪場"], "kind_count": [131, 11, 806, 326, 79, 13, 341, 67, 99, 6, 189, 4580, 12, 98, 18, 49, 10]}, 
+	{"code": "222054", "state_name": "静岡県", "locality_name": "熱海市", "kinds": ["Wi-Fiスポット", "避難所"], "kind_count": [11, 12]}, 
+	{"code": "222062", "state_name": "静岡県", "locality_name": "三島市", "kinds": ["AED", "Wi-Fiスポット", "みしまタニタ健康くらぶ活動量拠点", "公共施設", "公園", "公衆トイレ", "医療機関", "投票所", "桜の名所", "消防水利施設", "眺望地点", "花壇", "薬局", "みしまコロッケ認定店", "避難所"], "kind_count": [223, 24, 14, 135, 185, 16, 133, 31, 12, 1602, 13, 93, 44, 233, 24]}
+] */
+		// 市区町村コードをキーとする辞書に変換する
+		myParam.locality_dict={}
+		for(let i=0; i<myParam.locality_list.length; i++) {
+			myParam.locality_dict[myParam.locality_list[i].code]=myParam.locality_list[i];
+		}
+		myParam.locality_codes=Object.keys(myParam.locality_dict);
+		if(DEBUG) console.log('myParam.locality_codes='+myParam.locality_codes);
+		// 都道府県名と市区町村名を結合する
+		myParam.locality_codes.forEach(function(code) {
+			myParam.locality_dict[code].name=myParam.locality_dict[code].state_name+myParam.locality_dict[code].locality_name;
+		});
+		// 全分類一覧を取得
+		myParam.allKinds=[];
+		myParam.locality_codes.forEach(function(code) {
+			myParam.allKinds=Array.from(new Set([...myParam.allKinds, ...myParam.locality_dict[code].kinds]));
+		});
+		if(DEBUG) console.log('allKinds='+myParam.allKinds)
+		// kindパラメタをチェック
+		if(myParam.kind==null) {
+			myParam.kind='-';
+		} else if(myParam.kind!='-') {
+			if(!myParam.allKinds.includes(myParam.kind)) {
+				console.log(ESCAPE_RED+nowToString()+' ERROR:kind is not found, kind='+myParam.kind+ESCAPE_RESET);
+				myParam.kind='-';
+			}
+		}
+		// localityパラメタをチェック
+		if(myParam.locality!=null && myParam.locality!='-') {
+			if(!myParam.locality_codes.includes(myParam.locality)) {
+				console.log(ESCAPE_RED+nowToString()+' ERROR:locality code is not found, locality='+myParam.locality+ESCAPE_RESET);
+				myParam.locality='-';
+			}
+		}
+		if(DEBUG) console.log('myParam='+JSON.stringify(myParam));
+		if(DEBUG) console.log(nowToString()+' checkParameters() ended');
+		return myParam;
+	}
+	// Google Maps APIのcallback関数
+	function initMap() {
+		if(DEBUG) console.log(nowToString()+' initMap() start');
+		myParam=checkParameters();
+		// 位置情報対応ブラウザの確認
+		if(!navigator.geolocation) {
+			myGeolocation=false;
+		}
+		// マップ表示・表表示
+		mapCenter=new google.maps.LatLng(myInitialCenter.lat, myInitialCenter.lng);
+		var gmapTag=document.getElementById("gmap");
+		var options={
+			zoom: 15,
+			center: mapCenter,
+			mapTypeId: google.maps.MapTypeId.ROADMAP,
+			scaleControl:true
+		};
+		myMap=new google.maps.Map(gmapTag, options);
+		startTraceCurrentPosition();
+		resizeWindows();
+		if(DEBUG) console.log(nowToString()+' initMap() ended');
+	}
+	// データ一覧作成
+	function showDataList() {
+		if(DEBUG) console.log(nowToString()+' showDataList() start');
+		// 操作バー作成
+		let htmlTags='';
+		let selected='';
+		let operationMenu=document.getElementById("operationMenu");
+		// 種別一覧作成（表示選択）
+		htmlTags='<table><tr>';
+		selected='';
+		htmlTags+='<td nowrap><select id="selectKindList" name="selectKindList" style="width:128px;" onChange="selectKind(this.options[this.selectedIndex].value);">\n';
+		htmlTags+='<option value="-"'+selected+'>(未選択)</option>\n';
+		selected='';
+		let kind_list=[];
+		if(myParam.locality=='-') {
+			for(let i=0; i<data.length; i++) {
+				kind_list.push(data[i].kind);
+			}
+			kind_list=Array.from(new Set(kind_list)).sort();
+		} else {
+			kind_list=myParam.locality_dict[myParam.locality].kinds;
+		}
+		kind_list.forEach(function(kind) {
+			htmlTags+='<option value="'+kind+'"'+selected+'>'+kind+'</option>\n';
+		});
+		htmlTags+='</select></td>\n';
+		htmlTags+='<td nowrap><select name="markCountList" id="markCountList" style="width:64px;" onChange="myParam.count=parseInt(this.options[this.selectedIndex].value,10);delMarkers=true;showMarkers();">\n';
+		htmlTags+='<option value="10">10件</option>\n';
+		htmlTags+='<option value="20">20件</option>\n';
+		htmlTags+='<option value="50">50件</option>\n';
+		htmlTags+='<option value="0">全て</option>\n';
+		htmlTags+='</select></td>\n';
+		htmlTags+='<td nowrap><input id="traceButton" type="button" value="'+buttonLabel+'" onClick="toggleTraceButton();" style="width:5em;" /></td>\n';
+		htmlTags+='<td nowrap><input id="settingsButton" type="button" value="設定" onClick="showSettings();" style="width:3em;" /></td>\n';
+		// htmlTags+='<td colspan="4" nowrap><span id="centerAddress" style="text-overflow:ellipsis; white-space:nowrap; overflow:hidden; padding:10px;"></span></td>';
+		htmlTags+='</tr></table>';
+		operationMenu.innerHTML=htmlTags;
+		document.getElementById("markCountList").querySelector("option[value='"+myParam.count+"']").setAttribute("selected", "selected");
+		// 設定画面
+		if(myParam.mode=='center') {
+			document.getElementById('mode_center').checked=true;
+		} else {
+			document.getElementById('mode_code').checked=true;
+		}
+		// 市区町村名一覧作成
+		let localityData=document.getElementById("localityData");
+		htmlTags='';
+		selected='';
+		htmlTags+='<select id="selectLocalityList" name="selectLocalityList" onChange="selectLocality(this.options[this.selectedIndex].value);">\n';
+		htmlTags+='<option value="-" '+selected+'>(未選択)</option>\n';
+		let state_name='';
+		Object.keys(myParam.locality_dict).forEach(function(code) {
+			if(myParam.locality_dict[code].state_name!=state_name) {
+				if(state_name!='') {
+					htmlTags+='</optgroup>\n';
+				}
+				state_name=myParam.locality_dict[code].state_name;
+				if(myParam.locality_dict[code].locality_name=='') {
+					htmlTags+='<optgroup label="'+state_name+'（'+code+'）">\n';
+				} else {
+					htmlTags+='<optgroup label="'+state_name+'">\n';
+				}
+			}
+			htmlTags+='<option value="'+code+'"'+selected+'>'+code+':'+myParam.locality_dict[code].name+'</option>\n';
+		});
+		htmlTags+='</optgroup></select>\n';
+		localityData.innerHTML=htmlTags;
+		// 種別一覧作成（検索条件）
+		let kindListSelect=document.getElementById("kindListSelect");
+		htmlTags='';
+		kind_list=myParam.allKinds;
+		if(myParam.locality!='-') {
+			kind_list=myParam.locality_dict[myParam.locality].kinds;
+		}
+		// ToDo: 複数選択リストボックスとチェックボックスのどちらが良いか？
+		htmlTags+='<select id="settingsKindList" name="settingsKindList" size="5" multiple style="height:7.6em;">\n';
+		let id_no=0;
+		kind_list.forEach(function(kind) {
+			let selected='';
+			let checked='□ ';
+			if(myParam.kind_selected.indexOf(kind) >= 0) {
+				selected=' selected';
+				checked='☑ ';
+			}
+			htmlTags+='<option value="'+kind+'" onClick="clickkindListOption(this);"'+selected+'>'+checked+kind+'</option>\n';
+		});
+		htmlTags+='</select>\n';
+/* ToDo:
+		kind_list.forEach(function(kind) {
+			selected='';
+			if(myParam.kind_selected.indexOf(kind) >= 0) {
+				selected=' checked';
+			}
+			htmlTags+='<input type="checkbox" value="'+kind+'"'+selected+' onclick="clickkindListOption(this.value, this.checked);" /><label>'+kind+'</label>\n';
+		});
+*/
+		kindListSelect.innerHTML=htmlTags;
+		// 除外種別一覧作成（検索条件）
+		let notKindListSelect=document.getElementById("notKindListSelect");
+		htmlTags='';
+		kind_list=myParam.allKinds;
+		if(myParam.locality!='-') {
+			kind_list=myParam.locality_dict[myParam.locality].kinds;
+		}
+		// ToDo: 複数選択リストボックスとチェックボックスのどちらが良いか？
+		htmlTags+='<select id="settingsNotKindList" name="settingsNotKindList" size="5" multiple style="height:7.6em;">\n';
+		id_no=0;
+		kind_list.forEach(function(kind) {
+			let selected='';
+			let checked='□ ';
+			if(myParam.not_kind_selected.indexOf(kind)>=0) {
+				selected=' selected';
+				checked='☑ ';
+			}
+			htmlTags+='<option value="'+kind+'" onClick="clickNotkindListOption(this);"'+selected+'>'+checked+kind+'</option>\n';
+		});
+		htmlTags+='</select>\n';
+		notKindListSelect.innerHTML=htmlTags;
+		// 市区町村選択
+		if(myParam.locality!='-') {
+			if(document.getElementById("selectLocalityList").querySelector("option[value='"+myParam.locality+"']")!=null) {
+				document.getElementById("selectLocalityList").querySelector("option[value='"+myParam.locality+"']").setAttribute("selected", "selected");
+			}
+		}
+		// 種別選択
+		if(myParam.kind!='-') {
+			if(document.getElementById("selectKindList").querySelector("option[value='"+myParam.kind+"']")!=null) {
+				document.getElementById("selectKindList").querySelector("option[value='"+myParam.kind+"']").setAttribute("selected", "selected");
+			}
+		}
+		// 近隣距離選択
+		document.getElementById("selectDistanceList").querySelector("option[value='"+myParam.distance+"']").setAttribute("selected", "selected");
+		// 現在住所表示
+		let codeName=getCenterAddress(mapCenter);
+		centerLocalityCode=codeName[0];
+		centerLocalityName=codeName[1];
+		document.getElementById("centerAddress").innerHTML=centerLocalityName;
+		if(DEBUG) console.log(nowToString()+' showDataList() ended');
+	}
+	// モード選択
+	function selectMode(mode) {
+		if(DEBUG) console.log(nowToString()+' selectMode() start, mode='+mode);
+		if(typeof mode=='undefined' || (mode!='center' && mode!='code')) {
+			if(DEBUG) console.log('invalid mode');
+			return false;
+		}
+		myParam.mode=mode;
+		if(DEBUG) console.log(nowToString()+' selectMode() ended');
+	}
+	// 自治体選択
+	function selectLocality(locality) {
+		if(DEBUG) console.log(nowToString()
+				+' selectLocality() start, locality='+locality);
+		if(typeof locality=='undefined') {
+			if(DEBUG) console.log('invalid locality');
+			return false;
+		}
+		myParam.locality=locality;
+		if(DEBUG) console.log(nowToString()+' selectLocality() ended');
+		return false;
+	}
+	// 種別選択（表示対象）
+	function selectKind(kind) {
+		if(DEBUG) console.log(nowToString()+' selectKind() start, kind='+kind);
+		if(typeof kind=='undefined') {
+			if(DEBUG) console.log('invalid kind');
+			return false;
+		}
+		myParam.kind=kind;
+		delMarkers=true;
+		// 表更新
+			showTable();
+		// マーカー表示
+		showMarkers();
+		if(DEBUG) console.log(nowToString()+' selectKind() ended');
+		return false;
+	}
+	// 種別選択（検索対象）
+	function clickkindListOption(opt) {
+		if(DEBUG) console.log(nowToString()+' clickkindListOption() start');
+		let kind=opt.value;
+		let text=opt.text;
+		if(text.substr(0,1)=='☑') {
+			let kind_index=myParam.kind_selected.indexOf(kind);
+			if(kind_index>=0) {
+				myParam.kind_selected.pop(kind_index);
+			}
+			opt.selected = false;
+			text='□ '+kind;
+		} else {
+			if(myParam.kind_selected.indexOf(kind) == -1) {
+				myParam.kind_selected.push(kind);
+			}
+			opt.selected = true;
+			text='☑ '+kind;
+		}
+		opt.text=text;
+		if(DEBUG) console.log(nowToString()+' clickkindListOption() ended');
+		return false;
+	}
+	// 除外種別選択（検索対象）
+	function clickNotkindListOption(opt) {
+		if(DEBUG) console.log(nowToString()+' clickNotkindListOption() start');
+		let kind=opt.value;
+		let text=opt.text;
+		if(text.substr(0,1)=='☑') {
+			let kind_index=myParam.not_kind_selected.indexOf(kind);
+			if(kind_index>=0) {
+				myParam.not_kind_selected.pop(kind_index);
+			}
+			opt.selected=false;
+			text='□ '+kind;
+		} else {
+			if(myParam.not_kind_selected.indexOf(kind) == -1) {
+				myParam.not_kind_selected.push(kind);
+			}
+			opt.selected=true;
+			text='☑ '+kind;
+		}
+		opt.text=text;
+		if(DEBUG) console.log(nowToString()+' clickNotkindListOption() ended');
+		return false;
+	}
+	// 近隣距離選択
+	function selectDistance(distance) {
+		if(DEBUG) console.log(nowToString()+' selectDistance() start, distance='+distance);
+		if(typeof distance=='undefined' || isNaN(distance)) {
+			if(DEBUG) console.log('invalid distance');
+			return false;
+		}
+		myParam.distance=distance;
+		if(DEBUG) console.log(nowToString()+' selectDistance() ended');
+		return false;
+	}
+	// データ更新
+	function updateMapsData() {
+		readData();
+		delMarkers=true;
+		// 表更新
+		showTable();
+		// マーカー表示
+		showMarkers();
+		// 復帰
+		return false;
+	}
+	// データファイル読み込み
+	function readData() {
+		if(DEBUG) console.log(nowToString()+' readData() start');
+		myMap.setOptions({ draggableCursor: 'progress' });
+		data=[];
+		let kinds='';
+		if(myParam.kind_selected.length>0) {
+			kinds='&kind=';
+			let sep='';
+			myParam.kind_selected.forEach(function(kind) {
+				kinds+=sep;
+				kinds+=kind;
+				sep=',';
+			});
+		}
+		if(myParam.not_kind_selected.length>0) {
+			let sep=',';
+			if(kinds=='') {
+				kinds='&kind=';
+				sep='';
+			}
+			myParam.not_kind_selected.forEach(function(kind) {
+				kinds+=sep;
+				kinds+='!'+kind;
+				sep=',';
+			});
+		}
+		let url='';
+		if(myParam.mode=='code') {
+			if(myParam.locality==null || myParam.locality=='-') {
+				if(DEBUG) console.log('invalid myParam.locality');
+				return false;
+			}
+			url=urlApiFacilityQuery+'by=code&code='+myParam.locality;
+		} else 
+		if(myParam.mode=='center') {
+			url=urlApiFacilityQuery+'by=center&distance='+myParam.distance+'&lat='+mapCenter.lat()+'&lng='+mapCenter.lng();
+		} else {
+			if(DEBUG) console.log('invalid myParam.mode');
+			return false
+		}
+		url+=kinds;
+		console.log('url='+url);
+		return readDataRetry(url, httpRetryMax);
+	}
+	function readDataRetry(url, retry) {
+		if(DEBUG) console.log(nowToString()+' readDataRetry() start, retry='+retry);
+		let httpObj=new XMLHttpRequest();
+		var httpRetryCount=retry;
+		httpObj.open("GET", url, true);	// 非同期
+		httpObj.onreadystatechange=function() {
+			if (httpObj.readyState==4) {
+				if(httpObj.status==200) {
+					if(DEBUG) console.log(nowToString()+' OK HTTP response.');
+					let readText=httpObj.responseText;
+					data=[];
+					data=dataFromJson(readText);
+					if(DEBUG) console.log(nowToString()+' readData().OK, data.length='+data.length);
+					showDataList();
+					delMarkers=true;
+					// 表更新
+					showTable();
+					// マーカー表示
+					showMarkers();
+					myMap.setOptions({ draggableCursor: 'hand' });
+				} else {
+					if(httpRetryCount>0) {
+						console.log(ESCAPE_RED+'error in HTTP GET(1) '+url+', retryCount='+httpRetryCount+', httpObj='+JSON.stringify(httpObj)+ESCAPE_RESET);
+						httpRetryCount--;
+						setTimeout(readDataRetry(url,httpRetryCount), 3000);
+					} else {
+						alert('データファイルの読み込みに失敗.\n'+url+'\nstatus='+httpObj.status+')。');
+						myMap.setOptions({ draggableCursor: 'hand' });
+					}
+				}
+			}
+		}
+		httpObj.overrideMimeType("text/plain; charset=UTF-8");
+		httpObj.send(null);
+		if(DEBUG) console.log(nowToString()+' readDataRetry() ended, start asyncronus GET');
+		return false;
+	}
+	function dataFromJson(readText) {
+		if(DEBUG) console.log(nowToString()+' dataFromJson() start');
+		let data=[];
+		let no=0
+		let json=JSON.parse(readText);
+		let reg=new RegExp("((https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+))", 'g');
+		for(i=0; i<json.length; i++) {
+			let jinfo=JSON.parse(json[i].info);
+			let infos='';
+			infos+='データセット：'+json[i].dataset;
+			jinfo.forEach(function(item) {
+				if(infos!='') {
+					infos+='<BR>';
+				}
+				let key = Object.keys(item)[0];
+				let value = item[key];
+				if(value!='') {
+					let text=String(value).replace(reg, function(match) {
+						return '<a href="' + match + '" target="_blank">' + match + '</a>';
+					});
+					infos+=key+'：'+text;
+				} else {
+					infos+=key+'：'+value;
+				}
+			});
+			infos+='<BR>id：' + json[i].id;
+			no++;
+			rec = {
+				no:no,
+				id:json[i].id,
+				kind:json[i].kind,
+				label:json[i].label,
+				info:infos,
+				lat:json[i].lat,
+				lng:json[i].lng,
+			};
+			if('error' in json[i]) {
+				rec.error=json[i].error;
+			}
+			data.push(rec);
+		}
+		if(DEBUG) console.log('data='+JSON.stringify(data));
+		if(DEBUG) console.log(nowToString()+' dataFromJson() ended, data.length='+data.length);
+		return data;
+	}
+	function startTraceCurrentPosition() {
+		if(DEBUG) console.log(nowToString()+' startTraceCurrentPosition() start');
+		if(!myGeolocation) {
+			var tag=document.getElementById("traceButton");
+			if(tag!=null) {
+				tag.value='追尾不可';
+				tag.disabled=true;
+			}
+			console.log(ESCAPE_RED+nowToString()+' ※現在位置情報が取得できないブラウザです。'+ESCAPE_RESET);
+			document.getElementById("message").innerHTML='※現在位置情報が取得できないブラウザです。';
+			return;
+		}
+		buttonLabel='追尾中';
+		var gmapTag=document.getElementById("gmap");
+		// 現在位置情報取得
+		var position_options={
+			enableHighAccuracy:true
+		};
+		myWatchID=navigator.geolocation.watchPosition(function(position) {
+			if(DEBUG) console.log(nowToString()+' watchPosition() start');
+			mapCenter=new google.maps.LatLng(position.coords.latitude-0.0, position.coords.longitude-0.0);
+			if(DEBUG) console.log(nowToString()+' watchPosition, mapCenter='+mapCenter);
+			if(mapCenter!=null) {
+				myMap.setCenter(mapCenter);
+				// 現在地マーカー表示
+				if(myMarker==null) {
+					if(DEBUG) console.log('現在地 表示:'+mapCenter);
+					myMarker=new google.maps.Marker({
+						position:mapCenter,
+						map:myMap,
+						zIndex:0,
+						title:'現在地',
+						icon:'https://chart.googleapis.com/chart?chst=d_map_pin_letter&chld=・|4FFF00|000000',
+						draggable:true
+					});
+					dispInfo(myMarker, '現在地');
+				} else {
+					if(DEBUG) console.log('現在地 移動:'+mapCenter);
+					myMarker.setPosition(mapCenter);
+					myMarker.zIndex=0;
+				}
+				let moveCenter=false;
+				let getAddress=false;
+				let rereadData=false;
+				if(mapCenterPrev==null) {
+					if(DEBUG) console.log(nowToString()+' センター設定：'+mapCenter);
+					moveCenter=true;
+				} else if(mapCenter.lat()!=mapCenterPrev.lat() || mapCenter.lng()!=mapCenterPrev.lng()) {
+					if(DEBUG) console.log(nowToString()+' センター移動：'+mapCenter.lat()+':'+mapCenter.lng()+'←'+mapCenterPrev.lat()+':'+mapCenterPrev.lng());
+					moveCenter=true;
+				} else if(delMarkers) {
+					moveCenter=true;
+				}
+				if(moveCenter) {
+					if(myParam.mode == 'center') {
+						if(mapCenterPrev10==null) {
+							getAddress=true;
+							rereadData=true;
+						} else 
+						if(Math.floor(mapCenter.lat()*1000)/1000!=mapCenterPrev10.lat()
+						|| Math.floor(mapCenter.lng()*1000)/1000!=mapCenterPrev10.lng()) {
+							// 約10m移動した：
+							// 近隣の施設を再取得する
+							// 中心の住所を取得する
+							getAddress=true;
+							rereadData=true;
+						}
+						mapCenterPrev10=new google.maps.LatLng(
+								Math.floor(mapCenter.lat()*1000)/1000,
+								Math.floor(mapCenter.lng()*1000)/1000);
+					}
+					if(getAddress) {
+						let codeName=getCenterAddress(mapCenter);
+						centerLocalityCode=codeName[0];
+						centerLocalityName=codeName[1];
+						let centerAddress=document.getElementById("centerAddress");
+						if(centerAddress!=null) {
+							centerAddress.innerHTML=centerLocalityName;
+						}
+					}
+				}
+				if(moveCenter) {
+					if(rereadData) {
+						readData();
+					}
+					// 表更新
+					showTable('no');
+					// マーカー再表示
+					if(delMarkers) {
+						showMarkers();
+					}
+					if(directionRouteNo>=0) {
+						directionsRenderer.setMap(myMap);
+					}
+				}
+				mapCenterPrev=new google.maps.LatLng(mapCenter.lat(), mapCenter.lng());
+			}
+			if(DEBUG) console.log(nowToString()+' watchPosition() ended');
+		}, function() {
+			if(DEBUG) console.log(nowToString()+' start ※現在地が取得できません。');
+			document.getElementById("message").innerHTML='※現在地が取得できません。';
+		}, position_options);
+		google.maps.event.addListener(myMap, "center_changed", function() {
+			if(DEBUG) console.log(nowToString()+' center_changed.');
+			// ToDo: stopTraceCurrentPosition();
+			// ToDo: showTable();
+		});
+		var tag=document.getElementById("traceButton");
+		if(tag!=null) {
+			tag.value=buttonLabel;
+		}
+		if(DEBUG) console.log(nowToString()+' startTraceCurrentPosition() ended');
+	}
+	function httpGetToJson(url) {
+		if (DEBUG) console.log(nowToString()+' httpGetToJson() start, url='+url);
+		if(myMap!=null) {
+			myMap.setOptions({ draggableCursor: 'progress' });
+		}
+		let request=new XMLHttpRequest();
+		request.open("GET", url, false);	// 同期処理
+		request.send();
+		if(myMap!=null) {
+			myMap.setOptions({ draggableCursor: 'hand' });
+		}
+		if (request.status != 200) {
+			// 失敗
+			console.log(ESCAPE_RED+nowToString()+' request.status='+request.status+', url='+url+ESCAPE_RESET);
+			return null;
+		}
+		let result=JSON.parse(request.responseText);
+		request=null;
+		if (DEBUG) console.log(nowToString()+' httpGetToJson() ended, result='+JSON.stringify(result));
+		return result;
+	}
+	function getCenterAddress(center) {
+		if (DEBUG) console.log(nowToString()+' getCenterAddress() start, center='+center);
+		let codeName=['', ''];
+		let url=googleApiLatLonToAddr.replace('{lat}',''+center.lat()).replace('{lon}',''+center.lng());
+		let rjson=httpGetToJson(url);	// 例：{"results":{"muniCd":"22206","lv01Nm":"文教町二丁目"}}
+		if(rjson!=null) {
+			codeName[0]=codeFromLocalityDict(rjson.results.muniCd);
+			if(!(codeName[0] in myParam.locality_dict)) {
+				console.log(ESCAPE_RED+nowToString()+' ERROR:市区町村コードが見付からない。code='+codeName[0]+ESCAPE_RESET);
+				return ['', ''];
+			}
+			codeName[1]=myParam.locality_dict[codeName[0]].name+rjson.results.lv01Nm;
+		}
+		if (DEBUG) console.log(nowToString()+' getCenterAddress() ended, codeName=['+codeName+']');
+		return codeName;
+	}
+	function codeFromLocalityDict(code) {
+		if(!(code in myParam.locality_dict)) {
+			Object.keys(myParam.locality_dict).some(function(key, index) {
+				if(key.substr(0, code.length)==code) {
+					code=key;
+					return true;
+				}
+				return false;
+			});
+		}
+		return code;
+	}
+	function toggleTraceButton() {
+		if(DEBUG) console.log(nowToString()+' toggleTraceButton() start');
+		if(buttonLabel=='追尾中') {
+			stopTraceCurrentPosition();
+		} else {
+			startTraceCurrentPosition();
+		}
+		if(DEBUG) console.log(nowToString()+' toggleTraceButton() ended');
+	}
+	function stopTraceCurrentPosition() {
+		if(DEBUG) console.log(nowToString()+' stopTraceCurrentPosition() start');
+		navigator.geolocation.clearWatch(myWatchID);
+		buttonLabel='追尾開始';
+		var buttonTag=document.getElementById("traceButton");
+		buttonTag.value=buttonLabel;
+		if(DEBUG) console.log(nowToString()+' stopTraceCurrentPosition() ended');
+	}
+	function toggleShowLocation() {
+		if(DEBUG) console.log(nowToString()+' toggleShowLocation() start');
+		showTable();
+		if(DEBUG) console.log(nowToString()+' toggleShowLocation() ended');
+	}
+	function dispInfo(marker, name) {
+		if(DEBUG) console.log(nowToString()+' dispInfo() start, '+':'+name);
+		google.maps.event.addListener(marker, 'click',
+			function(event) {
+				new google.maps.InfoWindow({content:name}).open(marker.getMap(), marker);
+			}
+		);
+		if(DEBUG) console.log(nowToString()+' dispInfo() ended, '+':'+name);
+	}
+	function showMarkers() {
+		if(DEBUG) console.log(nowToString()+' showMarkers() start, myParam.count='+myParam.count);
+		if(delMarkers==true) {
+			for(no=0;no<markers.length; no++) {
+				markers[no].setMap(null);
+			}
+			delMarkers=false;
+			markers=new Array();
+		}
+		if(markers.length==0) {
+			for(no=0; no<dataTable.length; no++) {
+				markers.push(new google.maps.Marker({
+						position: new google.maps.LatLng(dataTable[no].lat, dataTable[no].lng),
+						map: myMap,
+						title: dataTable[no].label,
+						icon: 'https://chart.googleapis.com/chart?chst=d_map_spin&chld=0.8|0|FF4F4F|14|b|'+dataTable[no].no,
+						scaledSize: new google.maps.Size(80, 80)
+					}));
+					// ToDo:	icon: 'https://chart.googleapis.com/chart?chst=d_map_pin_letter&chld='+dataTable[no].no+'|FF4F4F|000000',
+				dispInfo(markers[markers.length-1], dataTable[no].label);
+				if(myParam.count>0 && (no+1)>=myParam.count) {
+					break;
+				}
+			}
+		}
+		if(DEBUG) console.log(nowToString()+' showMarkers() ended, myParam.count='+myParam.count);
+	}
+	function showTable(toTop) {
+		if(DEBUG) console.log(nowToString()+' showTable() start');
+		if(directionRouteNo>=0) {
+			showTrabelRoute(directionRouteNo);
+			directionRouteNo=-1;
+		}
+		var markTable=document.getElementById("markTableV");
+		var showLocation=document.getElementById("showLocation");
+		if(showLocation!=null) {
+			showLocation=showLocation.checked;
+		} else {
+			showLocation=false;
+		}
+		dataTable=data;
+		let showKind=false;
+		if(myParam.kind==null || myParam.kind=='-') {
+			showKind=true;
+		} else {
+			dataTable=[];
+			for(no=0; no<data.length; no++) {
+				if(data[no].kind == myParam.kind) {
+					dataTable.push(data[no]);
+				}
+			}
+		}
+		// 現在地から近い順にソート
+		for(no=0; no<dataTable.length; no++) {
+			if(dataTable[no].lat=='' || dataTable[no].lng=='') {
+				dataTable[no].distance=NaN;
+			} else {
+				dataTable[no].distance=distanceLatlng(dataTable[no].lat,dataTable[no].lng);
+			}
+		}
+		dataTable.sort(function(a, b) {
+			if(isNaN(a.distance)) return 1;
+			if(isNaN(b.distance)) return -1;
+			return (a.distance < b.distance)?-1:1;
+		});
+		markTable.innerHTML="";
+		markTable=document.getElementById("markTableH");
+		markTable.innerHTML="";
+		markTable=document.getElementById(markTableTag);
+		var tableTags="";
+		tableTags+='<table id="list" border="1">';
+		tableTags+='<tbody>';
+		tableTags+='<tr><th>ﾙｰﾄ</th>';
+		let colspan=' colspan="3"';
+		if(showKind) {
+			tableTags+='<th>分類</th>';
+			colspan=' colspan="4"';
+		}
+		tableTags+='<th>名称</th><th nowrap>直線距離</th>';
+		if(showLocation) {
+			tableTags+='<th>緯度</th><th>経度</th>';
+		}
+		tableTags+='</tr>';
+		tableTags+='<tr onClick="showDetail(-1);">';
+		tableTags+='<td'+colspan+'>現在地：<span id="centerAddress">'+centerLocalityName+'</span></td>';
+		if(showLocation) {
+			tableTags+='<td>'+Math.round(mapCenter.lat()*1000000)/1000000+'</td><td>'+Math.round(mapCenter.lng()*1000000)/1000000+'</td>';
+		}
+		tableTags+='</tr>';
+		for(no=0; no<dataTable.length; no++) {
+			tableTags+='<tr>'
+						+'<td><input type="button" value="'+dataTable[no].no+'" onClick="showTrabelRoute('+no+');"></td>';
+			if(showKind) {
+				tableTags+='<td>'+dataTable[no].kind+'</td>';
+			}
+			tableTags+='<td onClick="showDetail('+no+');">'+dataTable[no].label+'</td>'
+						+'<td align="RIGHT">'+dataTable[no].distance.toLocaleString()+'</td>';
+			if(showLocation) {
+				tableTags+='<td>'+dataTable[no].lat+'</td>'
+						+'<td>'+dataTable[no].lng+'</td>';
+			}
+			tableTags+='</tr>';
+		}
+		tableTags+='</tbody>';
+		tableTags+='</table>';
+		markTable.innerHTML=tableTags;
+		if(typeof toTop=='undefined' || toTop=='yes') {
+			markTable.scrollTop=0;
+		}
+		if(DEBUG) console.log(nowToString()+' showTable() ended');
+	}
+	function showDetail(no) {
+		if(DEBUG) console.log(nowToString()+' showDetail() start');
+		var divTag=document.getElementById("locationDetail");
+		var detail="";
+		detail+='<table border="1" id="detailTable">\n';
+		detail+='<tr><th>項目</th><th>値</th><tr>\n';
+		if(no==-1) {
+			detail+='<tr><td>名称</td><td>現在地</td></tr>\n';
+			detail+='<tr><td>情報</td><td>現在地</td></tr>\n';
+			detail+='<tr><td>緯度</td><td>'+mapCenter.lat()+'</td></tr>\n';
+			detail+='<tr><td>経度</td><td>'+mapCenter.lng()+'</td></tr>\n';
+		} else {
+			detail+='<tr><td>名称</td><td>'+dataTable[no].label+'</td></tr>\n';
+			detail+='<tr><td>情報</td><td>'+dataTable[no].info+'</td></tr>\n';
+			detail+='<tr><td>緯度</td><td>'+dataTable[no].lat+'</td></tr>\n';
+			detail+='<tr><td>経度</td><td>'+dataTable[no].lng+'</td></tr>\n';
+			if('error' in dataTable[no]) {
+				detail+='<tr bgcolor="red"><td>msg</td><td>'+dataTable[no].error+'</td></tr>\n';
+			}
+		}
+		detail+='</table>\n';
+		divTag.innerHTML=detail;
+		divTag=document.getElementById("popupDetail");
+		divTag.style.display="block";
+		if(DEBUG) console.log(nowToString()+' showDetail() ended');
+	}
+	function closeDetail() {
+		if(DEBUG) console.log(nowToString()+' closeDetail() start');
+		var divTag=document.getElementById("popupDetail");
+		divTag.style.display="none";
+		if(DEBUG) console.log(nowToString()+' closeDetail() ended');
+	}
+	function myMarkToCenter() {
+		if(DEBUG) console.log(nowToString()+' myMarkToCenter() start');
+		myMap.setCenter(mapCenter);
+		startTraceCurrentPosition();
+		if(DEBUG) console.log(nowToString()+' myMarkToCenter() ended');
+	}
+	function markToCenter(no) {
+		if(DEBUG) console.log(nowToString()+' markToCenter('+no+') start');
+		stopTraceCurrentPosition();
+		mapCenter=new google.maps.LatLng(dataTable[no].lat, dataTable[no].lng);
+		myMap.setCenter(mapCenter);
+		if(DEBUG) console.log(nowToString()+' markToCenter('+no+') ended');
+	}
+	function showTrabelRoute(no) {
+		if(DEBUG) console.log(nowToString()+' showTrabelRoute('+no+') start');
+		// stopTraceCurrentPosition();
+		if(directionsService==null) {
+			directionsService=new google.maps.DirectionsService();
+			directionsRenderer=new google.maps.DirectionsRenderer();
+		}
+		if(directionRouteNo>=0) {
+			directionsRenderer.setMap(null);
+			if(directionRouteNo==no) {
+				directionRouteNo=-1;
+				no=-1;
+			}
+		}
+		if(no>=0) {
+			let request = {
+				origin: mapCenter,	//スタート地点
+				destination: new google.maps.LatLng(dataTable[no].lat, dataTable[no].lng),	//ゴール地点
+				travelMode: google.maps.DirectionsTravelMode.WALKING	//移動手段
+			};
+			directionsService.route(request, function(result, status) {
+				if (status == google.maps.DirectionsStatus.OK) {
+					directionsRenderer.setOptions({
+						preserveViewport: true //ズーム率を変更してルート全体を表示しない
+					});
+					// ルート検索の結果を地図上に描画
+					directionsRenderer.setDirections(result);
+					directionsRenderer.setMap(myMap);
+				}
+			});
+			directionRouteNo=no;
+		}
+		if(DEBUG) console.log(nowToString()+' showTrabelRoute('+no+') ended');
+	}
+	function showSettings() {
+		if(DEBUG) console.log(nowToString()+' showSettings() start');
+		divTag=document.getElementById("popupSettings");
+		divTag.style.display="block";
+		if(DEBUG) console.log(nowToString()+' showSettings() ended');
+		return false;
+	}
+	function closeSettings() {
+		if(DEBUG) console.log(nowToString()+' closeSettings() start');
+		var divTag=document.getElementById("popupSettings");
+		divTag.style.display="none";
+		if(DEBUG) console.log(nowToString()+' closeSettings() ended');
+		return false;
+	}
+	function distanceLatlng(lat, lng) {
+		return(Math.round(Math.sqrt(
+					Math.pow((mapCenter.lat()-lat)*100000,2)
+					+Math.pow((mapCenter.lng()-lng)*100000,2)
+		)));
+	}
+	function resizeWindows() {
+		if(DEBUG) console.log(nowToString()+' resizeWindows() start');
+		let winW=parseInt(document.documentElement.clientWidth);
+		let winH=parseInt(document.documentElement.clientHeight);
+		let gmapTag=document.getElementById('gmap');
+		if(winW>winH) {
+			markTableTag="markTableH";
+			gmapTag.style.width=((winW-20)/2)+'px';
+			gmapTag.style.height=(winH-110)+'px';
+			document.getElementById('markTableH').style.height=(winH-110)+'px';
+			document.getElementById('markTableH').style.overflow='auto';
+			document.getElementById('markTableV').style.height=0;
+			document.getElementById('markTableV').style.overflow='hidden';
+		} else {
+			markTableTag="markTableV";
+			gmapTag.style.width=(winW-55)+'px';
+			gmapTag.style.height=(winH-(110+120+10))+'px';
+			document.getElementById('markTableH').style.height=gmapTag.style.height;
+			document.getElementById('markTableH').style.overflow='hidden';
+			document.getElementById('markTableV').style.height=(32*3)+'px';
+			document.getElementById('markTableV').style.overflow='auto';
+		}
+		if(DEBUG) console.log(nowToString()+' resizeWindows() ended');
+	}
+	function nowToString() {
+		return dateToString(new Date());
+	}
+	function dateToString(d) {
+		return([d.getFullYear(),('0'+(d.getMonth()+1)).slice(-2),('0'+d.getDate()).slice(-2)].join('/')
+			+' '
+			+[('0'+d.getHours()).slice(-2),('0'+d.getMinutes()).slice(-2),('0'+d.getSeconds()).slice(-2)].join(':')
+		);
+	}
+	if(DEBUG) console.log(nowToString()+' javascript passed');

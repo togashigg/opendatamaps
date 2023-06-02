@@ -1,7 +1,7 @@
-# Dockerfile for オープンデータ活用
+# Dockerfile for オープンデータMaps API、サンプルアプリ実行環境
 # Copyright (C) N.Togashi 2023
 # build: docker build -t opendatamaps:latest .
-# run: docker run -d --name opendatamaps -p 80:8080 opendatamaps
+# run: docker run -d -e GOOGLE_MAPS_API_KEY --name opendatamaps -p 80:8080 opendatamaps
 # base image
 FROM   ubuntu:22.04
 MAINTAINER togashigg <KGG03575@nifty.com>

@@ -20,11 +20,6 @@ SELECT_LIMIT = 1000
 
 class opendatadb:
 
-    HOST = 'dpg-cgh4qtndvk4ml9sj50h0-a.oregon-postgres.render.com'
-    PORT = '5432'
-    DBNAME = 'opendatadb'
-    USER = 'opendatadb_user'
-    PSW = '6Zfdtt5Y9YuZjp210BOahqBpJF1XCPVz'
     COMMIT_COUNT = 100
     LOCALITYCODE_CSV = '都道府県コード及び市区町村コード_20190501.csv'
     conn = None
@@ -40,7 +35,11 @@ class opendatadb:
         logger.debug('connect() start.')
         # PostgreSQLサーバへ接続
         if self.conn is None:
-            self.conn = psycopg2.connect('host='+self.HOST+' port='+self.PORT+' dbname='+self.DBNAME+' user='+self.USER+' password='+self.PSW)
+            self.conn = psycopg2.connect('host=' + os.getenv('POSTGRESQL_HOST') \
+                    +' port=' + os.getenv('POSTGRESQL_PORT') \
+                    +' dbname=' + os.getenv('POSTGRESQL_DBNAME') \
+                    +' user=' + os.getenv('POSTGRESQL_USER') \
+                    +' password=' + os.getenv('POSTGRESQL_PASS'))
             logger.debug('connected.')
         logger.debug('connect() ended.')
         return True

@@ -1,0 +1,108 @@
+/* -----
+	opendatamaps.css: オープンデータMaps API用サンプルCSS（オープンデータ on Google Maps）。
+	Copyright (C) N.Togashi 2023
+----- */
+@-webkit-keyframes modalFadeIn {
+	0% {opacity:0;display:block;}
+	100% {opacity:1;}
+}
+div#modal div:target {
+	-webkit-animation-name: modalFadeIn;
+	-webkit-animation-duration: 1s;
+	-webkit-animation-iteration-count: 1;
+	opacity: 1;
+	display:block;
+}
+.modalWindow {
+	top: 0;
+	left: 0;
+	margin: 30px 0 0 10px;
+	background: #F0F0F0;
+	display: none;
+	position: absolute;
+	z-index: 10;
+	border: 3px dimgray solid;
+}
+.modalTitle {
+	font-size: 20px;
+	width: 100%;
+	background: #404040;
+	background:-moz-linear-gradient(rgba(128,128,128,0.7), rgba(128,128,128,0.9) 50%);
+	background:-webkit-gradient(linear, 100% 0%, 100% 50%, from(rgba(128,128,128,0.7)), to(rgba(64,64,64,0.9)));
+	color: #FFF;
+}
+div#title {
+	border: 3px dimgray solid;
+	border-radius: 8px;
+}
+select {
+	height: 30px;
+	font-size: 18px;
+}
+input {
+	height: 28px;
+	font-size: 18px;
+}
+table#list {
+	width: 100%;
+	border-spacing: 0;
+	font-size:18px;
+}
+table#list th {
+	color: #fff;
+	padding: 0px 2px;
+	background: #101010;
+	background:-moz-linear-gradient(rgba(128,128,128,0.7), rgba(128,128,128,0.9) 50%);
+	background:-webkit-gradient(linear, 100% 0%, 100% 50%, from(rgba(128,128,128,0.7)), to(rgba(64,64,64,0.9)));
+	border-left:1px solid #808080;
+	border-top:1px solid #808080;
+	border-bottom:1px solid #808080;
+	text-shadow:0 -1px 0 rgba(128,128,128,0.9);
+	box-shadow: 0px 1px 1px rgba(255,255,255,0.3) inset;
+}
+table#list th:first-child {
+	border-radius: 5px 0 0 0;
+}
+table#list th:last-child {
+	border-radius:0 5px 0 0;
+	border-right:1px solid #404040;
+	box-shadow: 2px 2px 1px rgba(0,0,0,0.1),0px 1px 1px rgba(255,255,255,0.3) inset;
+}
+table#list tr td {
+	padding: 0px 2px;
+	border-bottom: 1px solid #404040;
+	border-left: 1px solid #408040;
+}
+table#list tr td:last-child {
+	border-right: 1px solid #404040;
+	box-shadow: 2px 2px 1px rgba(0,0,0,0.1);
+}
+table#list tr {
+	background: #fff;
+}
+table#list tr:nth-child(2n+1) {
+	background: #f1f6fc;
+}
+table#list tr:last-child td {
+	box-shadow: 2px 2px 1px rgba(0,0,0,0.1);
+}
+table#list tr:last-child td:first-child {
+	border-radius: 0 0 0 5px;
+}
+table#list tr:last-child td:last-child {
+	border-radius: 0 0 5px 0;
+}
+table#list tr:hover {
+	background: #bbd4ee;
+	cursor:pointer;
+}
+table#detailTable {
+	font-size: 20px;
+	width: 100%;
+	border: 3px dimgray solid;
+	background: #E0E0E0;
+	color: #000;"
+}
+div#close {
+	cursor:pointer;
+}
