@@ -380,13 +380,11 @@
 	}
 	// データ更新
 	function updateMapsData() {
+		if(DEBUG) console.log(nowToString()+' updateMapsData() start');
+		myParam.kind='-';
 		readData();
-		delMarkers=true;
-		// 表更新
-		showTable();
-		// マーカー表示
-		showMarkers();
 		// 復帰
+		if(DEBUG) console.log(nowToString()+' updateMapsData() ended');
 		return false;
 	}
 	// データファイル読み込み
