@@ -219,7 +219,7 @@
 			kind_list=myParam.locality_dict[myParam.locality].kinds;
 		}
 		// ToDo: 複数選択リストボックスとチェックボックスのどちらが良いか？
-		htmlTags+='<select id="settingsKindList" name="settingsKindList" size="5" multiple style="height:7.6em;">\n';
+		htmlTags+='<select id="settingsKindList" name="settingsKindList" size="5" multiple style="height:7.6em;" onChange="changekindListSelect(this);">\n';
 		let id_no=0;
 		kind_list.forEach(function(kind) {
 			let selected='';
@@ -249,7 +249,7 @@
 			kind_list=myParam.locality_dict[myParam.locality].kinds;
 		}
 		// ToDo: 複数選択リストボックスとチェックボックスのどちらが良いか？
-		htmlTags+='<select id="settingsNotKindList" name="settingsNotKindList" size="5" multiple style="height:7.6em;">\n';
+		htmlTags+='<select id="settingsNotKindList" name="settingsNotKindList" size="5" multiple style="height:7.6em;" onChange="changeNotkindListSelect(this);">\n';
 		id_no=0;
 		kind_list.forEach(function(kind) {
 			let selected='';
@@ -322,6 +322,29 @@
 		return false;
 	}
 	// 種別選択（検索対象）
+	function changekindListSelect(select) {
+		if(DEBUG) console.log(nowToString()+' changekindListSelect() start');
+		let opts=select.getElementsByTagName('option');
+		for(let i=0; i<this.childElementCount; i++) {
+			let kind=opts[i].value;
+			let text=opts[i].text;
+			if(opts[i].selected) {
+				if(myParam.kind_selected.indexOf(kind)==-1) {
+					myParam.kind_selected.push(kind);
+				}
+				text='☑ '+kind;
+			} else {
+				let kind_index=myParam.kind_selected.indexOf(kind);
+				if(kind_index>=0) {
+					myParam.kind_selected.pop(kind_index);
+				}
+				text='□ '+kind;
+			}
+			opts[i].text=text;
+		}
+		if(DEBUG) console.log(nowToString()+' changekindListSelect() ended');
+		return false;
+	}
 	function clickkindListOption(opt) {
 		if(DEBUG) console.log(nowToString()+' clickkindListOption() start');
 		let kind=opt.value;
@@ -331,17 +354,17 @@
 			if(kind_index>=0) {
 				myParam.kind_selected.pop(kind_index);
 			}
-			opt.selected = false;
+			opt.selected=false;
 			text='□ '+kind;
 		} else {
-			if(myParam.kind_selected.indexOf(kind) == -1) {
+			if(myParam.kind_selected.indexOf(kind)==-1) {
 				myParam.kind_selected.push(kind);
 			}
-			opt.selected = true;
+			opt.selected=true;
 			text='☑ '+kind;
 		}
 		opt.text=text;
-		if(DEBUG) console.log(nowToString()+' clickkindListOption() ended');
+		if(DEBUG) console.log(nowToString()+' clickkindListOption() ended, selected='+opt.selected);
 		return false;
 	}
 	// 除外種別選択（検索対象）
@@ -357,14 +380,14 @@
 			opt.selected=false;
 			text='□ '+kind;
 		} else {
-			if(myParam.not_kind_selected.indexOf(kind) == -1) {
+			if(myParam.not_kind_selected.indexOf(kind)==-1) {
 				myParam.not_kind_selected.push(kind);
 			}
 			opt.selected=true;
 			text='☑ '+kind;
 		}
 		opt.text=text;
-		if(DEBUG) console.log(nowToString()+' clickNotkindListOption() ended');
+		if(DEBUG) console.log(nowToString()+' clickNotkindListOption() ended, selected='+opt.selected);
 		return false;
 	}
 	// 近隣距離選択
