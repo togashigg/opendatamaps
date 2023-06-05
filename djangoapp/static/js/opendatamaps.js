@@ -324,6 +324,7 @@
 	// 種別選択（検索対象）
 	function changekindListSelect(select) {
 		if(DEBUG) console.log(nowToString()+' changekindListSelect() start');
+		alert('changekindListSelect start');
 		let opts=select.getElementsByTagName('option');
 		for(let i=0; i<this.childElementCount; i++) {
 			let kind=opts[i].value;
@@ -347,6 +348,7 @@
 	}
 	function clickkindListOption(opt) {
 		if(DEBUG) console.log(nowToString()+' clickkindListOption() start');
+		alert('clickkindListOption start');
 		let kind=opt.value;
 		let text=opt.text;
 		if(text.substring(0,1)=='☑') {
