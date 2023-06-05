@@ -326,7 +326,7 @@
 		if(DEBUG) console.log(nowToString()+' changekindListSelect() start');
 		alert('changekindListSelect start');
 		let opts=select.getElementsByTagName('option');
-		for(let i=0; i<this.childElementCount; i++) {
+		for(let i=0; i<select.childElementCount; i++) {
 			let kind=opts[i].value;
 			let text=opts[i].text;
 			if(opts[i].selected) {
@@ -347,6 +347,7 @@
 		return false;
 	}
 	function clickkindListOption(opt) {
+/* ToDo:
 		if(DEBUG) console.log(nowToString()+' clickkindListOption() start');
 		alert('clickkindListOption start');
 		let kind=opt.value;
@@ -367,6 +368,7 @@
 		}
 		opt.text=text;
 		if(DEBUG) console.log(nowToString()+' clickkindListOption() ended, selected='+opt.selected);
+*/
 		return false;
 	}
 	// 除外種別選択（検索対象）
