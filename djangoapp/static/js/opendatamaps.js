@@ -349,7 +349,7 @@
 		if(DEBUG) console.log(nowToString()+' clickkindListOption() start');
 		let kind=opt.value;
 		let text=opt.text;
-		if(text.substr(0,1)=='☑') {
+		if(text.substring(0,1)=='☑') {
 			let kind_index=myParam.kind_selected.indexOf(kind);
 			if(kind_index>=0) {
 				myParam.kind_selected.pop(kind_index);
@@ -372,7 +372,7 @@
 		if(DEBUG) console.log(nowToString()+' clickNotkindListOption() start');
 		let kind=opt.value;
 		let text=opt.text;
-		if(text.substr(0,1)=='☑') {
+		if(text.substring(0,1)=='☑') {
 			let kind_index=myParam.not_kind_selected.indexOf(kind);
 			if(kind_index>=0) {
 				myParam.not_kind_selected.pop(kind_index);
@@ -690,7 +690,7 @@
 	function codeFromLocalityDict(code) {
 		if(!(code in myParam.locality_dict)) {
 			Object.keys(myParam.locality_dict).some(function(key, index) {
-				if(key.substr(0, code.length)==code) {
+				if(key.substring(0, code.length)==code) {
 					code=key;
 					return true;
 				}
