@@ -1,7 +1,11 @@
 # Dockerfile for オープンデータMaps API、サンプルアプリ実行環境
 # Copyright (C) N.Togashi 2023
 # build: docker build -t opendatamaps:latest .
-# run: docker run -d -e GOOGLE_MAPS_API_KEY --name opendatamaps -p 80:8080 opendatamaps
+# run: docker run -d --name opendatamaps -p 80:8080 \
+#             -e GOOGLE_MAPS_API_KEY -e POSTGRESQL_HOST \
+#             -e POSTGRESQL_PORT -e POSTGRESQL_DBNAME \
+#             -e POSTGRESQL_USER -e POSTGRESQL_PASS \
+#             opendatamaps
 # base image
 FROM   ubuntu:22.04
 MAINTAINER togashigg <KGG03575@nifty.com>
@@ -39,5 +43,5 @@ RUN    pip3 install -r requirements.txt
 # アプリケーションをインストール
 ADD    . /app/
 # Djangoを常駐化
-ENTRYPOINT python3 manage.py runserver 0.0.0.0:8080
+ENTRYPOINT python3 manage.py runserver 0.0.0.0:8080 --insecure
 EXPOSE 8080
