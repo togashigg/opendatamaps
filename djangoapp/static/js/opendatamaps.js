@@ -490,6 +490,7 @@
 			}
 		}
 		httpObj.overrideMimeType("text/plain; charset=UTF-8");
+		httpObj.setRequestHeader('Access-Control-Allow-Origin', window.location.protocol+'//'+window.location.hostname+':8080'+'/');
 		httpObj.send(null);
 		if(DEBUG) console.log(nowToString()+' readDataRetry() ended, start asyncronus GET');
 		return false;
