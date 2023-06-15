@@ -227,14 +227,14 @@ class opendatadb:
             uniq_key_error = False
             try:
                 with self.conn.cursor() as cur:
-                    rc = insert_opendatamaps_file(cur, jfile)
+                    rc = self.insert_opendatamaps_file(cur, jfile)
             except psycopg2.errors.UniqueViolation as e:
                 uniq_key_error = True
 
             # ユニークキーエラーが発生していれば１件づつ登録する
             if uniq_key_error:
                 with self.conn.cursor() as cur:
-                    rc = insert_opendatamaps_file(cur, jfile, commit1=True)
+                    rc = self.insert_opendatamaps_file(cur, jfile, commit1=True)
 
         # 復帰
         logger.debug('load_opendatamaps_dir() ended.')
