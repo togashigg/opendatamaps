@@ -811,7 +811,7 @@ if __name__ == '__main__':
     rc = 0
     logger = setup_logger(__name__, logging.DEBUG)  # logging.INFO
     # 実行
-    BASE_DIR=os.path.join(os.environ['HOME'], 'github', 'opendatamaps')
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     db = None
     try:
         # パラメタチェック
