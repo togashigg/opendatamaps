@@ -829,7 +829,7 @@
 				tableTags+='<td>'+dataTable[no].kind+'</td>';
 			}
 			tableTags+='<td onClick="showDetail('+no+');">'+dataTable[no].label+'</td>'
-						+'<td align="RIGHT">'+dataTable[no].distance.toLocaleString()+'</td>';
+						+'<td align="RIGHT">'+dataTable[no].distance.toLocaleString()+'m</td>';
 			if(showLocation) {
 				tableTags+='<td>'+dataTable[no].lat+'</td>'
 						+'<td>'+dataTable[no].lng+'</td>';
