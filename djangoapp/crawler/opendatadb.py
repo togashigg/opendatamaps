@@ -104,6 +104,7 @@ class opendatadb:
                       lat      FLOAT NOT NULL,
                       lng      FLOAT NOT NULL,
                       info     TEXT,
+                      error    TEXT,
                       CONSTRAINT opendatamaps_pkey PRIMARY KEY (locality_code, dataset, id, label)
                   );
                   '''
@@ -247,10 +248,10 @@ class opendatadb:
         logger.debug('insert_record() start.')
         # 実行
         sql_insert = "INSERT INTO opendatamaps" \
-                + " (locality_code, kind, dataset, id, label, lat, lng, info)" \
+                + " (locality_code, kind, dataset, id, label, lat, lng, info, error)" \
                 + " VALUES ('{locality_code}',{ekind}'{kind}'," \
                 + "{edataset}'{dataset}','{id}'," \
-                + "{elabel}'{label}',{lat},{lng},{einfo}'{info}');"
+                + "{elabel}'{label}',{lat},{lng},{einfo}{info},{eerror}{error});"
         sql = ''
         r_count = 0
         commit = False
@@ -263,13 +264,22 @@ class opendatadb:
                         'dataset': rec['dataset'],
                         'id': rec['id'], 'label': rec['label'],
                         'lat': rec['lat'], 'lng': rec['lng'],
-                        'info': json.dumps(rec['info'], ensure_ascii=False),
-                        'ekind': '', 'edataset': '', 'elabel': '', 'einfo': ''}
-                for key in ['kind', 'dataset', 'label', 'info']:
+                        'info': 'NULL', 'error': 'NULL',
+                        'ekind': '', 'edataset': '', 'elabel': '',
+                        'einfo': '', 'eerror': ''}
+                if 'info' in rec and rec['info'] != '':
+                    jdata['info'] = json.dumps(rec['info'], ensure_ascii=False)
+                if 'error' in rec and rec['error'] != '':
+                    jdata['error'] = rec['error']
+                for key in ['kind', 'dataset', 'label', 'info', 'error']:
                     ev = jdata[key].replace('\\','\\\\').replace("'","\\'")
                     if ev != jdata[key]:
                         jdata['e'+key] = 'E'
                         jdata[key] = ev
+                if jdata['info'] != 'NULL':
+                    jdata['info'] = "'" + jdata['info'] + "'"
+                if jdata['error'] != 'NULL':
+                    jdata['error'] = "'" + jdata['error'] + "'"
                 if jdata['lat'] == '':
                     jdata['lat'] = 0.0
                 if jdata['lng'] == '':
@@ -589,6 +599,7 @@ class opendatadb:
                'lat': rec[5],
                'lng': rec[6],
                'info': rec[7],
+               'error': rec[8],
               } for rec in recs]
         logger.debug('get_by_localitycode() ended, len(rc)=' + str(len(rc)))
         return rc
@@ -650,6 +661,7 @@ class opendatadb:
                'lat': rec[5],
                'lng': rec[6],
                'info': rec[7],
+               'error': rec[8],
                'distance': self.calc_distance((c_lat,c_lng), (rec[5],rec[6]))
               } for rec in recs]
         # logger.debug('rc=' + str(rc))

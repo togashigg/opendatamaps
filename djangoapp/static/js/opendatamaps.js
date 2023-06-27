@@ -6,9 +6,9 @@
 	if(DEBUG) console.log(nowToString()+' javascript start');
 	var ESCAPE_RED='\u001b[31m';
 	var ESCAPE_RESET='\u001b[0m';
-	var urlApiFacilitySummary='/api/facility/summary';
-	var urlApiFacilityQuery='/api/facility/query?';
-	var urlApiFacilitykinds='/api/facility/kinds?';
+	var urlApiFacilitySummary='api/facility/summary';
+	var urlApiFacilityQuery='api/facility/query?';
+	var urlApiFacilitykinds='api/facility/kinds?';
 	var googleApiLatLonToAddr='https://mreversegeocoder.gsi.go.jp/reverse-geocoder/LonLatToAddress?lat={lat}&lon={lon}';
 	var myMap=null;
 	var directionsService=null;
@@ -531,7 +531,7 @@
 				lat:json[i].lat,
 				lng:json[i].lng,
 			};
-			if('error' in json[i]) {
+			if('error' in json[i] && json[i].error != null) {
 				rec.error=json[i].error;
 			}
 			data.push(rec);
@@ -860,7 +860,7 @@
 			detail+='<tr><td>情報</td><td>'+dataTable[no].info+'</td></tr>\n';
 			detail+='<tr><td>緯度</td><td>'+dataTable[no].lat+'</td></tr>\n';
 			detail+='<tr><td>経度</td><td>'+dataTable[no].lng+'</td></tr>\n';
-			if('error' in dataTable[no]) {
+			if('error' in dataTable[no] && dataTable[no].error != null) {
 				detail+='<tr bgcolor="red"><td>msg</td><td>'+dataTable[no].error+'</td></tr>\n';
 			}
 		}
