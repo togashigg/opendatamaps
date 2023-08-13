@@ -7,34 +7,33 @@
 #             -e POSTGRESQL_USER -e POSTGRESQL_PASS \
 #             opendatamaps
 # base image
-FROM   ubuntu:22.04
+# FROM   ubuntu:22.04
+FROM   python:3.10-slim
 MAINTAINER togashigg <KGG03575@nifty.com>
-RUN    apt update && apt -y upgrade \
-    && apt clean
+RUN    apt-get update && apt-get -y upgrade \
+    && apt-get clean
 # タイムゾーン設定
-RUN    apt update \
-    && apt install -y tzdata \
-    && apt clean
+RUN    apt-get update \
+    && apt-get install -y tzdata \
+    && apt-get clean
 ENV    TZ Asia/Tokyo
 # 時刻同期
-# RUN    apt update \
-#     && apt install -y ntp \
+# RUN    apt-get update \
+#     && apt-get install -y ntp \
 #     && cp -p /etc/ntp.conf /etc/ntp.conf.back \
 #     && sed -i -e 's/^pool /# pool /g' /etc/ntp.conf \
 #     && echo 'server ntp.nict.jp' >> /etc/ntp.conf \
 #     && systemctl restart ntp \
-#     && apt clean
+#     && apt-get clean
 # 日本語化
-RUN    apt update \
-    && apt install -y language-pack-ja-base language-pack-ja locales \
+RUN    apt-get update \
+    && apt-get install -y locales \
     && locale-gen ja_JP.UTF-8 \
     && echo 'LANG=ja_JP.UTF-8' > /etc/default/locale \
-    && apt clean
+    && apt-get clean
 ENV    LANG ja_JP.UTF-8
 # Python3パッケージをインストール
-RUN    apt update \
-    && apt install -y python3 python3-pip \
-    && apt clean
+RUN    pip3 install --upgrade pip
 # Python3必須ライブラリをインストール
 RUN    mkdir /app
 WORKDIR /app
