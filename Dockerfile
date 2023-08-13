@@ -7,7 +7,6 @@
 #             -e POSTGRESQL_USER -e POSTGRESQL_PASS \
 #             opendatamaps
 # base image
-# FROM   ubuntu:22.04
 FROM   python:3.10-slim
 MAINTAINER togashigg <KGG03575@nifty.com>
 RUN    apt-get update && apt-get -y upgrade \
