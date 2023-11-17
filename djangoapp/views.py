@@ -6,21 +6,23 @@ from django.core.exceptions import BadRequest
 from django.http import HttpResponse, Http404
 from django.template import loader, RequestContext
 from django.shortcuts import render
-from djangoapp.crawler import opendatadb
+from src import api
+import logging
 
-APP_TITLE = 'オープンデータマップ'
+APP_TITLE = 'OpendataMaps'
+logger = logging.getLogger(__name__)
 
 def error404(request):
-        # print("\nstart error404()", file=sys.stderr)
+        logger.debug('error404() start.')
         raise Http404
         return HttpResponseNotFound('<h3>Page not found</h3>')
 
 def opendataIndex(request):
-        # print("\nstart opendataIndex()", file=sys.stderr)
+        logger.debug('opendataIndex() start.')
         return opendata(request, 'index.html')
 
 def opendata(request, filePath):
-        # print("\nstart opendata(), filePath=" + filePath, file=sys.stderr)
+        logger.debug('opendata() start, filePath='+filePath)
         if(filePath==""):
                 filePath="index.html"
         contexts = {
@@ -30,7 +32,7 @@ def opendata(request, filePath):
         return render(request, filePath, contexts)
 
 def opendataJson(request, filePath):
-        # print("\nstart opendataJson(), filePath=" + filePath, file=sys.stderr)
+        logger.debug('opendataJson() start, filePath='+filePath)
         f = open('djangoapp/cache/'+filePath, 'r')
         response = HttpResponse(f)
         response['content-type'] = 'application/json; charset=utf-8'
@@ -38,7 +40,7 @@ def opendataJson(request, filePath):
         return response
 
 def opendataCsv(request, filePath):
-        # print("\nstart opendataCsv(), filePath=" + filePath, file=sys.stderr)
+        logger.debug('opendataCsv() start, filePath='+filePath)
         f = open('djangoapp/cache/'+filePath, 'r')
         response = HttpResponse(f)
         response['content-type'] = 'text/csv; charset=utf-8'
@@ -47,9 +49,9 @@ def opendataCsv(request, filePath):
 
 def localitycodeQuery(request):
         # ?[code=code][&state_name=name][&locality_name=name][&limit=nnn]
-        # print("\nstart localitycodeQuery().", file=sys.stderr)
+        logger.debug('localitycodeQuery() start.')
         param = {'code': None, 'state_name': None, 'locality_name': None, 'limit': None}
-        db = None
+        apiobj = None
         if 'code' in request.GET:
             param['code'] = request.GET['code']
         if 'state_name' in request.GET:
@@ -60,40 +62,33 @@ def localitycodeQuery(request):
             try:
                 param['limit'] = int(request.GET['limit'])
             except Exception as e:
+                logger.exception(e)
                 raise BadRequest('Invalid request. Invalid value in "limit" parameter.')
         try:
-            db = opendatadb.opendatadb()
-            db.connect()
-            res = db.query_localitycode(param['code'],
+            apiobj = api.OpendataMapsApi(logname='djangoapp')
+            res = apiobj.query_localitycode(param['code'],
                     param['state_name'], param['locality_name'],
                     limit=param['limit'])
+            apiobj = None
         except Exception as e:
             logger.exception(e)
-            db.disconnect()
-            db = None
+            apiobj = None
             raise BadRequest('Invalid request. Error in Execution.')
-        if db is not None:
-            db.disconnect()
-            db = None
         response = HttpResponse(json.dumps(res, ensure_ascii=False))
         response['content-type'] = 'application/json; charset=utf-8'
         return response
 
 def facilitySummary(request):
-        # print("\nstart facilitySummary().", file=sys.stderr)
-        db = None
+        logger.debug('facilitySummary() start.')
+        apiobj = None
         try:
-            db = opendatadb.opendatadb()
-            db.connect()
-            recs = db.get_summary()
+            apiobj = api.OpendataMapsApi(logname='djangoapp')
+            recs = apiobj.get_summary()
+            apiobj = None
         except Exception as e:
-            if db is not None:
-                db.disconnect()
-                db = None
+            logger.exception(e)
+            apiobj = None
             raise BadRequest('Error in Execution.')
-        if db is not None:
-            db.disconnect()
-            db = None
         response = HttpResponse(json.dumps(recs, ensure_ascii=False).replace('], [', '],\n['))
         response['content-type'] = 'application/json; charset=utf-8'
         return response
@@ -101,9 +96,9 @@ def facilitySummary(request):
 def facilityQuery(request):
         # ?by=center&lat=nn.nn&lng=nn.nn&distance=nnn[&kind=kind[,kind...]][&limit=nnn]
         # ?by=code&code=code[,code...]][&kind=kind[,kind...]][&limit=nnn]
-        # print("\nstart facilityQuery().", file=sys.stderr)
+        logger.debug('facilityQuery() start.')
         param = {'kind': None, 'limit': None}
-        db = None
+        apiobj = None
         if 'by' not in request.GET:
             raise BadRequest('Invalid request. "by" parameter not specified.')
         param['by'] = request.GET['by']
@@ -115,63 +110,57 @@ def facilityQuery(request):
             try:
                 param['limit'] = int(request.GET['limit'])
             except Exception as e:
+                logger.exception(e)
                 raise BadRequest('Invalid request. Invalid value in "limit" parameter.')
         if param['by'] == 'code':
             if 'code' not in request.GET:
                 raise BadRequest('Invalid request. "code" parameter is not found.')
             param['code'] = request.GET['code'].split(',')
             try:
-                db = opendatadb.opendatadb()
-                db.connect()
-                recs = db.get_by_localitycode(param['code'], param['kind'],
+                apiobj = api.OpendataMapsApi(logname='djangoapp')
+                recs = apiobj.get_by_localitycode(param['code'], param['kind'],
                         limit=param['limit'])
+                apiobj = None
             except Exception as e:
-                db.disconnect()
-                db = None
+                logger.exception(e)
+                apiobj = None
                 raise BadRequest('Invalid request. Error in Execution.')
-        elif param['by'] == 'center':
+        else:	# 'center'
             if 'lat' not in request.GET \
             or 'lng' not in request.GET \
             or 'distance' not in request.GET:
                 raise BadRequest('Invalid request."lat","lng","distance" parameter is not found.')
-            db = None
             try:
                 param['lat'] = float(request.GET['lat'])
                 param['lng'] = float(request.GET['lng'])
                 param['distance'] = int(request.GET['distance'])
-                db = opendatadb.opendatadb()
-                db.connect()
-                recs = db.get_by_distance_from_center(param['lat'], param['lng'],
+                apiobj = api.OpendataMapsApi(logname='djangoapp')
+                recs = apiobj.get_by_distance_from_center(param['lat'], param['lng'],
                         param['distance'], param['kind'], limit=param['limit'])
+                apiobj = None
             except Exception as e:
-                db.disconnect()
-                db = None
+                logger.exception(e)
+                apiobj = None
                 raise BadRequest('Invalid request.Invalid value in "lat","lng","distance" parameter. Or error in execution.')
-        if db is not None:
-            db.disconnect()
-            db = None
         response = HttpResponse(json.dumps(recs, ensure_ascii=False).replace('], [', '],\n['))
         response['content-type'] = 'application/json; charset=utf-8'
         return response
 
 def facilityKinds(request):
         # ?[code=code[,code]]
-        # print("\nstart facilityKinds().", file=sys.stderr)
+        logger.debug('facilityKinds() start.')
         param = {'code': None}
-        db = None
+        apiobj = None
         if 'code' in request.GET:
             param['code'] = request.GET['code'].split(',')
         try:
-            db = opendatadb.opendatadb()
-            db.connect()
-            res = db.get_opendatamaps_kinds(param['code'])
+            apiobj = api.OpendataMapsApi(logname='djangoapp')
+            res = apiobj.get_opendatamaps_kinds(param['code'])
+            apiobj = None
         except Exception as e:
-            db.disconnect()
-            db = None
+            logger.exception(e)
+            apiobj = None
             raise BadRequest('Invalid request. Error in Execution.')
-        if db is not None:
-            db.disconnect()
-            db = None
         response = HttpResponse(json.dumps(res, ensure_ascii=False))
         response['content-type'] = 'application/json; charset=utf-8'
         return response

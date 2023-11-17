@@ -1,9 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# opendatadb.py: オープンデータDBの処理クラス
+# db.py: オープンデータDBの処理クラス
 # Copyright (C) N.Togashi 2023
-# 結果確認方法：$ psql -h xxx -U xxx -p xxx
-#               opendatadb=>\d opendata
+# Required environmental variables:
+#   POSTGRESQL_HOST
+#   POSTGRESQL_PORT
+#   POSTGRESQL_USER
+#   POSTGRESQL_PASS
+#   POSTGRESQL_DBNAME
+# How to check results: 
+#   $ psql -h $POSTGRESQL_HOST -U $POSTGRESQL_USER -p $POSTGRESQL_PORT
+#   Password for user postgres: <value of $POSTGRESQL_PASS>
+#   postgres=# \d opendatamaps
+#   postgres=# SELECT COUNT(*) FROM opendatamaps;
+#   postgres=# SELECT COUNT(*) FROM localitycode;
+#   postgres=# \q
 
 import os
 import sys
@@ -18,21 +29,30 @@ import logging
 QUERY_LIMIT = 100
 SELECT_LIMIT = 1000
 
-class opendatadb:
+class OpendataMapsDb:
 
     COMMIT_COUNT = 100
     LOCALITYCODE_CSV = '都道府県コード及び市区町村コード_20190501.csv'
     conn = None
     cache_dir = None
+    download_dir = None
+    logger = None
 
-    def __init__(self):
+    def __init__(self, logname=''):
+        if logname == '':
+            my_logname = __name__
+        else:
+            my_logname = logname + '.db'
+        self.logger = logging.getLogger(my_logname)
+        self.logger.debug('__init__() start.')
         if 'BASE_DIR' not in locals():
-            BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        self.cache_dir = os.path.join(BASE_DIR, 'djangoapp' , 'cache')
+            BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.cache_dir = os.path.join(BASE_DIR, 'cache')
+        self.download_dir = os.path.join(BASE_DIR, 'download')
+        self.logger.debug('__init__() ended.')
 
     def connect(self):
-        logger = logging.getLogger(__name__)
-        logger.debug('connect() start.')
+        self.logger.debug('connect() start.')
         # PostgreSQLサーバへ接続
         if self.conn is None:
             self.conn = psycopg2.connect('host=' + os.getenv('POSTGRESQL_HOST') \
@@ -40,34 +60,31 @@ class opendatadb:
                     +' dbname=' + os.getenv('POSTGRESQL_DBNAME') \
                     +' user=' + os.getenv('POSTGRESQL_USER') \
                     +' password=' + os.getenv('POSTGRESQL_PASS'))
-            logger.debug('connected.')
-        logger.debug('connect() ended.')
-        return True
+            self.logger.debug('connected.')
+        self.logger.debug('connect() ended.')
+        return self.conn
 
     def disconnect(self):
-        logger = logging.getLogger(__name__)
-        logger.debug('disconnect() start.')
+        self.logger.debug('disconnect() start.')
         # 接続を閉じる
         if self.conn is not None:
             self.conn.close()
             self.conn = None
-            logger.debug('disconnected.')
-        logger.debug('disconnect() ended.')
+            self.logger.debug('disconnected.')
+        self.logger.debug('disconnect() ended.')
         return True
 
     def create_tables(self, tables):
-        logger = logging.getLogger(__name__)
-        logger.debug('create_tables() start, tables=' + str(tables))
+        self.logger.debug('create_tables() start, tables=' + str(tables))
         if 'localitycode' in tables:
             self.create_localitycode();
         if 'opendatamaps' in tables:
             self.create_opendatamaps();
-        logger.debug('create_tables() ended.')
+        self.logger.debug('create_tables() ended.')
         return True
 
     def create_localitycode(self):
-        logger = logging.getLogger(__name__)
-        logger.debug('create_localitycode() start.')
+        self.logger.debug('create_localitycode() start.')
         # カーソルを取得
         with self.conn.cursor() as cur:
             # localitycodeテーブル作成する
@@ -83,15 +100,14 @@ class opendatadb:
             # SQL実行
             cur.execute(sql)
             cur.close()
-            logger.debug('TABLE(localitycode) created.')
+            self.logger.debug('TABLE(localitycode) created.')
         self.conn.commit()
-        logger.debug('commited.')
-        logger.debug('create_localitycode() ended.')
+        self.logger.debug('commited.')
+        self.logger.debug('create_localitycode() ended.')
         return True
 
     def create_opendatamaps(self):
-        logger = logging.getLogger(__name__)
-        logger.debug('create_localitycode() start.')
+        self.logger.debug('create_localitycode() start.')
         # カーソルを取得
         with self.conn.cursor() as cur:
             # opendatamapsテーブルを作成する
@@ -111,7 +127,7 @@ class opendatadb:
             # SQL実行
             cur.execute(sql)
             cur.close()
-            logger.debug('TABLE(opendatamaps) created.')
+            self.logger.debug('TABLE(opendatamaps) created.')
         if True:
             with self.conn.cursor() as cur:
                 # インデックスを作成する
@@ -122,15 +138,14 @@ class opendatadb:
                 # SQL実行
                 cur.execute(sql)
                 cur.close()
-                logger.debug('INDEX(opendatamaps_index1) created.')
+                self.logger.debug('INDEX(opendatamaps_index1) created.')
         self.conn.commit()
-        logger.debug('commited.')
-        logger.debug('create_opendatamaps() ended.')
+        self.logger.debug('commited.')
+        self.logger.debug('create_opendatamaps() ended.')
         return True
 
     def load_tables(self, tables):
-        logger = logging.getLogger(__name__)
-        logger.debug('load_tables() start, tables=' + str(tables))
+        self.logger.debug('load_tables() start, tables=' + str(tables))
         if 'localitycode' in tables:
             self.load_localitycode()
         if 'opendatamaps' in tables:
@@ -138,83 +153,79 @@ class opendatadb:
             # ToDo: self.load_opendatamaps()
             # ディレクトリ単位（ディレクトリ２階層）
             self.load_opendatamaps_in_dir(tables)
-        logger.debug('load_tables() ended.')
+        self.logger.debug('load_tables() ended.')
         return True
 
     def load_localitycode(self):
-        logger = logging.getLogger(__name__)
-        logger.debug('load_localitycode() start.')
+        self.logger.debug('load_localitycode() start.')
         msg = 'localitycodeテーブルにデータをロードします。'
-        logger.info(msg)
+        self.logger.info(msg)
         print(msg, file=sys.stderr)
         # localitycodeテーブルにCSV形式データをロードする
-        crawler_dir = os.path.join(BASE_DIR, 'djangoapp' , 'crawler')
         sql_insert = "INSERT INTO localitycode" \
                 + " (code, state_name, locality_name, state_yomi, locality_yomi)" \
                 + " VALUES ('{code}','{state_name}','{locality_name}'," \
                 + "'{state_yomi}','{locality_yomi}');"
         commit = False
-        with open(os.path.join(crawler_dir, self.LOCALITYCODE_CSV), 'r') as hf:
+        with open(os.path.join(self.download_dir, self.LOCALITYCODE_CSV), 'r') as hf:
             hcsv = csv.reader(hf)
             with self.conn.cursor() as cur:
                 uniq_code = {}
                 for i, rec in enumerate(hcsv):
-                    # logger.debug('rec['+str(i)+']=' + str(rec))
+                    # self.logger.debug('rec['+str(i)+']=' + str(rec))
                     if i < 1:
                         continue
                     if rec[0] in uniq_code:
-                        logger.warning('市区町村コードが重複, rec['+str(i)+']=' + str(rec))
+                        self.logger.warning('市区町村コードが重複, rec['+str(i)+']=' + str(rec))
                         uniq_code[rec[0]] += 1
                         continue
                     uniq_code[rec[0]] = 1
                     jdata = {'code': rec[0], 'state_name': rec[1], 'locality_name': rec[2],
                             'state_yomi': rec[3], 'locality_yomi': rec[4]}
                     sql = sql_insert.format(**jdata)
-                    # logger.debug('sql=' + sql)
+                    # self.logger.debug('sql=' + sql)
                     cur.execute(sql)
                     commit = True
                     if self.COMMIT_COUNT > 0 and (i % self.COMMIT_COUNT) == (self.COMMIT_COUNT - 1):
                         self.conn.commit()
-                        logger.debug('committed, count=' + str(i+1))
+                        self.logger.debug('committed, count=' + str(i+1))
                         commit = False
         if commit:
             self.conn.commit()
-            logger.debug('committed last.')
+            self.logger.debug('committed last.')
         msg = 'localitycodeテーブルにデータをロードしました。'
-        logger.info(msg)
+        self.logger.info(msg)
         print(msg, file=sys.stderr)
-        logger.debug('load_localitycode() ended.')
+        self.logger.debug('load_localitycode() ended.')
         return True
 
     def load_opendatamaps(self):
-        logger = logging.getLogger(__name__)
-        logger.debug('load_opendatamaps() start, root_dir=' + str(root_dir))
+        self.logger.debug('load_opendatamaps() start, root_dir=' + str(root_dir))
         # 実行
         msg = 'opendatamapsテーブルにデータをロードします。'
-        logger.info(msg)
+        self.logger.info(msg)
         print(msg, file=sys.stderr)
         for dir in sorted(os.listdir(self.cache_dir)):
             if dir[0] == '.':
                 continue
             msg = 'dir=' + dir
-            logger.debug(msg)
+            self.logger.debug(msg)
             print(msg, file=sys.stderr)
             load_opendatamaps_dir(os.path.join(self.cache, dir))
 
         msg = 'opendatamapsテーブルにデータをロードしました。'
-        logger.info(msg)
+        self.logger.info(msg)
         print(msg, file=sys.stderr)
         # 復帰
-        logger.debug('load_opendatamaps() ended.')
+        self.logger.debug('load_opendatamaps() ended.')
         return True
 
     def load_opendatamaps_dir(self, dir):
-        logger = logging.getLogger(__name__)
-        logger.debug('load_opendatamaps_dir() start, dir=' + str(dir))
+        self.logger.debug('load_opendatamaps_dir() start, dir=' + str(dir))
         # 実行
         if not os.path.isdir(dir):
             msg = 'dir is not directory, dir=' + str(dir)
-            logger.debug(msg)
+            self.logger.debug(msg)
             print(msg, file=sys.stderr)
             return False
         for file in sorted(os.listdir(dir)):
@@ -222,7 +233,7 @@ class opendatadb:
                 continue
             # １ファイルを登録する
             msg = 'loading file=' + file
-            logger.debug(msg)
+            self.logger.debug(msg)
             print('  '+msg+'：', file=sys.stderr, end='')
             jfile = os.path.join(dir, file)
             uniq_key_error = False
@@ -238,14 +249,13 @@ class opendatadb:
                     rc = self.insert_opendatamaps_file(cur, jfile, commit1=True)
 
         # 復帰
-        logger.debug('load_opendatamaps_dir() ended.')
+        self.logger.debug('load_opendatamaps_dir() ended.')
         return True
 
     def insert_opendatamaps_file(self, cur, file, commit1=False):
         """
         """
-        logger = logging.getLogger(__name__)
-        logger.debug('insert_record() start.')
+        self.logger.debug('insert_record() start.')
         # 実行
         sql_insert = "INSERT INTO opendatamaps" \
                 + " (locality_code, kind, dataset, id, label, lat, lng, info, error)" \
@@ -257,9 +267,9 @@ class opendatadb:
         commit = False
         with open(file, 'r') as hf:
             jrecs = json.loads(hf.read())
-            # logger.debug('jrecs='+file+', content='+str(jrecs))
+            # self.logger.debug('jrecs='+file+', content='+str(jrecs))
             for i, rec in enumerate(jrecs):
-                # logger.debug('rec['+str(i)+']=' + str(rec))
+                # self.logger.debug('rec['+str(i)+']=' + str(rec))
                 jdata = {'locality_code': rec['locality_code'], 'kind': rec['kind'],
                         'dataset': rec['dataset'],
                         'id': rec['id'], 'label': rec['label'],
@@ -285,7 +295,7 @@ class opendatadb:
                 if jdata['lng'] == '':
                     jdata['lng'] = 0.0
                 sql = sql_insert.format(**jdata)
-                # logger.debug('sql=' + sql)
+                # self.logger.debug('sql=' + sql)
                 complete = False
                 while not complete:
                     try:
@@ -296,87 +306,86 @@ class opendatadb:
                             self.conn.commit()
                             commit = False
                             if not commit1:
-                                logger.debug('committed, count=' + str(i+1))
+                                self.logger.debug('committed, count=' + str(i+1))
                         r_count += 1
                         complete = True
                     except psycopg2.errors.UniqueViolation as e:
-                        logger.exception(e)
+                        self.logger.exception(e)
                         self.conn.rollback()
                         msg = 'ユニークキー例外が発生1'
-                        logger.error(msg)
+                        self.logger.error(msg)
                         print(msg, file=sys.stderr)
                         if not commit1:
                             raise e
                         complete = True
                     except psycopg2.OperationalError as e:
-                        logger.exception(e)
-                        logger.debug('loading about, e.args=' + str(e.args))
+                        self.logger.exception(e)
+                        self.logger.debug('loading about, e.args=' + str(e.args))
                         if len(e.args) > 0 and e.args[0] == 'SSL connection has been closed unexpectedly\n':
                             self.conn = None
                             time.sleep(5)
                             self.connect()
                             cur = self.conn.cursor()
                             msg = 'DBへのコネクションが切断され、再接続済1'
-                            logger.warning(msg)
+                            self.logger.warning(msg)
                             print(msg, file=sys.stderr)
                             if not commit1:
                                 raise e
                         else:
                             msg = 'SQLの実行失敗1'
-                            logger.warning(msg)
+                            self.logger.warning(msg)
                             print(msg, file=sys.stderr)
                             raise Exception(msg)
                     except Exception as e:
-                        logger.exception(e)
+                        self.logger.exception(e)
                         msg = 'SQLの実行失敗2'
-                        logger.warning(msg)
+                        self.logger.warning(msg)
                         print(msg, file=sys.stderr)
                         raise Exception(msg)
         if commit:
             try:
                 self.conn.commit()
             except psycopg2.errors.UniqueViolation as e:
-                logger.exception(e)
+                self.logger.exception(e)
                 self.conn.rollback()
                 msg = 'ユニークキー例外が発生2'
-                logger.error(msg)
+                self.logger.error(msg)
                 print(msg, file=sys.stderr)
                 raise e
             except psycopg2.OperationalError as e:
-                logger.exception(e)
-                logger.debug('loading about, e.args=' + str(e.args))
+                self.logger.exception(e)
+                self.logger.debug('loading about, e.args=' + str(e.args))
                 if len(e.args) > 0 and e.args[0] == 'SSL connection has been closed unexpectedly\n':
                     self.conn = None
                     time.sleep(5)
                     self.connect()
                     # cur = self.conn.cursor()
                     msg = 'DBへのコネクションが切断され、再接続済2'
-                    logger.warning(msg)
+                    self.logger.warning(msg)
                     print(msg + '：', file=sys.stderr, end='')
                 else:
                     msg = 'SQLの実行失敗3'
                     print(msg, file=sys.stderr)
                 raise Exception(msg)
             except Exception as e:
-                logger.exception(e)
+                self.logger.exception(e)
                 msg = 'SQLの実行失敗4'
                 print(msg, file=sys.stderr)
                 raise Exception(msg)
-            logger.debug('committed last.')
+            self.logger.debug('committed last.')
 
         msg = str(r_count) + '件'
         print(msg, file=sys.stderr)
-        logger.debug(msg)
+        self.logger.debug(msg)
         # 復帰
-        logger.debug('insert_record() ended, rc=' + str(rc))
+        self.logger.debug('insert_record() ended, rc=' + str(rc))
         return True
 
     def load_opendatamaps_in_dir(self, dirs):
-        logger = logging.getLogger(__name__)
-        logger.debug('load_opendatamaps_in_dir() start.')
+        self.logger.debug('load_opendatamaps_in_dir() start.')
         # 実行
         msg = 'opendatamapsテーブルにデータをロードします。'
-        logger.info(msg)
+        self.logger.info(msg)
         print(msg, file=sys.stderr)
         # ディレクトリを辿る
         dir_list = []
@@ -387,7 +396,7 @@ class opendatadb:
         for dir1 in sorted(os.listdir(self.cache_dir)):
             if dir1[0] == '.':
                 continue
-            logger.debug('dir1=' + dir1)
+            self.logger.debug('dir1=' + dir1)
             dir1_list = dir1.split('_')
             if len(dir1_list) != 2:
                 continue
@@ -407,7 +416,7 @@ class opendatadb:
             for dir2 in sorted(os.listdir(os.path.join(dir1_path))):
                 if dir2[0] == '.':
                     continue
-                logger.debug('dir2=' + dir2)
+                self.logger.debug('dir2=' + dir2)
                 dir2_list = dir2.split('_')
                 if len(dir2_list) != 2:
                     continue
@@ -434,14 +443,13 @@ class opendatadb:
                 self.load_opendatamaps_dir(dir2_path)
 
         msg = 'opendatamapsテーブルにデータをロードしました。'
-        logger.info(msg)
+        self.logger.info(msg)
         print(msg, file=sys.stderr)
-        logger.debug('load_opendatamaps_in_dir() ended.')
+        self.logger.debug('load_opendatamaps_in_dir() ended.')
         return True
 
     def drop_tables(self, tables):
-        logger = logging.getLogger(__name__)
-        logger.debug('drop_tables() start.')
+        self.logger.debug('drop_tables() start.')
         # 指定されたテーブルを削除する
         droped = False
         for table in ['opendatamaps', 'localitycode']:
@@ -453,7 +461,7 @@ class opendatadb:
                     # SQL実行
                     cur.execute(sql)
                     rows = cur.fetchall()
-                    logger.debug(table + ' COUNT()=' + str(rows[0][0]))
+                    self.logger.debug(table + ' COUNT()=' + str(rows[0][0]))
                     if int(rows[0][0]) > 0:
                         # テーブルを削除する
                         sql = "DROP TABLE " + table + ";"
@@ -461,10 +469,10 @@ class opendatadb:
                         cur.execute(sql)
                         droped = True
                     cur.close()
-                    logger.debug('TABLE(' + table + ') droped.')
+                    self.logger.debug('TABLE(' + table + ') droped.')
         if droped:
             self.conn.commit()
-        logger.debug('drop_tables() ended.')
+        self.logger.debug('drop_tables() ended.')
         return True
 
     def get_opendatamaps_kinds(self, codes):
@@ -473,8 +481,7 @@ class opendatadb:
         :param codes: list型、市区町村コードのリストを指定する。省略する場合はNoneまたは[]を指定する。
         :return: list型、str型種別(kind)のリストを返却する。
         """
-        logger = logging.getLogger(__name__)
-        logger.debug('get_opendatamaps_kinds() start.')
+        self.logger.debug('get_opendatamaps_kinds() start.')
         rc = None
         sel_dict = {'codes': ''}
         # 検索実行
@@ -493,16 +500,16 @@ class opendatadb:
                 sel_dict['codes'] += ")"
         with self.conn.cursor() as cur:
             sql = sel_sql.format(**sel_dict)
-            logger.debug('sql=' + sql)
+            self.logger.debug('sql=' + sql)
             # SQL実行
             cur.execute(sql)
             recs = cur.fetchall()
-            logger.debug('select len(recs)=' + str(len(recs)))
-            # logger.debug('select recs=' + str(recs))
+            self.logger.debug('select len(recs)=' + str(len(recs)))
+            # self.logger.debug('select recs=' + str(recs))
             cur.close()
         # JSON形式に嫌韓する
         rc = {'kinds': [rec[0] for rec in recs]}
-        logger.debug('get_opendatamaps_kinds() ended, rc=' + str(rc))
+        self.logger.debug('get_opendatamaps_kinds() ended, rc=' + str(rc))
         return rc
 
     def get_summary(self):
@@ -510,8 +517,7 @@ class opendatadb:
         opendatamapsとlocalitycodeテーブルからデータ一覧(code,state_name,locality_name,kind,count(*))を取得する。
         :return: list型、レコード(code,state_name,locality_name,kind,count(*))のリストを返却する。
         """
-        logger = logging.getLogger(__name__)
-        logger.debug('get_summary() start.')
+        self.logger.debug('get_summary() start.')
         rc = None
         sel_dict = {'codes': ''}
         # 検索実行
@@ -519,12 +525,12 @@ class opendatadb:
                  FROM opendatamaps f JOIN localitycode c ON f.locality_code = c.code
                  GROUP BY f.locality_code,f.kind ORDER BY f.locality_code,f.kind;'''
         with self.conn.cursor() as cur:
-            logger.debug('sql=' + sql)
+            self.logger.debug('sql=' + sql)
             # SQL実行
             cur.execute(sql)
             recs = cur.fetchall()
-            logger.debug('select len(recs)=' + str(len(recs)))
-            # logger.debug('select recs=' + str(recs))
+            self.logger.debug('select len(recs)=' + str(len(recs)))
+            # self.logger.debug('select recs=' + str(recs))
             cur.close()
         # JSON形式に嫌韓する
         rc = []
@@ -538,8 +544,8 @@ class opendatadb:
             else:
                 rc[-1]['kinds'].append(rec[1])
                 rc[-1]['kind_count'].append(rec[4])
-        # logger.debug('rc=' + str(rc))
-        logger.debug('get_summary() ended, len(rc)=' + str(len(rc)))
+        # self.logger.debug('rc=' + str(rc))
+        self.logger.debug('get_summary() ended, len(rc)=' + str(len(rc)))
         return rc
 
     def get_by_localitycode(self, codes, kinds, limit=QUERY_LIMIT):
@@ -550,8 +556,7 @@ class opendatadb:
         :param limit: int型、最大返却数、省略値=100件、0またはNoneを指定した場合は無制限。
         :return: list型、JSON型検索結果レコードのリスト
         """
-        logger = logging.getLogger(__name__)
-        logger.debug('get_by_localitycode() start.')
+        self.logger.debug('get_by_localitycode() start.')
         rc = None
         sel_dict = {'AND': '', 'codes': '', 'kinds': '', 'limit': ''}
         # 検索実行
@@ -583,12 +588,12 @@ class opendatadb:
             sel_dict['limit'] = " LIMIT " + str(limit)
         with self.conn.cursor() as cur:
             sql = sel_sql.format(**sel_dict)
-            logger.debug('sql=' + sql)
+            self.logger.debug('sql=' + sql)
             # SQL実行
             cur.execute(sql)
             recs = cur.fetchall()
-            logger.debug('select len(recs)=' + str(len(recs)))
-            # logger.debug('select recs=' + str(recs))
+            self.logger.debug('select len(recs)=' + str(len(recs)))
+            # self.logger.debug('select recs=' + str(recs))
             cur.close()
         # JSON形式に嫌韓する
         rc = [{'locality_code': rec[0],
@@ -601,7 +606,7 @@ class opendatadb:
                'info': rec[7],
                'error': rec[8],
               } for rec in recs]
-        logger.debug('get_by_localitycode() ended, len(rc)=' + str(len(rc)))
+        self.logger.debug('get_by_localitycode() ended, len(rc)=' + str(len(rc)))
         return rc
 
     def get_by_distance_from_center(self, c_lat, c_lng, distance, kinds, limit=QUERY_LIMIT):
@@ -616,9 +621,8 @@ class opendatadb:
         :param limit: int型、最大返却数、省略またはNone指定時は100件。0を指定した場合は無制限。
         :return: list型、JSON型検索結果レコードのリスト
         """
-        logger = logging.getLogger(__name__)
-        logger.debug('get_by_distance_from_center() start.')
-        logger.debug('c_lat=' + str(c_lat) + ', c_lng=' + str(c_lng) + ', distance=' + str(distance) + ', kinds=' + str(kinds) + ', limit=' + str(limit))
+        self.logger.debug('get_by_distance_from_center() start.')
+        self.logger.debug('c_lat=' + str(c_lat) + ', c_lng=' + str(c_lng) + ', distance=' + str(distance) + ', kinds=' + str(kinds) + ', limit=' + str(limit))
         rc = None
         sel_dict = {'kinds': '', 'limit': SELECT_LIMIT}
         # 中心と距離から検索範囲とする緯度・経度を求める
@@ -645,12 +649,12 @@ class opendatadb:
             limit = QUERY_LIMIT
         with self.conn.cursor() as cur:
             sql = sel_sql.format(**sel_dict)
-            logger.debug('sql=' + sql)
+            self.logger.debug('sql=' + sql)
             # SQL実行
             cur.execute(sql)
             recs = cur.fetchall()
-            logger.debug('select len(recs)=' + str(len(recs)))
-            # logger.debug('select recs=' + str(recs))
+            self.logger.debug('select len(recs)=' + str(len(recs)))
+            # self.logger.debug('select recs=' + str(recs))
             cur.close()
         # JSON形式に嫌韓する
         rc = [{'locality_code': rec[0],
@@ -664,14 +668,14 @@ class opendatadb:
                'error': rec[8],
                'distance': self.calc_distance((c_lat,c_lng), (rec[5],rec[6]))
               } for rec in recs]
-        # logger.debug('rc=' + str(rc))
+        # self.logger.debug('rc=' + str(rc))
         # 中心からの距離の近い順にソートする
         rc = [rec for rec in rc if rec['distance'] <= distance]
         rc.sort(key=lambda x: x['distance'])
         if limit > 0 and len(rc) > limit:
             rc = rc[:limit]
-        # logger.debug('sorted rc=' + str(rc))
-        logger.debug('get_by_distance_from_center() ended, len(rc)=' + str(len(rc)))
+        # self.logger.debug('sorted rc=' + str(rc))
+        self.logger.debug('get_by_distance_from_center() ended, len(rc)=' + str(len(rc)))
         return rc
 
     def calc_distance(self, center, target):
@@ -705,8 +709,7 @@ class opendatadb:
         :param limit: int型、最大返却数、省略またはNone指定時は100件。0を指定した場合は無制限。
         :return: list型、JSON型検索結果レコードのリストを返却する。
         """
-        logger = logging.getLogger(__name__)
-        logger.debug('get_localitycode_by_code() start, code=' + str(code))
+        self.logger.debug('get_localitycode_by_code() start, code=' + str(code))
         rc = None
         sel_dict = {'WHERE': '', 'limit': ''}
         # 検索実行
@@ -722,19 +725,19 @@ class opendatadb:
             sel_dict['limit'] = " LIMIT " + str(limit)
         with self.conn.cursor() as cur:
             sql = sel_sql.format(**sel_dict)
-            logger.debug('sql=' + sql)
+            self.logger.debug('sql=' + sql)
             # SQL実行
             cur.execute(sql)
             recs = cur.fetchall()
-            logger.debug('select len(recs)=' + str(len(recs)))
-            # logger.debug('select recs=' + str(recs))
+            self.logger.debug('select len(recs)=' + str(len(recs)))
+            # self.logger.debug('select recs=' + str(recs))
             cur.close()
         # JSON形式に嫌韓する
         rc = [{'code': rec[0],
                'state_name': rec[1],
                'locality_name': rec[2]
               } for rec in recs]
-        logger.debug('get_localitycode_by_code() ended, rc=' + str(len(rc)))
+        self.logger.debug('get_localitycode_by_code() ended, rc=' + str(len(rc)))
         return rc
 
     def get_localitycode_by_name(self, state, locality, limit=QUERY_LIMIT):
@@ -745,8 +748,7 @@ class opendatadb:
         :param limit: int型、最大返却数、省略またはNone指定時は100件。0を指定した場合は無制限。
         :return: list型、JSON型検索結果レコードのリストを返却する。
         """
-        logger = logging.getLogger(__name__)
-        logger.debug('get_localitycode_by_name() start, state=' + str(state) + ', locality=' + str(locality))
+        self.logger.debug('get_localitycode_by_name() start, state=' + str(state) + ', locality=' + str(locality))
         rc = None
         sel_dict = {'WHERE': '', 'AND': '', 'where_state': '', 'where_locality': '', 'limit': ''}
         # 検索実行
@@ -772,22 +774,22 @@ class opendatadb:
             sel_dict['limit'] = " LIMIT " + str(limit)
         with self.conn.cursor() as cur:
             sql = sel_sql.format(**sel_dict)
-            logger.debug('sql=' + sql)
+            self.logger.debug('sql=' + sql)
             # SQL実行
             cur.execute(sql)
             recs = cur.fetchall()
-            logger.debug('select len(recs)=' + str(len(recs)))
-            # logger.debug('select recs=' + str(recs))
+            self.logger.debug('select len(recs)=' + str(len(recs)))
+            # self.logger.debug('select recs=' + str(recs))
             cur.close()
         # JSON形式に嫌韓する
         rc = [{'code': rec[0],
                'state_name': rec[1],
                'locality_name': rec[2]
               } for rec in recs]
-        logger.debug('get_localitycode_by_code() ended, rc=' + str(len(rc)))
+        self.logger.debug('get_localitycode_by_code() ended, rc=' + str(len(rc)))
         return rc
 
-def setup_logger(name, level, log_file='opendatadb.log', log_dir='log'):
+def setup_logger(name, level, log_file='db.log', log_dir='log'):
     """
     コマンド実行時のログ初期化
     :param name: str型、関数、__main__
@@ -823,7 +825,6 @@ if __name__ == '__main__':
     rc = 0
     logger = setup_logger(__name__, logging.DEBUG)  # logging.INFO
     # 実行
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     db = None
     try:
         # パラメタチェック
@@ -836,11 +837,11 @@ if __name__ == '__main__':
         p.add_argument('tables', nargs='*', default=[], help='処理対象テーブル名（localitycode、opendatamaps）を指定する。複数指定可能。')
         args = p.parse_args(sys.argv[1:])
         # 開始
-        msg = 'opendatadb.py start.'
+        msg = 'db.py start.'
         logger.info(msg)
         print(msg, file=sys.stderr)
         # DB接続
-        db = opendatadb()
+        db = OpendataMapsDb()
         db.connect()
         # 処理開始
         if args.drop:
@@ -904,7 +905,7 @@ if __name__ == '__main__':
     db = None
 
     # 復帰
-    msg = 'opendatadb.py ended, rc=' + str(rc)
+    msg = 'db.py ended, rc=' + str(rc)
     logger.info(msg)
     print(msg, file=sys.stderr)
     sys.exit(rc)

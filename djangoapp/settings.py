@@ -104,7 +104,7 @@ LOG_BASE_DIR = os.path.join(BASE_DIR, "djangoapp", "log")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "formatters": {"simple": {"format": "%(asctime)s [%(levelname)s] %(message)s"}},
+    "formatters": {"simple": {"format": "%(asctime)s [%(levelname)s] - %(name)s %(message)s"}},
     "handlers": {
         "django": {
             "level": "INFO",

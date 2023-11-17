@@ -25,8 +25,18 @@ MY_CONFIG = {
     'dir_name': '{code}_{name}'
 }
 OPENDATA_SITES = [
-    {'name': '東京都', 'code': '130001', 'api_url': 'https://catalog.data.metro.tokyo.lg.jp/api/3/action/'},
-    {'name': '静岡県', 'code': '220001', 'api_url': 'https://opendata.pref.shizuoka.jp/api/'}
+    {
+        'name': '東京都',
+        'code': '130001',
+        'api_url': 'https://catalog.data.metro.tokyo.lg.jp/api/3/action/',
+        'package_list_limit': -1
+    },
+    {
+        'name': '静岡県',
+        'code': '220001',
+        'api_url': 'https://ckan.pref.shizuoka.jp/api/3/action/',
+        'package_list_limit': -1
+    }
 ]
 LOCALITY_CODE_FILE = '都道府県コード及び市区町村コード_20190501.csv'
 IGNORE_WORD_IN_DATASET_NAME = ['台帳','統計','人口','カレンダー','コロナ','登録簿', '公共施設に関するデータ']
@@ -105,8 +115,8 @@ class Crawler:
         logger = logging.getLogger(__name__)
         logger.debug('__init__() start.')
         if 'BASE_DIR' not in locals():
-            BASE_DIR=os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        self.APP_DIR=os.path.join(BASE_DIR, 'djangoapp')
+            BASE_DIR=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.APP_DIR=BASE_DIR
         self.site_names = [v['name'] for v in OPENDATA_SITES]
         logger.debug('site_names=' + str(self.site_names))
         # download_dirの確認
@@ -859,7 +869,7 @@ class Crawler:
                 os.mkdir(cache_site_dir)
             # 対象地方自治体コード表を取得する
             self.locality_dict = {}
-            with open(os.path.join(self.APP_DIR, 'crawler', LOCALITY_CODE_FILE), 'r') as hf:
+            with open(os.path.join(self.APP_DIR, 'download', LOCALITY_CODE_FILE), 'r') as hf:
                 hcsv = csv.reader(hf)
                 self.locality_dict = {rec[2]:rec[0] for rec in hcsv if rec[1] == site['name']}
             info_list = {}
@@ -1006,6 +1016,7 @@ class Crawler:
                         locality_name = jpackage['result']['organization']['title'][len(self.state):]
                     else:
                         locality_name = jpackage['result']['organization']['title']
+                    locality_name = locality_name.strip()
         if locality_name == '':
             locality_name = self.state
         if locality_name not in self.locality_dict:
@@ -1019,19 +1030,51 @@ class Crawler:
         # パッケージリストを取得する
         logger = logging.getLogger(__name__)
         logger.debug('get_package_list() start, site=' + str(site))
-        jpackages = []
+        content = None
+        jpackages = None
         packages_dir = os.path.join(self.download_dir, 
                 MY_CONFIG['dir_name'].format(code=site['code'], name=site['name']))
         if not os.path.exists(packages_dir):
             os.mkdir(packages_dir)
             logger.info('make site dir=' + packages_dir)
         packages_file = 'package_list.json'
-        url = site['api_url'] + 'package_list'
-        content = self.url_get(url, packages_file, dir=packages_dir)
-        if content is not None:
-            jpackages = json.loads(content)
+        if os.path.exists(os.path.join(packages_dir, packages_file)):
+            os.remove(os.path.join(packages_dir, packages_file))
+        if site['package_list_limit'] == -1:
+            url = site['api_url'] + 'package_list'
+            content = self.url_get(url, packages_file, dir=packages_dir)
+            if content is not None:
+                jpackages = json.loads(content)
+        else:
+            offset = 0
+            results = []
+            while True:
+                url = site['api_url'] + 'package_list'
+                url += '?limit=' + str(site['package_list_limit']) \
+                     + '&offset=' + str(offset)
+                content = self.url_get(url, packages_file, dir=packages_dir)
+                logger.info('content='+str(content)[:2048])
+                if content is None:
+                    break
+                jpackages = json.loads(content)
+                if jpackages['success'] is not True:
+                    break
+                results.extend(jpackages['result'])
+                offset += len(jpackages['result'])
+                if len(jpackages['result']) < site['package_list_limit']:
+                    break
+                os.remove(os.path.join(packages_dir, packages_file))
+            if len(results) > 0:
+                jpackages['result'] = results
+                content = json.dumps(jpackages, ensure_ascii=False)
+                with open(os.path.join(packages_dir, packages_file), 'w') as pfh:
+                    pfh.write(content)
         # 復帰
-        logger.debug('get_package_list() ended')
+        if jpackages is None:
+            end_msg = 'None'
+        else:
+            end_msg = str(len(jpackages['result']))
+        logger.debug('get_package_list() ended, result=' + end_msg)
         return jpackages
 
     def get_package_json(self, package, site):
@@ -1508,6 +1551,9 @@ class Crawler:
             logger.debug('check_html_page_linkdata() ended, faild()')
             redirect = None
         # 復帰
+        redirect_format = 'None'
+        if redirect is not None and 'format' in redirect:
+            redirect_format = redirect['format']
         logger.debug('check_html_page_linkdata() ended, format=' + redirect['format'])
         return redirect
 
