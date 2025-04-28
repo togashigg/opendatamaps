@@ -115,7 +115,7 @@ class OpendataMapsDb:
                       locality_code CHAR(6) NOT NULL,
                       kind     VARCHAR(60) NOT NULL,
                       dataset  VARCHAR(90) NOT NULL,
-                      id       VARCHAR(16) NOT NULL,
+                      id       VARCHAR(18) NOT NULL,
                       label    VARCHAR(128) NOT NULL,
                       lat      FLOAT NOT NULL,
                       lng      FLOAT NOT NULL,
@@ -200,7 +200,7 @@ class OpendataMapsDb:
         return True
 
     def load_opendatamaps(self):
-        self.logger.debug('load_opendatamaps() start, root_dir=' + str(root_dir))
+        self.logger.debug('load_opendatamaps() start.')
         # 実行
         msg = 'opendatamapsテーブルにデータをロードします。'
         self.logger.info(msg)
@@ -211,7 +211,7 @@ class OpendataMapsDb:
             msg = 'dir=' + dir
             self.logger.debug(msg)
             print(msg, file=sys.stderr)
-            load_opendatamaps_dir(os.path.join(self.cache, dir))
+            self.load_opendatamaps_dir(os.path.join(self.cache_dir, dir))
 
         msg = 'opendatamapsテーブルにデータをロードしました。'
         self.logger.info(msg)
@@ -418,8 +418,10 @@ class OpendataMapsDb:
                     continue
                 self.logger.debug('dir2=' + dir2)
                 dir2_list = dir2.split('_')
+                """ ToDo: 削除？
                 if len(dir2_list) != 2:
                     continue
+                """
                 dir2_exec = False
                 if dir_list == []:
                     dir2_exec = True

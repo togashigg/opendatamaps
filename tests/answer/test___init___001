@@ -1,0 +1,12 @@
+{
+"APP_DIR": "/home/togashi/work",
+"settings_path": "/home/togashi/work/src/crawler.json",
+"LOCALITY_CODE_FILE": "都道府県コード及び市区町村コード_20190501.csv",
+"LOCALITY_CODE_PATH": "/home/togashi/work/download/都道府県コード及び市区町村コード_20190501.csv",
+"IGNORE_WORD_IN_DATASET_NAME": ['台帳', '統計', '人口', 'カレンダー', 'コロナ', '登録簿', '公共施設に関するデータ'],
+"KIND_LIST_NORMALIZED_RE": ['##ignore##', 'AED設置箇所', '介護サービス事業所', '医療機関', '文化財', '観光施設・場所', '公衆無線LAN', '公衆トイレ', '消防水利施設', '指定緊急避難場所', '公共施設', '子育て施設', '学校・保育施設', '薬局', '駐車場・駐輪場', '公園・花壇', '公衆浴場', '防災', '避難所', '消防', '投票所', '福祉施設', '健康', '飲食店・販売店'],
+"OPENDATA_SITES": {'東京都': {'code': '130001', 'type': 'catalog', 'catalog': {'api_url': 'https://catalog.data.metro.tokyo.lg.jp/api/3/action/', 'package_list_limit': -1}}, '静岡県': {'code': '220001', 'type': 'catalog', 'catalog': {'api_url': 'https://ckan.pref.shizuoka.jp/api/3/action/', 'package_list_limit': -1}}},
+"site_names": ['東京都', '静岡県'],
+"download_dir": "/home/togashi/work/download",
+"cache_dir": "/home/togashi/work/cache"
+}

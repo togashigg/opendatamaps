@@ -6,6 +6,7 @@ staticfiles
 __pycache__
 build
 cache
-download
+# download
+220001_静岡県
 venv
 
