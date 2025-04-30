@@ -37,15 +37,45 @@
 	var markTableTag="markTableV";
 	var httpRetryMax=3;
 	setTimeout(window.scrollTo(0,1),1);
+	// mapsライブラリを読み込む
+	// const { Map } = await google.maps.importLibrary("maps");
+	// const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 
 	// GoogleMapsApiのjsを読み込む
+	async function initMap() {
+		if(DEBUG) console.log(nowToString()+' initMap() start');
+		// mapsライブラリを読み込む
+		// const { Map } = await google.maps.importLibrary("maps");
+		// マップ表示
+		myMap = new google.maps.Map(document.getElementById("gmap"), {
+			center: { lat: myInitialCenter.lat, lng: myInitialCenter.lng },
+			mapId: "DEMO_MAP_ID",
+			zoom: 15,
+			zoomControl: true,
+			cameraControl: false,
+			streetViewControl: false,
+			fullscreenControl: false,
+		});
+		startTraceCurrentPosition();
+		resizeWindows();
+		if(DEBUG) console.log(nowToString()+' initMap() ended');
+	}
 	function onLoad() {
-		let script=document.createElement('script');
+		if(DEBUG) console.log(nowToString()+' onLoad() start');
+		myParam=checkParameters();
+		// 位置情報対応ブラウザの確認
+		if(!navigator.geolocation) {
+			myGeolocation=false;
+		}
+		initMap()
+	/*	let script=document.createElement('script');
 		script.type='text/javascript';
 		let api_key=atob(document.getElementById("GoogleMapsApiKey").getAttribute('value'));
 		script.src='https://maps.googleapis.com/maps/api/js?key='+api_key+'&callback=initMap';
 		let firstScript=document.getElementsByTagName('script')[0];
 		firstScript.parentNode.insertBefore(script, firstScript);
+	*/
+		if(DEBUG) console.log(nowToString()+' onLoad() ended');
 		return false;
 	}
 	// パラメタチェック
@@ -123,6 +153,7 @@
 		return myParam;
 	}
 	// Google Maps APIのcallback関数
+	/*
 	function initMap() {
 		if(DEBUG) console.log(nowToString()+' initMap() start');
 		myParam=checkParameters();
@@ -130,7 +161,7 @@
 		if(!navigator.geolocation) {
 			myGeolocation=false;
 		}
-		// マップ表示・表表示
+		// マップ表示
 		mapCenter=new google.maps.LatLng(myInitialCenter.lat, myInitialCenter.lng);
 		var gmapTag=document.getElementById("gmap");
 		var options={
@@ -144,6 +175,7 @@
 		resizeWindows();
 		if(DEBUG) console.log(nowToString()+' initMap() ended');
 	}
+	*/
 	// データ一覧作成
 	function showDataList() {
 		if(DEBUG) console.log(nowToString()+' showDataList() start');
@@ -540,7 +572,7 @@
 		if(DEBUG) console.log(nowToString()+' dataFromJson() ended, data.length='+data.length);
 		return data;
 	}
-	function startTraceCurrentPosition() {
+	async function startTraceCurrentPosition() {
 		if(DEBUG) console.log(nowToString()+' startTraceCurrentPosition() start');
 		if(!myGeolocation) {
 			var tag=document.getElementById("traceButton");
@@ -567,18 +599,24 @@
 				// 現在地マーカー表示
 				if(myMarker==null) {
 					if(DEBUG) console.log('現在地 表示:'+mapCenter);
-					myMarker=new google.maps.Marker({
-						position:mapCenter,
-						map:myMap,
-						zIndex:0,
-						title:'現在地',
-						icon:'https://chart.googleapis.com/chart?chst=d_map_pin_letter&chld=・|4FFF00|000000',
-						draggable:true
+					myPin = new google.maps.marker.PinElement({
+						scale: 1.3,
+						glyphColor: "#FFFFFF",
+						background: "#0000F0",
+						borderColor: "#0000FF",
+					});
+					myMarker=new google.maps.marker.AdvancedMarkerElement({
+						position: mapCenter,
+						map: myMap,
+						zIndex: 0,
+						title: '現在地',
+						content: myPin.element,
+						// draggable: true,
 					});
 					dispInfo(myMarker, '現在地');
 				} else {
 					if(DEBUG) console.log('現在地 移動:'+mapCenter);
-					myMarker.setPosition(mapCenter);
+					myMarker.position = mapCenter;
 					myMarker.zIndex=0;
 				}
 				let moveCenter=false;
@@ -744,14 +782,16 @@
 		}
 		if(markers.length==0) {
 			for(no=0; no<dataTable.length; no++) {
-				markers.push(new google.maps.Marker({
-						position: new google.maps.LatLng(dataTable[no].lat, dataTable[no].lng),
+				myPin = new google.maps.marker.PinElement({
+					scale: 1.1,
+				});
+				markers.push(new google.maps.marker.AdvancedMarkerElement({
+						position: new google.maps.LatLng(dataTable[no].lat,
+								dataTable[no].lng),
 						map: myMap,
 						title: dataTable[no].label,
-						icon: 'https://chart.googleapis.com/chart?chst=d_map_spin&chld=0.8|0|FF4F4F|14|b|'+dataTable[no].no,
-						scaledSize: new google.maps.Size(80, 80)
+						content: myPin.element,
 					}));
-					// ToDo:	icon: 'https://chart.googleapis.com/chart?chst=d_map_pin_letter&chld='+dataTable[no].no+'|FF4F4F|000000',
 				dispInfo(markers[markers.length-1], dataTable[no].label);
 				if(myParam.count>0 && (no+1)>=myParam.count) {
 					break;

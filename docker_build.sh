@@ -31,7 +31,7 @@ touch ./build/log/crawler.log
 touch ./build/log/opendatadb.log
 # src directory
 mkdir ./build/src
-cp -pr ./src/*.py ./build/src/
+cp -pr ./src/*.py ./src/*.json ./build/src/
 # build
 (cd ./build; docker build -t opendatamaps:latest .) > ./docker_build.log
 rc=$?
