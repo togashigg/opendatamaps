@@ -144,15 +144,27 @@ class OpendataMapsDb:
         self.logger.debug('create_opendatamaps() ended.')
         return True
 
-    def load_tables(self, tables):
-        self.logger.debug('load_tables() start, tables=' + str(tables))
+    def load_tables(self, tables, files):
+        self.logger.debug('load_tables() start, tables=' + str(tables) \
+                + ', files=' + str(files))
         if 'localitycode' in tables:
             self.load_localitycode()
         if 'opendatamaps' in tables:
-            # キャッシュディレクトリ全て（ディレクトリ１階層）
-            # ToDo: self.load_opendatamaps()
+            if files is None or files == []:
+                files = [os.path.join(self.cache_dir, f) \
+                        for f in sorted(os.listdir(self.cache_dir), reverse=True)]
+            # 再帰的にロードする
+            msg = 'opendatamapsテーブルにデータをロードします。' 
+            self.logger.info(msg)
+            print(msg, file=sys.stderr)
+            self.load_opendatamaps(files)
+            """ ToDo: 削除予定
             # ディレクトリ単位（ディレクトリ２階層）
             self.load_opendatamaps_in_dir(tables)
+            """
+            msg = 'opendatamapsテーブルにデータをロードしました。' 
+            self.logger.info(msg)
+            print(msg, file=sys.stderr)
         self.logger.debug('load_tables() ended.')
         return True
 
@@ -199,27 +211,41 @@ class OpendataMapsDb:
         self.logger.debug('load_localitycode() ended.')
         return True
 
-    def load_opendatamaps(self):
-        self.logger.debug('load_opendatamaps() start.')
+    def load_opendatamaps(self, files):
+        self.logger.debug('load_opendatamaps() start, files=' + str(files))
         # 実行
-        msg = 'opendatamapsテーブルにデータをロードします。'
-        self.logger.info(msg)
-        print(msg, file=sys.stderr)
-        for dir in sorted(os.listdir(self.cache_dir)):
-            if dir[0] == '.':
-                continue
-            msg = 'dir=' + dir
-            self.logger.debug(msg)
-            print(msg, file=sys.stderr)
-            self.load_opendatamaps_dir(os.path.join(self.cache_dir, dir))
+        for file in files:
+            if os.path.isdir(file):
+                # ディレクトリを処理する
+                msg = 'dir=' + str(file)
+                self.logger.debug(msg)
+                print(msg, file=sys.stderr)
+                files_in_dir = [os.path.join(file, f) \
+                        for f in sorted(os.listdir(file), reverse=True)]
+                # 下階層を処理する
+                self.load_opendatamaps(files_in_dir)
+            else:
+                # ファイルを処理する
+                msg = 'loading file=' + file
+                self.logger.debug(msg)
+                print('  '+msg+'：', file=sys.stderr, end='')
+                uniq_key_error = False
+                try:
+                    with self.conn.cursor() as cur:
+                        rc = self.insert_opendatamaps_file(cur, file)
+                except psycopg2.errors.UniqueViolation as e:
+                    uniq_key_error = True
 
-        msg = 'opendatamapsテーブルにデータをロードしました。'
-        self.logger.info(msg)
-        print(msg, file=sys.stderr)
+                # ユニークキーエラーが発生していれば１件づつ登録する
+                if uniq_key_error:
+                    with self.conn.cursor() as cur:
+                        rc = self.insert_opendatamaps_file(cur, file, commit1=True)
+
         # 復帰
         self.logger.debug('load_opendatamaps() ended.')
         return True
 
+    """ ToDo: 削除予定
     def load_opendatamaps_dir(self, dir):
         self.logger.debug('load_opendatamaps_dir() start, dir=' + str(dir))
         # 実行
@@ -234,7 +260,9 @@ class OpendataMapsDb:
             # １ファイルを登録する
             msg = 'loading file=' + file
             self.logger.debug(msg)
-            print('  '+msg+'：', file=sys.stderr, end='')
+            print('  '+msg+'：', msg = 'dir is not directory, dir=' + str(dir)
+            self.logger.debug(msg)
+            print(msg, file=sys.stderr)file=sys.stderr, end='')
             jfile = os.path.join(dir, file)
             uniq_key_error = False
             try:
@@ -251,6 +279,7 @@ class OpendataMapsDb:
         # 復帰
         self.logger.debug('load_opendatamaps_dir() ended.')
         return True
+    """
 
     def insert_opendatamaps_file(self, cur, file, commit1=False):
         """
@@ -314,8 +343,8 @@ class OpendataMapsDb:
                         self.conn.rollback()
                         msg = 'ユニークキー例外が発生1'
                         self.logger.error(msg)
-                        print(msg, file=sys.stderr)
                         if not commit1:
+                            print(msg, file=sys.stderr)
                             raise e
                         complete = True
                     except psycopg2.OperationalError as e:
@@ -381,6 +410,7 @@ class OpendataMapsDb:
         self.logger.debug('insert_record() ended, rc=' + str(rc))
         return True
 
+    """ ToDo: 削除予定
     def load_opendatamaps_in_dir(self, dirs):
         self.logger.debug('load_opendatamaps_in_dir() start.')
         # 実行
@@ -418,10 +448,10 @@ class OpendataMapsDb:
                     continue
                 self.logger.debug('dir2=' + dir2)
                 dir2_list = dir2.split('_')
-                """ ToDo: 削除？
+                ''' ToDo: 削除？
                 if len(dir2_list) != 2:
                     continue
-                """
+                '''
                 dir2_exec = False
                 if dir_list == []:
                     dir2_exec = True
@@ -449,6 +479,7 @@ class OpendataMapsDb:
         print(msg, file=sys.stderr)
         self.logger.debug('load_opendatamaps_in_dir() ended.')
         return True
+    """
 
     def drop_tables(self, tables):
         self.logger.debug('drop_tables() start.')
@@ -834,9 +865,16 @@ if __name__ == '__main__':
         p = argparse.ArgumentParser()
         p.add_argument('-c', '--create', action='store_true', help='テーブルを定義する。')
         p.add_argument('-d', '--drop', action='store_true', help='テーブルを削除する。')
-        p.add_argument('-l', '--load', action='store_true', help='テーブルにデータをロードする。')
+        p.add_argument('-l', '--load', action='store_true', \
+                help='テーブルにデータをロードする。')
+        p.add_argument('-f', '--files', type=str, nargs='*', \
+                help='opendatamapsテーブルにデータをロードする場合、\n' \
+                     'ロードするディレクトリまたはファイルのパスを指定する。\n' \
+                     '省略時はキャッシュディレクトリ内の全ファイルが対象。')
         p.add_argument('-t', '--test', action='store_true', help='テーブルを検索する。')
-        p.add_argument('tables', nargs='*', default=[], help='処理対象テーブル名（localitycode、opendatamaps）を指定する。複数指定可能。')
+        p.add_argument('tables', nargs='*', default=[], \
+                help='処理対象テーブル名（localitycode、opendatamaps）を指定する。' \
+                     '複数指定可能。')
         args = p.parse_args(sys.argv[1:])
         # 開始
         msg = 'db.py start.'
@@ -858,7 +896,7 @@ if __name__ == '__main__':
             print(msg, file=sys.stderr)
         if args.load:
             # データロード
-            db.load_tables(args.tables)
+            db.load_tables(args.tables, args.files)
         if args.test:
             if args.tables == [] or 'localitycode' in args.tables:
                 # localitycodeテーブルテスト
@@ -895,6 +933,10 @@ if __name__ == '__main__':
                 print('opendatamaps(三島市役所±500m,[公衆トイレ,薬局],limit=1) recs=' + str(recs))
                 recs = db.get_by_distance_from_center(latlng[0], latlng[1], 500, None, limit=2)
                 print('opendatamaps(三島市役所±500m,None,limit=2) recs=' + str(recs))
+                recs = db.get_summary()
+                print('summary()=')
+                for rec in recs:
+                    print(str(rec))
 
     except Exception as e:
         logger.exception(e)

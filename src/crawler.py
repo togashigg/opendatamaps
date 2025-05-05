@@ -95,6 +95,7 @@ class Crawler:
         self.OPENDATA_SITES = self.settings_json['local_gov']
         self.site_names = list(self.OPENDATA_SITES.keys())
         logger.debug('site_names=' + str(self.site_names))
+       	self.id_item_list = self.settings_json['common']['id_item_list']
         self.name_item_list_1 = self.settings_json['common']['name_item_list_1']
         self.name_item_list_2 = self.settings_json['common']['name_item_list_2']
         self.address_item_list = self.settings_json['common']['address_item_list']
@@ -157,6 +158,7 @@ class Crawler:
             # マップ情報一覧を初期化する
             map_list_name = {}
             map_list_path = os.path.join(self.packages_dir, '.map_list')
+            # for test: packageids = ['t131032d0000000241']
             for pno, packageid in enumerate(packageids):
                 print(str(pno+1)+'/'+str(len(packageids))+' ', \
                         file=sys.stderr, end='')
@@ -207,6 +209,7 @@ class Crawler:
                     if resource is None or resource['_content_'] is None:
                         print('扱えない形式のコンテンツです。', file=sys.stderr)
                         continue
+                    print(resource['format']+':', end='', file=sys.stderr)
                     # コンテンツを表形式に変換する
                     resource = self.content_to_table(resource, self.package_dir)
                     if resource is None or resource['_table_'] is None:
@@ -362,11 +365,6 @@ class Crawler:
         res = {'encoding': 'utf-8', 'confidence': 0.5, 'language': 'Japanese'}
         try:
             res = detect(cont)
-            """ sample res = {
-                   'encoding': 'SHIFT_JIS',
-                   'confidence': 0.8719851576994434,
-                   'language': 'Japanese'}
-            """
         except Exception as e:
             logger.exception(e)
         logger.debug('detect=' + str(res))
@@ -466,7 +464,6 @@ class Crawler:
         map_data = []
         data = resource['_table_']
         info = resource['_map_']
-        logger.debug('info='+str(info))
         # 名称リスト初期化
         self.__data_name_dict = {}
         for i, rec in enumerate(data):
@@ -706,7 +703,7 @@ class Crawler:
                             param_addr = self.state + address
                         else:
                             param_addr = self.state + self.name + address
-                logger.debug('param_addr='+str(param_addr))
+                # logger.debug('param_addr='+str(param_addr))
                 if param_addr in self.__geocode_cache:
                     result = self.__geocode_cache[param_addr]
                     logger.debug('Hit in __geocode_cache, 住所=' + param_addr)
@@ -758,7 +755,7 @@ class Crawler:
                 param_name = self.state + ' ' + name
             else:
                 param_name = self.state + self.name + ' ' + name
-            logger.debug('param_name=' + param_name)
+            # logger.debug('param_name=' + param_name)
             if param_name in self.__geocode_cache:
                 result = self.__geocode_cache[param_name]
                 logger.debug('Hit in __geocode_cache, 名称=' + param_name)
@@ -1340,8 +1337,12 @@ class Crawler:
             if not isinstance(res, dict):
                 raise Exception('リソースはdict型で指定して下さい。')
         valid = [v for v in resources if 'name' in v and 'format' in v and 'url' in v]
-        # (1) formatが「CSV、TXT、XLSX、XLS、HTML」以外は除外する
-        valid = [v for v in valid if v['format'] in ['CSV','TXT','XLSX','XLS','HTML']]
+        for resource in resources:
+            if resource['url'].split('.')[-1].lower() == 'html':
+                resource['format'] = 'HTML'
+        # (1) formatが「CSV、TXT、XLSX、XLS、GeoJSON、HTML」以外は除外する
+        valid = [v for v in valid if v['format'] in \
+                ['CSV','TXT','XLSX','XLS','GeoJSON','HTML']]
         # (2) １件以下なら終了
         if len(valid) <= 1:
             logger.info('get_valid_resources() ended_1, rc='+str(len(valid)))
@@ -1356,14 +1357,14 @@ class Crawler:
                 if len(name_split) > 1:
                     if name_split[-1].upper() == valid[i]['format'].upper():
                         valid[i]['name'] = valid[i]['name'][:-(len(valid[i]['format'])+1)]
-        # (5) nameが同じでformatが異なるものは、優先順「CSV>TXT>XLSX>XLS>HTML」で１つにする
+        # (5) nameが同じでformatが異なるものは、優先順「CSV>TXT>XLSX>XLS>GeoJSON>HTML」で１つにする
         uniq_names = set([v['name'] for v in valid])
         if len(valid) > len(uniq_names):
             uniq_resources = []
             uniq_urls = []
             for n in uniq_names:
                 f_exists = False
-                for f in ['CSV','TXT','XLSX','XLS','HTML']:
+                for f in ['CSV','TXT','XLSX','XLS','GeoJSON','HTML']:
                     for i in range(len(valid)):
                         if valid[i]['name'] != n:
                             continue
@@ -1412,7 +1413,7 @@ class Crawler:
                     dir=self.package_dir)
         if content is None:
             msg = 'リソース内容の取得に失敗しました。'
-            print(msg, file=sys.stderr)
+            # print(msg, file=sys.stderr)
             logger.error(msg+'url='+str(resource['url']))
             # raise Exception(msg)
             rc = 3
@@ -1658,7 +1659,13 @@ class Crawler:
                 resource['format'] = 'XLSX'
         else:
             if type(resource['_content_']) == bytes:
-                if resource['_content_'].count(b'\n') \
+                if b'{' in resource['_content_'][0:4] \
+                and  b'}' in resource['_content_'][-3:]:
+                    # JSON形式(そのまま) 
+                    if resource['format'] != 'GeoJSON':
+                        logger.warning('format変更, ' + resource['format'] + ' -> GeoJSON')
+                        resource['format'] = 'GeoJSON'
+                elif resource['_content_'].count(b'\n') \
                         <= resource['_content_'].count(b','):
                     # CSV形式 
                     if resource['format'].upper() != 'CSV':
@@ -1674,7 +1681,13 @@ class Crawler:
                     # 指定のまま
                     logger.warning('format不明, ' + resource['format'])
             else:
-                if resource['_content_'].count('\n') \
+                if '{' in resource['_content_'][0:4] \
+                and  '}' in resource['_content_'][-3:]:
+                    # JSON形式(そのまま)
+                    if resource['format'] != 'GeoJSON':
+                        logger.warning('format変更, ' + resource['format'] + ' -> GeoJSON')
+                        resource['format'] = 'GeoJSON'
+                elif resource['_content_'].count('\n') \
                         <= resource['_content_'].count(','):
                     # CSV形式 
                     if resource['format'].upper() != 'CSV':
@@ -1701,7 +1714,7 @@ class Crawler:
             dataset_path = os.path.join(dir, resource['filename'])
 
         # 必要ならコード変換を行う
-        if resource['format'] in ['CSV', 'TEXT', 'TSV', 'TXT']: 
+        if resource['format'] in ['CSV', 'TEXT', 'TSV', 'TXT', 'GeoJSON']: 
             content = self.convert_to_utf8(resource['_content_'])
             if content is None:
                 logger.error('content format error, format=' + resource['format'])
@@ -1748,6 +1761,10 @@ class Crawler:
             # Excel形式(XLSX) 
             logger.debug('format is ' + resource['format'])
             table = self.table_from_xlsx(os.path.join(dir, resource['filename']))
+        elif resource['format'] == 'GeoJSON':
+            # GeoJSON形式(JSON)
+            logger.debug('format is ' + resource['format'])
+            table = self.table_from_GeoJSON(resource['_content_'])
         else:
             # 未サポートの形式
             logger.error('ERROR in format, format=' + resource['format'])
@@ -1827,17 +1844,16 @@ class Crawler:
             if len(name) > 0:
                 name = [name[0]]
             else:
-                name = [i for i in range(len(title_rows[t])) \
-                        if title_rows[t][i] in self.name_item_list_2]
-                if len(name) > 0:
-                    name = [name[0]]
-                else:
+                if kind in self.name_item_list_2:
+                    name = [title_rows[t].index(w) for w in self.name_item_list_2[kind] \
+                            if w in title_rows[t]]
+                if len(name) == 0:
                     # 名称項目なし
                     name = [-1]
                     if '種別' in title_rows[t] and '住所' in title_rows[t]:
                         name = [title_rows[t].index('種別'), title_rows[t].index('住所')]
             id = [i for i in range(len(title_rows[t])) \
-                    if title_rows[t][i] in ['ID','id','NO','no']]
+                    if title_rows[t][i] in self.id_item_list]
             if len(id) == 0:
                 # ID項目なし
                 id = [-1]
@@ -1849,8 +1865,8 @@ class Crawler:
             map_info['id'] = id
             map_info['address'] = address
             map_info['header'] = t + 1
-            used_index = [map_info['lat'],map_info['lng'],map_info['id']]
-            used_index.extend(map_info['name'])
+            used_index = [map_info['lat'],map_info['lng']]	# ,map_info['id']]
+            # used_index.extend(map_info['name'])
             map_info['info'] = [i for i in range(len(title_rows[map_info['header']-1])) \
                     if i not in used_index]
             logger.debug('map_info=' + str(map_info))
@@ -1913,7 +1929,7 @@ class Crawler:
         table = [v for v in csv.reader(content.replace('\r\n','\n').replace('\r','\n').split('\n'))]
         # 復帰
         logger.info('table_from_csv() ended, rc=' + str(len(table)) \
-                + ' table[:3]=' + str(table[:3]))
+                + ' table[:5]=' + str(table[:5]))
         return table
 
     def table_from_tsv(self, content):
@@ -1951,7 +1967,8 @@ class Crawler:
                 link_data.append(table[i])
             table = link_data
         # 復帰
-        logger.info('table_from_tsv() ended, table[:3]=' + str(table[:3]))
+        logger.info('table_from_tsv() ended, rc=' + str(len(table)) \
+                + ', table[:5]=' + str(table[:5]))
         return table
 
     def table_from_xls(self, file, rows=0):
@@ -1994,7 +2011,8 @@ class Crawler:
             table = []
             print('Excel形式(XLS)誤り：' + file, file=sys.stderr, end='')
         # 復帰
-        logger.info('table_from_xls() ended')
+        logger.info('table_from_xls() ended, rc=' + str(len(table)) \
+                + ', table[:5]=' + str(table[:5]))
         return table
 
     def table_from_xlsx(self, file, rows=0):
@@ -2037,7 +2055,61 @@ class Crawler:
             table = []
             print('Excel形式(XLSX)誤り：' + file, file=sys.stderr, end='')
         # 復帰
-        logger.info('table_from_xlsx() ended')
+        logger.info('table_from_xlsx() ended, rc=' + str(len(table)) \
+                + ', table[:5]=' + str(table[:5]))
+        return table
+
+    def table_from_GeoJSON(self, content):
+        """
+        GeoJSON形式(JSON)をテーブル形式に変換する。
+        """
+        logger = logging.getLogger(__name__)
+        logger.info('table_from_GeoJSON() start.')
+        # 実行
+        table = []
+        gj = json.loads(content)
+        if 'type' not in gj or gj['type'] != 'FeatureCollection' \
+        or 'features' not in gj or not isinstance(gj['features'], list):
+            logger.info('table_from_GeoJSON() ended_1, table=[]')
+            return table
+        # 項目名を抽出
+        items = []
+        for feature in gj['features']:
+            if 'type' not in feature or feature['type'] != 'Feature' \
+            or 'geometry' not in feature or not isinstance(feature['geometry'], dict) \
+            or 'type' not in feature['geometry'] or feature['geometry']['type'] != 'Point' \
+            or 'coordinates' not in feature['geometry'] \
+            or not isinstance(feature['geometry']['coordinates'], list) \
+            or len(feature['geometry']['coordinates']) < 2:
+                continue
+            for k in feature['properties'].keys():
+                if k not in items:
+                    items.append(k)
+        if len(items) == 0:
+            logger.info('table_from_GeoJSON() ended_2, table=[]')
+            return table
+        items.extend(['緯度', '経度'])
+        table.append(items)
+        # データを抽出
+        for feature in gj['features']:
+            if 'type' not in feature or feature['type'] != 'Feature' \
+            or 'geometry' not in feature or not isinstance(feature['geometry'], dict) \
+            or 'type' not in feature['geometry'] or feature['geometry']['type'] != 'Point' \
+            or 'coordinates' not in feature['geometry'] \
+            or not isinstance(feature['geometry']['coordinates'], list) \
+            or len(feature['geometry']['coordinates']) < 2:
+                continue
+            row = [''] * (len(items) - 2)
+            for i, item in enumerate(items[:-3]):
+                if item in feature['properties']:
+                    row[i] = feature['properties'][item]
+            row.extend([feature['geometry']['coordinates'][0], \
+                    feature['geometry']['coordinates'][1]])
+            table.append(row)
+
+        # 復帰
+        logger.info('table_from_GeoJSON() ended, rc=' + str(len(table)) \
+                + ', table[:5]=' + str(table[:5]))
         return table
 
 def setup_logger(name, level, log_file='crawler.log', log_dir='log'):
