@@ -74,7 +74,8 @@ def localitycodeQuery(request):
             logger.exception(e)
             apiobj = None
             raise BadRequest('Invalid request. Error in Execution.')
-        response = HttpResponse(json.dumps(res, ensure_ascii=False))
+        response = HttpResponse(json.dumps(res, \
+                ensure_ascii=False).replace('}, {', '},\n{'))
         response['content-type'] = 'application/json; charset=utf-8'
         return response
 
@@ -89,7 +90,8 @@ def facilitySummary(request):
             logger.exception(e)
             apiobj = None
             raise BadRequest('Error in Execution.')
-        response = HttpResponse(json.dumps(recs, ensure_ascii=False).replace('], [', '],\n['))
+        response = HttpResponse(json.dumps(recs, \
+                ensure_ascii=False).replace('}, {', '},\n{'))
         response['content-type'] = 'application/json; charset=utf-8'
         return response
 

@@ -599,6 +599,8 @@
 				// 現在地マーカー表示
 				if(myMarker==null) {
 					if(DEBUG) console.log('現在地 表示:'+mapCenter);
+					myText = document.createElement('div');
+					myText.textContent = '現在地';
 					myPin = new google.maps.marker.PinElement({
 						scale: 1.3,
 						glyphColor: "#FFFFFF",
@@ -611,6 +613,7 @@
 						zIndex: 0,
 						title: '現在地',
 						content: myPin.element,
+						element: myText,
 						// draggable: true,
 					});
 					dispInfo(myMarker, '現在地');
@@ -782,6 +785,8 @@
 		}
 		if(markers.length==0) {
 			for(no=0; no<dataTable.length; no++) {
+				myText = document.createElement('div');
+				myText.textContent = (no+1);
 				myPin = new google.maps.marker.PinElement({
 					scale: 1.1,
 				});
@@ -791,6 +796,7 @@
 						map: myMap,
 						title: dataTable[no].label,
 						content: myPin.element,
+						element: myText,
 					}));
 				dispInfo(markers[markers.length-1], dataTable[no].label);
 				if(myParam.count>0 && (no+1)>=myParam.count) {
