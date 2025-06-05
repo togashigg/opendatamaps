@@ -602,18 +602,19 @@
 					myText = document.createElement('div');
 					myText.textContent = '現在地';
 					myPin = new google.maps.marker.PinElement({
+						glyph: '現',   /* 現在地 */
 						scale: 1.3,
-						glyphColor: "#FFFFFF",
+						glyphColor: "white",
 						background: "#0000F0",
 						borderColor: "#0000FF",
-					});
+					}, font_size=7);
 					myMarker=new google.maps.marker.AdvancedMarkerElement({
 						position: mapCenter,
 						map: myMap,
 						zIndex: 0,
 						title: '現在地',
 						content: myPin.element,
-						element: myText,
+						// element: myText,
 						// draggable: true,
 					});
 					dispInfo(myMarker, '現在地');
@@ -769,7 +770,7 @@
 		if(DEBUG) console.log(nowToString()+' dispInfo() start, '+':'+name);
 		google.maps.event.addListener(marker, 'click',
 			function(event) {
-				new google.maps.InfoWindow({content:name}).open(marker.getMap(), marker);
+				new google.maps.InfoWindow({content:name}).open(marker.map, marker);
 			}
 		);
 		if(DEBUG) console.log(nowToString()+' dispInfo() ended, '+':'+name);
@@ -788,15 +789,17 @@
 				myText = document.createElement('div');
 				myText.textContent = (no+1);
 				myPin = new google.maps.marker.PinElement({
-					scale: 1.1,
-				});
+					glyph: ''+(dataTable[no].no),
+					glyphColor: 'white',
+					scale: 1.3,
+				}, font_size=7);
 				markers.push(new google.maps.marker.AdvancedMarkerElement({
 						position: new google.maps.LatLng(dataTable[no].lat,
 								dataTable[no].lng),
 						map: myMap,
 						title: dataTable[no].label,
 						content: myPin.element,
-						element: myText,
+						// element: myText,
 					}));
 				dispInfo(markers[markers.length-1], dataTable[no].label);
 				if(myParam.count>0 && (no+1)>=myParam.count) {
