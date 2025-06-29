@@ -75,6 +75,10 @@
 		let firstScript=document.getElementsByTagName('script')[0];
 		firstScript.parentNode.insertBefore(script, firstScript);
 	*/
+		$(function() {
+			$("#settingsTabArea").tabs();
+			$("#detailsTabArea").tabs();
+		});
 		if(DEBUG) console.log(nowToString()+' onLoad() ended');
 		return false;
 	}
@@ -834,7 +838,7 @@
 				}
 			}
 		}
-		// 現在地から近い順にソート
+		// 現在地から近い順にソート、現在地が同じならラベルでソート
 		for(no=0; no<dataTable.length; no++) {
 			if(dataTable[no].lat=='' || dataTable[no].lng=='') {
 				dataTable[no].distance=NaN;
@@ -845,8 +849,36 @@
 		dataTable.sort(function(a, b) {
 			if(isNaN(a.distance)) return 1;
 			if(isNaN(b.distance)) return -1;
-			return (a.distance < b.distance)?-1:1;
+			if(a.distance < b.distance) return -1;
+			if(a.distance > b.distance) return 1;
+			if(a.kind < b.kind) return -1;
+			if(a.kind > b.kind) return 1;
+			if(a.label < b.label) return -1;
+			if(a.lable > b.label) return 1;
+			return 0;
+			// return (a.distance < b.distance)?-1:1;
 		});
+		// 同一項目をまとめる
+		var distance='';
+		var kind='';
+		var label='';
+		var noHead=-1;
+		for(no=0; no<dataTable.length; no++) {
+			dataTable[no].show=true;
+			if((dataTable[no].distance == distance
+			 || isNaN(dataTable[no].distance) && isNaN(distance))
+			&& dataTable[no].kind == kind
+			&& dataTable[no].label == label) {
+				dataTable[no].show=false;
+				dataTable[noHead].same.push(no);
+			} else {
+				dataTable[no].same=[];
+				distance=dataTable[no].distance;
+				kind=dataTable[no].kind;
+				label=dataTable[no].label;
+				noHead=no;
+			}
+		}
 		markTable.innerHTML="";
 		markTable=document.getElementById("markTableH");
 		markTable.innerHTML="";
@@ -872,6 +904,9 @@
 		}
 		tableTags+='</tr>';
 		for(no=0; no<dataTable.length; no++) {
+			if(!dataTable[no].show) {
+				continue;
+			}
 			tableTags+='<tr>'
 						+'<td><input type="button" value="'+dataTable[no].no+'" onClick="showTrabelRoute('+no+');"></td>';
 			if(showKind) {
@@ -895,26 +930,54 @@
 	}
 	function showDetail(no) {
 		if(DEBUG) console.log(nowToString()+' showDetail() start');
-		var divTag=document.getElementById("locationDetail");
-		var detail="";
-		detail+='<table border="1" id="detailTable">\n';
-		detail+='<tr><th>項目</th><th>値</th><tr>\n';
+		$(function() {
+			$("#popupDetail").width($("#gmap").width());
+			$("#detailsTabArea").tabs("destroy");
+		});
+		var divTag=document.getElementById("detailsTabArea");
+		var detail='';
 		if(no==-1) {
+			detail+='<ul><li><a href="#detailsTab_C">現在地</a></li></ul>\n';
+			detail+='<div id="detailsTab_C">\n';
+			detail+='<table border="1" id="detailTable_C">\n';
+			detail+='<tr><th>項目</th><th>値</th><tr>\n';
 			detail+='<tr><td>名称</td><td>現在地</td></tr>\n';
 			detail+='<tr><td>情報</td><td>現在地</td></tr>\n';
 			detail+='<tr><td>緯度</td><td>'+mapCenter.lat()+'</td></tr>\n';
 			detail+='<tr><td>経度</td><td>'+mapCenter.lng()+'</td></tr>\n';
+			detail+='</table>\n';
+			detail+='</div>\n';
 		} else {
-			detail+='<tr><td>名称</td><td>'+dataTable[no].label+'</td></tr>\n';
-			detail+='<tr><td>情報</td><td>'+dataTable[no].info+'</td></tr>\n';
-			detail+='<tr><td>緯度</td><td>'+dataTable[no].lat+'</td></tr>\n';
-			detail+='<tr><td>経度</td><td>'+dataTable[no].lng+'</td></tr>\n';
-			if('error' in dataTable[no] && dataTable[no].error != null) {
-				detail+='<tr bgcolor="red"><td>msg</td><td>'+dataTable[no].error+'</td></tr>\n';
+			var nos=[no];
+			if('same' in dataTable[no]) {
+				nos.push(...dataTable[no].same);
+			}
+			detail+='<ul>\n';
+			for(i=0; i<nos.length; i++) {
+				detail+='<li><a href="#detailsTab_'+dataTable[nos[i]].no+'">'
+					+dataTable[nos[i]].no+'</a></li>\n';
+			}
+			detail+='</ul>';
+			for(i=0; i<nos.length; i++) {
+				detail+='<div id="detailsTab_'+dataTable[nos[i]].no+'">\n';
+				detail+='<table border="1" id="detailTable_'+dataTable[nos[i]].no+'">\n';
+				detail+='<tr><th>項目</th><th>値</th><tr>\n';
+				detail+='<tr><td>名称</td><td>'+dataTable[nos[i]].label+'</td></tr>\n';
+				detail+='<tr><td>情報</td><td>'+dataTable[nos[i]].info+'</td></tr>\n';
+				detail+='<tr><td>緯度</td><td>'+dataTable[nos[i]].lat+'</td></tr>\n';
+				detail+='<tr><td>経度</td><td>'+dataTable[nos[i]].lng+'</td></tr>\n';
+				if('error' in dataTable[nos[i]] && dataTable[nos[i]].error != null) {
+					detail+='<tr bgcolor="red"><td>msg</td><td>'
+						+dataTable[nos[i]].error+'</td></tr>\n';
+				}
+				detail+='</table>\n';
+				detail+='</div>\n';
 			}
 		}
-		detail+='</table>\n';
 		divTag.innerHTML=detail;
+		$(function() {
+			$("#detailsTabArea").tabs();
+		});
 		divTag=document.getElementById("popupDetail");
 		divTag.style.display="block";
 		if(DEBUG) console.log(nowToString()+' showDetail() ended');
@@ -940,6 +1003,9 @@
 	}
 	function showTrabelRoute(no) {
 		if(DEBUG) console.log(nowToString()+' showTrabelRoute('+no+') start');
+		console.log('now not support!');
+		return false;
+
 		// stopTraceCurrentPosition();
 		if(directionsService==null) {
 			directionsService=new google.maps.DirectionsService();
@@ -974,7 +1040,8 @@
 	}
 	function showSettings() {
 		if(DEBUG) console.log(nowToString()+' showSettings() start');
-		divTag=document.getElementById("popupSettings");
+		var divTag=document.getElementById("popupSettings");
+		$("#popupSettings").width($("#gmap").width());
 		divTag.style.display="block";
 		if(DEBUG) console.log(nowToString()+' showSettings() ended');
 		return false;

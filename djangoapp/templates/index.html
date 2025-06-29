@@ -6,6 +6,9 @@
 	<!-- opendatamaps 0.0.1 -->
 	<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
 	<title>オープンデータ on Google Maps</title>
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 	<link type="text/css" rel="stylesheet" href="static/css/opendatamaps.css"></style>
 	<script>
 		(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
@@ -47,41 +50,72 @@
 				<table border="0" class="modalTitle">
 					<tr>
 						<th width="80%">詳細情報</th>
-						<th width="20%" align="right"><div id="close" onClick="closeDetail();">【×】</th>
+						<th width="20%" align="right" nowrap>
+							<input type="button" value="✖" onClick="closeDetail();" />
+						</th>
 					</tr>
 				</table>
-				<div id="locationDetail"></div>
+				<div id="detailsTabArea">
+					<ul class="scrollable-tabs" id="detailsTabs">
+						<li><a href="#detailsTab_1">1</a></li>
+					</ul>
+					<div id="detailsTab_1">
+						<div id="locationDetail"></div>
+					</div>
+				</div>
 				<div>
-					<center><input type="button" value="クローズ" onClick="closeDetail();" /></center>
+					<center>
+						<input type="button" value="クローズ" onClick="closeDetail();" />
+					</center>
 				</div>
 			</div>
 		</div>
 		<div id="modalSettings">
 			<div id="popupSettings" class="modalWindow">
-				<table border="0" class="modalTitle">
-					<tr>
-						<th width="80%">設定</th>
-						<th width="20%" align="right"><div id="close" onClick="closeSettings();">【×】</th>
+				<table border="0" class="modalTitle" width="100%">
+					<tr><th width="80%">設定</th>
+						<th width="20%" align="right" nowrap>
+							<input type="button" value="✖" onClick="closeSettings();" />
+						</th>
 					</tr>
 				</table>
-				<table border="1" width="100%">
-					<tr><th>項目</th><th>設定値</th></tr>
-					<tr><td>動作モード</td><td id="mode">
-						<label><input name="mode" id="mode_center" type="radio" value="center" onClick="selectMode(this.value);" />近隣施設</label>
-						<label><input name="mode" id="mode_code" type="radio" value="code" onClick="selectMode(this.value);" />市区町村施設</label>
-						</td></tr>
-					<tr><td>近隣距離</td><td id="nearDistamce">
-						<select id="selectDistanceList" name="selectDistanceList" onChange="selectDistance(this.options[this.selectedIndex].value);" style="text-align: right;">
-						<option value="500">500m</option>
-						<option value="1000">1,000m</option>
-						<option value="2000">2,000m</option>
-						<option value="5000">5,000m</option>
-						</select>
-						</td></tr>
-					<tr><td>種別</td><td id="kindListSelect"></td></tr>
-					<tr><td>種別<BR>（除外）</td><td id="notKindListSelect"></td></tr>
-					<tr><td>市区町村名</td><td id="localityData"></td></tr>
-				</table>
+				<div id="settingsTabArea" style="width:95%">
+					<ul>
+						<li><a href="#settingsTab1">基本</a></li>
+						<li><a href="#settingsTab2">近隣施設</a></li>
+						<li><a href="#settingsTab3">市区町村施設</a></li>
+					</ul>
+					<div id="settingsTab1">
+						<table border="1" width="100%">
+							<tr><th nowrap>項目</th><th nowrap>設定値</th></tr>
+							<tr><td>動作モード</td><td id="mode">
+								<label><input name="mode" id="mode_center" type="radio" value="center" onClick="selectMode(this.value);" />近隣施設</label>
+								<label><input name="mode" id="mode_code" type="radio" value="code" onClick="selectMode(this.value);" />市区町村施設</label>
+							</td></tr>
+							<tr><td>種別</td><td id="kindListSelect"></td></tr>
+							<tr><td>種別<BR>（除外）</td><td id="notKindListSelect"></td></tr>
+						</table>
+					</div>
+					<div id="settingsTab2">
+						<table border="1" width="100%">
+							<tr><td nowrap>近隣距離</td><td id="nearDistamce" nowrap>
+								<select id="selectDistanceList" name="selectDistanceList" onChange="selectDistance(this.options[this.selectedIndex].value);" style="text-align: right;">
+									<option value="500">500m</option>
+									<option value="1000">1,000m</option>
+									<option value="2000">2,000m</option>
+									<option value="5000">5,000m</option>
+								</select>
+							</td></tr>
+						</table>
+					</div>
+					<div id="settingsTab3">
+						<table border="1" width="100%">
+							<tr><td nowrap>市区町村名</td>
+								<td id="localityData" nowrap></td>
+							</tr>
+						</table>
+					</div>
+				</div>
 				<div>
 					<center>
 						<input type="button" value="クローズ" onClick="closeSettings();" />&nbsp;&nbsp;&nbsp;
