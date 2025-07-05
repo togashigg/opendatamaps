@@ -930,14 +930,18 @@
 	}
 	function showDetail(no) {
 		if(DEBUG) console.log(nowToString()+' showDetail() start');
-		$(function() {
-			$("#popupDetail").width($("#gmap").width());
-			$("#detailsTabArea").tabs("destroy");
-		});
+		var scrollAreaHeight=$("#detailsScrollArea").height();
+		if(scrollAreaHeight==0) {
+			scrollAreaHeight=44;
+		}
+		$("#popupDetail").width($("#gmap").width());
+		$("#detailsTabArea").tabs("destroy");
 		var divTag=document.getElementById("detailsTabArea");
 		var detail='';
 		if(no==-1) {
+			detail+='<div id="detailsScrollArea">\n';
 			detail+='<ul><li><a href="#detailsTab_C">現在地</a></li></ul>\n';
+			detail+='</div>\n';
 			detail+='<div id="detailsTab_C">\n';
 			detail+='<table border="1" id="detailTable_C">\n';
 			detail+='<tr><th>項目</th><th>値</th><tr>\n';
@@ -952,12 +956,19 @@
 			if('same' in dataTable[no]) {
 				nos.push(...dataTable[no].same);
 			}
+			if(nos.length>1) {
+				detail+='<div id="detailsScrollArea" style="height: '
+					+ scrollAreaHeight + 'px; overflow-y: scroll;">\n';
+			} else {
+				detail+='<div id="detailsScrollArea">\n';
+			}
 			detail+='<ul>\n';
 			for(i=0; i<nos.length; i++) {
 				detail+='<li><a href="#detailsTab_'+dataTable[nos[i]].no+'">'
 					+dataTable[nos[i]].no+'</a></li>\n';
 			}
-			detail+='</ul>';
+			detail+='</ul>\n';
+			detail+='</div>\n';
 			for(i=0; i<nos.length; i++) {
 				detail+='<div id="detailsTab_'+dataTable[nos[i]].no+'">\n';
 				detail+='<table border="1" id="detailTable_'+dataTable[nos[i]].no+'">\n';
@@ -975,9 +986,7 @@
 			}
 		}
 		divTag.innerHTML=detail;
-		$(function() {
-			$("#detailsTabArea").tabs();
-		});
+		$("#detailsTabArea").tabs();
 		divTag=document.getElementById("popupDetail");
 		divTag.style.display="block";
 		if(DEBUG) console.log(nowToString()+' showDetail() ended');
