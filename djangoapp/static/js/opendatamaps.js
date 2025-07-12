@@ -789,14 +789,20 @@
 			markers=new Array();
 		}
 		if(markers.length==0) {
+			let markerCount=0;
 			for(no=0; no<dataTable.length; no++) {
+				if(!dataTable[no].show) {
+					continue;
+				}
 				myText = document.createElement('div');
-				myText.textContent = (no+1);
+				myText.textContent = ''+(no+1);
 				myPin = new google.maps.marker.PinElement({
+					borderColor: 'red',
+					background: 'lime',
 					glyph: ''+(dataTable[no].no),
-					glyphColor: 'white',
+					glyphColor: 'black',	// white
 					scale: 1.3,
-				}, font_size=7);
+				}, font_size=3);
 				markers.push(new google.maps.marker.AdvancedMarkerElement({
 						position: new google.maps.LatLng(dataTable[no].lat,
 								dataTable[no].lng),
@@ -806,7 +812,8 @@
 						// element: myText,
 					}));
 				dispInfo(markers[markers.length-1], dataTable[no].label);
-				if(myParam.count>0 && (no+1)>=myParam.count) {
+				markerCount++;
+				if(myParam.count>0 && markerCount>=myParam.count) {
 					break;
 				}
 			}
