@@ -95,17 +95,11 @@ def facilitySummary(request):
         response['content-type'] = 'application/json; charset=utf-8'
         return response
 
-def facilityQuery(request):
-        # ?by=center&lat=nn.nn&lng=nn.nn&distance=nnn[&kind=kind[,kind...]][&limit=nnn]
-        # ?by=code&code=code[,code...]][&kind=kind[,kind...]][&limit=nnn]
-        logger.debug('facilityQuery() start.')
+def facilityQueryByCenter(request):
+        # ?lat=nn.nn&lng=nn.nn&distance=nnn[&kind=kind[,kind...]][&limit=nnn]
+        logger.debug('facilityQueryByCenter() start.')
         param = {'kind': None, 'limit': None}
         apiobj = None
-        if 'by' not in request.GET:
-            raise BadRequest('Invalid request. "by" parameter not specified.')
-        param['by'] = request.GET['by']
-        if param['by'] not in ['center', 'code']:
-            raise BadRequest('Invalid request. Invalid value in "by" parameter.')
         if 'kind' in request.GET:
             param['kind'] = request.GET['kind'].split(',')
         if 'limit' in request.GET:
@@ -114,38 +108,56 @@ def facilityQuery(request):
             except Exception as e:
                 logger.exception(e)
                 raise BadRequest('Invalid request. Invalid value in "limit" parameter.')
-        if param['by'] == 'code':
-            if 'code' not in request.GET:
-                raise BadRequest('Invalid request. "code" parameter is not found.')
-            param['code'] = request.GET['code'].split(',')
-            try:
-                apiobj = api.OpendataMapsApi(logname='djangoapp')
-                recs = apiobj.get_by_localitycode(param['code'], param['kind'],
-                        limit=param['limit'])
-                apiobj = None
-            except Exception as e:
-                logger.exception(e)
-                apiobj = None
-                raise BadRequest('Invalid request. Error in Execution.')
-        else:	# 'center'
-            if 'lat' not in request.GET \
-            or 'lng' not in request.GET \
-            or 'distance' not in request.GET:
-                raise BadRequest('Invalid request."lat","lng","distance" parameter is not found.')
-            try:
-                param['lat'] = float(request.GET['lat'])
-                param['lng'] = float(request.GET['lng'])
-                param['distance'] = int(request.GET['distance'])
-                apiobj = api.OpendataMapsApi(logname='djangoapp')
-                recs = apiobj.get_by_distance_from_center(param['lat'], param['lng'],
-                        param['distance'], param['kind'], limit=param['limit'])
-                apiobj = None
-            except Exception as e:
-                logger.exception(e)
-                apiobj = None
-                raise BadRequest('Invalid request.Invalid value in "lat","lng","distance" parameter. Or error in execution.')
+        if 'lat' not in request.GET \
+        or 'lng' not in request.GET \
+        or 'distance' not in request.GET:
+            raise BadRequest('Invalid request."lat","lng","distance" parameter is not found.')
+        try:
+            param['lat'] = float(request.GET['lat'])
+            param['lng'] = float(request.GET['lng'])
+            param['distance'] = int(request.GET['distance'])
+            apiobj = api.OpendataMapsApi(logname='djangoapp')
+            recs = apiobj.get_by_distance_from_center(param['lat'], param['lng'],
+                    param['distance'], param['kind'], limit=param['limit'])
+            apiobj = None
+        except Exception as e:
+            logger.exception(e)
+            apiobj = None
+            raise BadRequest('Invalid request: Invalid value in '
+						'"lat","lng","distance" parameter. Or error in execution.')
         response = HttpResponse(json.dumps(recs, ensure_ascii=False).replace('], [', '],\n['))
         response['content-type'] = 'application/json; charset=utf-8'
+        logger.debug('facilityQueryByCenter() ended.')
+        return response
+
+def facilityQueryByLocality(request):
+        # ?code=code[,code...]][&kind=kind[,kind...]][&limit=nnn]
+        logger.debug('facilityQueryByLocality() start.')
+        param = {'kind': None, 'limit': None}
+        apiobj = None
+        if 'code' not in request.GET:
+            raise BadRequest('Invalid request. "code" parameter is not found.')
+        param['code'] = request.GET['code'].split(',')
+        if 'kind' in request.GET:
+            param['kind'] = request.GET['kind'].split(',')
+        if 'limit' in request.GET:
+            try:
+                param['limit'] = int(request.GET['limit'])
+            except Exception as e:
+                logger.exception(e)
+                raise BadRequest('Invalid request. Invalid value in "limit" parameter.')
+        try:
+            apiobj = api.OpendataMapsApi(logname='djangoapp')
+            recs = apiobj.get_by_localitycode(param['code'], param['kind'],
+                    limit=param['limit'])
+            apiobj = None
+        except Exception as e:
+            logger.exception(e)
+            apiobj = None
+            raise BadRequest('Invalid request: Error in Execution.')
+        response = HttpResponse(json.dumps(recs, ensure_ascii=False).replace('], [', '],\n['))
+        response['content-type'] = 'application/json; charset=utf-8'
+        logger.debug('facilityQueryByLocality() ended.')
         return response
 
 def facilityKinds(request):

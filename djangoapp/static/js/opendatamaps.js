@@ -7,7 +7,8 @@
 	var ESCAPE_RED='\u001b[31m';
 	var ESCAPE_RESET='\u001b[0m';
 	var urlApiFacilitySummary='api/facility/summary';
-	var urlApiFacilityQuery='api/facility/query?';
+	var urlApiFacilityQueryByCenter='api/facility/query/center?';
+    var urlApiFacilityQueryByLocality='api/facility/query/locality?';
 	var urlApiFacilitykinds='api/facility/kinds?';
 	var googleApiLatLonToAddr='https://mreversegeocoder.gsi.go.jp/reverse-geocoder/LonLatToAddress?lat={lat}&lon={lon}';
 	var myMap=null;
@@ -481,10 +482,11 @@
 				if(DEBUG) console.log('invalid myParam.locality');
 				return false;
 			}
-			url=urlApiFacilityQuery+'by=code&code='+myParam.locality;
+			url=urlApiFacilityQueryByLocality+'code='+myParam.locality;
 		} else 
 		if(myParam.mode=='center') {
-			url=urlApiFacilityQuery+'by=center&distance='+myParam.distance+'&lat='+mapCenter.lat()+'&lng='+mapCenter.lng();
+			url=urlApiFacilityQueryByCenter+'distance='+myParam.distance
+				+'&lat='+mapCenter.lat()+'&lng='+mapCenter.lng();
 		} else {
 			if(DEBUG) console.log('invalid myParam.mode');
 			return false
