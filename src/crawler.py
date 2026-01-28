@@ -141,7 +141,7 @@ class Crawler:
         # 実行
         rc = 0
         if names is None or not isinstance(names, list) \
-        or not all([v in self.site_names for v in names]):
+        or not all([v.split('/')[0] in self.site_names for v in names]):
             msg = 'namesパラメタ値に誤りがあります。'
             logger.error(msg+'names='+str(names))
             raise Exception(msg)
@@ -150,15 +150,19 @@ class Crawler:
             print(str(nno+1)+'/'+str(len(names))+' 【'+name+'】', \
                     file=sys.stderr, end='')
             logger.debug('nno='+str(nno)+', name='+str(name))
+            name_pkgs = name.split('/')
+            name = name_pkgs[0]
             site_info = self.get_site_info(name)
             print('サイト=' + site_info['code'], site_info['name'] \
                     + '：' + site_info['catalog']['api_url'], file=sys.stderr)
             rc = self.cache_initialize(site_info)
-            packageids = self.get_packageids_in_site(site_info)
+            if len(name_pkgs) > 1:
+                packageids = name_pkgs[1:]
+            else:
+                packageids = self.get_packageids_in_site(site_info)
             # マップ情報一覧を初期化する
             map_list_name = {}
             map_list_path = os.path.join(self.packages_dir, '.map_list')
-            # for test: packageids = ['t131032d0000000241']
             for pno, packageid in enumerate(packageids):
                 print(str(pno+1)+'/'+str(len(packageids))+' ', \
                         file=sys.stderr, end='')
@@ -227,7 +231,7 @@ class Crawler:
                     # マップデータをキャッシュに保存する
                     self.save_to_cache(map_data, package_title+'_'+str(rno), \
                             dir=packageid)
-                    print('マップデータを作成しました。', file=sys.stderr)
+                    print('['+package_kind+']', 'マップデータを作成しました。', file=sys.stderr)
 
                 map_list_name[packageid] = map_list
 
@@ -369,7 +373,7 @@ class Crawler:
             logger.exception(e)
         logger.debug('detect=' + str(res))
         if res['encoding'] is None \
-        or (len(res['encoding']) >= 5 and res['encoding'].upper()[:5] != 'UTF-8'):
+        or not (res['encoding'].upper() == 'UTF-8' or res['encoding'].upper() == 'UTF-16'):
             res['encoding'] = 'CP932'
         try:
             data = content.decode(res['encoding'], errors='replace')
@@ -486,7 +490,10 @@ class Crawler:
                 else:
                     self.__data_name_dict[name] = 1
         # テーブルデータをマップ情報に変換する
-        headers = data[info['header']-1]
+        headers = list(data[info['header']-1])
+        for i in range(len(headers)):
+            if headers[i] == '':
+                headers[i] = '#' + ('000'+str(i+1))[-4:]
         no = 0;
         for i in range(len(data)):
             if i < info['header']:
@@ -1330,16 +1337,18 @@ class Crawler:
         logger = logging.getLogger(__name__)
         logger.info('get_valid_resources() start.')
         # 実行
-        valid = resources
         if resources is None or not isinstance(resources, list):
             raise Exception('指定されたリソース一覧は異常です。')
         for res in resources:
             if not isinstance(res, dict):
                 raise Exception('リソースはdict型で指定して下さい。')
         valid = [v for v in resources if 'name' in v and 'format' in v and 'url' in v]
-        for resource in resources:
-            if resource['url'].split('.')[-1].lower() == 'html':
-                resource['format'] = 'HTML'
+        for i in range(len(valid)):
+            if valid[i] is None or valid[i]['url'] is None:
+                valid[i]['format'] = 'XXXXX'
+                continue
+            if valid[i]['url'].split('.')[-1].lower() == 'html':
+                valid[i]['format'] = 'HTML'
         # (1) formatが「CSV、TXT、XLSX、XLS、GeoJSON、HTML」以外は除外する
         valid = [v for v in valid if v['format'] in \
                 ['CSV','TXT','XLSX','XLS','GeoJSON','HTML']]
@@ -1445,7 +1454,8 @@ class Crawler:
         resource['_redirect_'] = None
         cont_str = resource['_content_'].decode('UTF-8', \
                 errors='replace').replace('\r\n','\n')
-        if len(cont_str) > len(XHTML_PAGE) and cont_str[:len(XHTML_PAGE)] != XHTML_PAGE:
+        cont_str_strip = cont_str.strip()
+        if len(cont_str_strip) > len(XHTML_PAGE) and cont_str_strip[:len(XHTML_PAGE)] != XHTML_PAGE:
             logger.info('check_html_page() ended_2, content is not HTML')
             return resource
         elif cont_str[:len(LINKDATA_DOWNLOAD_CONTENT)] == LINKDATA_DOWNLOAD_CONTENT:
@@ -1474,17 +1484,17 @@ class Crawler:
             soup = BeautifulSoup(resource['_content_'], 'html.parser')
             if soup is None:
                 logger.warning('chekc_html_page_xhtml() ended_1, content is not HTML.')
-                return resource
+                return None
             list_download = soup.select('.list-download')
             if list_download is None or len(list_download) == 0:
                 logger.warning('check_html_page_xhtml() ended_2, ' \
                         + 'content not have list-download class.')
-                return resource
+                return None
             downloads = list_download[0].select('.download')
             if downloads is None:
                 logger.warning('check_html_page_xhtml() ended_3, ' \
                         + 'content not have download class.')
-                return resource
+                return None
             for download in downloads:
                 if 'data-downloadpath' not in download.attrs \
                 or download.attrs['data-downloadpath'] == '':
@@ -1519,7 +1529,7 @@ class Crawler:
             if content is None:
                 logger.warning('check_html_page_xhtml() ended_4, ' \
                         + 'faild in getting redirect content')
-                return resource
+                return None
             resource['url'] = re_url
             resource['filename'] = re_url.split('/')[-1]
             resource['format'] = format
@@ -1650,12 +1660,12 @@ class Crawler:
         if len(resource['_content_']) > 8 and head_bytes8 == CONTENT_HEADER_XLS:
             # XLS形式：DOC/XLS/PPTも同じだが判定省略
             if resource['format'].upper() != 'XLS':
-                logger.warning('format変更, ' + resource['format'] + ' -> XLS')
+                logger.warning('format変更1, ' + resource['format'] + ' -> XLS')
                 resource['format'] = 'XLS' 
         elif len(resource['_content_']) > 6 and head_bytes8[:6] == CONTENT_HEADER_XLSX:
             # XLSX形式：ZIP/DOCX/XLSX/PPTXも同じだが判定省略
             if resource['format'].upper() != 'XLSX': 
-                logger.warning('format変更, ' + resource['format'] + ' -> XLSX')
+                logger.warning('format変更2, ' + resource['format'] + ' -> XLSX')
                 resource['format'] = 'XLSX'
         else:
             if type(resource['_content_']) == bytes:
@@ -1663,19 +1673,19 @@ class Crawler:
                 and  b'}' in resource['_content_'][-3:]:
                     # JSON形式(そのまま) 
                     if resource['format'] != 'GeoJSON':
-                        logger.warning('format変更, ' + resource['format'] + ' -> GeoJSON')
+                        logger.warning('format変更3, ' + resource['format'] + ' -> GeoJSON')
                         resource['format'] = 'GeoJSON'
                 elif resource['_content_'].count(b'\n') \
                         <= resource['_content_'].count(b','):
                     # CSV形式 
                     if resource['format'].upper() != 'CSV':
-                        logger.warning('format変更, ' + resource['format'] + ' -> CSV')
+                        logger.warning('format変更4, ' + resource['format'] + ' -> CSV')
                         resource['format'] = 'CSV' 
                 elif resource['_content_'].count(b'\n') \
                         <= resource['_content_'].count(b'\t'):
                     # TSV形式：TXT/TEXTも同じ
                     if resource['format'].upper() not in ['TXT', 'TSV', 'TEXT']:
-                        logger.warning('format変更, ' + resource['format'] + ' -> TXT')
+                        logger.warning('format変更5, ' + resource['format'] + ' -> TXT')
                         resource['format'] = 'TXT'
                 else:
                     # 指定のまま
@@ -1685,19 +1695,19 @@ class Crawler:
                 and  '}' in resource['_content_'][-3:]:
                     # JSON形式(そのまま)
                     if resource['format'] != 'GeoJSON':
-                        logger.warning('format変更, ' + resource['format'] + ' -> GeoJSON')
+                        logger.warning('format変更6, ' + resource['format'] + ' -> GeoJSON')
                         resource['format'] = 'GeoJSON'
                 elif resource['_content_'].count('\n') \
                         <= resource['_content_'].count(','):
                     # CSV形式 
                     if resource['format'].upper() != 'CSV':
-                        logger.warning('format変更, ' + resource['format'] + ' -> CSV')
+                        logger.warning('format変更7, ' + resource['format'] + ' -> CSV')
                         resource['format'] = 'CSV' 
                 elif resource['_content_'].count('\n') \
                         <= resource['_content_'].count('\t'):
                     # TSV形式：TXT/TEXTも同じ
                     if resource['format'].upper() not in ['TXT', 'TSV', 'TEXT']:
-                        logger.warning('format変更, ' + resource['format'] + ' -> TXT')
+                        logger.warning('format変更8, ' + resource['format'] + ' -> TXT')
                         resource['format'] = 'TXT'
                 else:
                     # 指定のまま
@@ -2024,7 +2034,8 @@ class Crawler:
         # 実行
         table = []
         try:
-            excel_book = openpyxl.load_workbook(file)
+            excel_book = openpyxl.load_workbook(file, \
+                            keep_vba=False, read_only=True, data_only=True)
             excel_sheet = excel_book.worksheets[0]
             for row in excel_sheet.iter_rows():
                 row_value = []
@@ -2042,6 +2053,10 @@ class Crawler:
                             v = v[:-9]
                         elif v[-3:] == ':00':
                             v = v[:-3]
+                    elif isinstance(v, datetime.timedelta):
+                        v = str(v)
+                        if v == '1 day':
+                            v = '24:00'
                     row_value.append(v)
                 table.append(row_value)
                 if rows > 0  and len(table) >= rows:
@@ -2156,7 +2171,7 @@ if __name__ == '__main__':
         p.add_argument('-l', '--site_list', action='store_true',
                 help='定義されているサイト（自治体名）を出力する。')
         p.add_argument('names', nargs='*', type=str,
-                help='自治体名を指定する。省略した場合は全自治体を対象とする。')
+                help='自治体名[/パッケージID[/...]]を指定する。省略した場合は全自治体を対象とする。')
         args = p.parse_args(sys.argv[1:])
         names = args.names
         # 開始

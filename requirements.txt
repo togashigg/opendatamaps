@@ -1,7 +1,8 @@
 bs4
 django
 openpyxl
-psycopg2-binary
+# psycopg2-binary
+psycopg2-binary==2.9.10
 requests
 xlrd
 

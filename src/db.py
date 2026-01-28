@@ -215,6 +215,8 @@ class OpendataMapsDb:
         self.logger.debug('load_opendatamaps() start, files=' + str(files))
         # 実行
         for file in files:
+            if file[0] == '.':
+                continue
             if os.path.isdir(file):
                 # ディレクトリを処理する
                 msg = 'dir=' + str(file)

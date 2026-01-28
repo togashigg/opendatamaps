@@ -1,29 +1,43 @@
-# オープンデータ取得API
-<DIV STYLE="text-align: right;">2025年7月○○日 ○○の日 公開</DIV>
+# オープンデータ施設取得API
+<DIV STYLE="width: 100%; text-align: right;">2026年○月○○日 ○○の日 公開</DIV>
 
-## 概要
+## 目次
+
+  [1.概要](#1.概要)
+  [2.収集済のオープンデータ](#2.収集済のオープンデータ)
+  [3.施設種別](#3.施設種別)
+  [4.機能](#4.機能)
+  [5.Web_APIの構文](#5.Web_APIの構文)
+  [6.対象：市区町村情報](#6.対象：市区町村情報)
+  [7.対象：施設情報](#7.対象：施設情報)
+  [8.Renderで運用中](#8.Renderで運用中)
+  [9.Dockerコンテナで運用する](#9.Dockerコンテナで運用する)
+  [10.Renderでの構築手順（※作成者メモ）](#10.Renderでの構築手順（※作成者メモ）)
+  [11.使用サービスおよび使用ソフトウェアのライセンスおよびポリシー](#11.使用サービスおよび使用ソフトウェアのライセンスおよびポリシー)
+
+## 1.概要
 
 　近年オープンデータが各都道府県および市区町村により公開されていることは、多くの方がご存じのことと思います。
 　また、オープンデータの中には地理上の座標や住所を含む情報があり、これらの情報は地図上に表示することが可能です。
 　これらのオープンデータの中で個人的に最も重宝している情報は公衆トイレの情報です。その理由は街中を歩くことが多いためです。
 　また、市区町村単位で情報が公開されているため、市区町村の境界近くでは欲しい情報を得るのがめんどうなことがあります。
 　こんな状況を解決するために、各市区町村にまたがった情報を一括して取得できるようにできないかと考えました。
-　結論として、各市区町村が公開しているオープンデータの中でも座標や住所を公開している情報に着目してデータベース化することと、現在地から近い施設（半径何メートル？）を抽出するWebAPIを提供することで解決できるのではないかと考えました。
-　スマホが復旧した現在では、現在地が簡単に取得できることから、
-　任意の座標から
-　データ公開用の分類と参照したい分類は異なると考えられるため、
+　結論として、各市区町村が公開しているオープンデータの中でも座標や住所を公開している情報に着目してデータベース化することと、
+現在地から近い施設（半径何メートル以内？）を抽出するWebAPIを提供することで解決できるのではないかと考えました。
+　スマホが復旧した現在では、Webブラウザを使用することで現在地が簡単に取得でき、周囲の施設を検索してGoogle Maps等で簡単に表示できます。
+　また、特定の施設等の固定的な座標から、周囲の施設を検索することのできます。
+　また、オープンデータは、[e-Gov](https://data.e-gov.go.jp/)や[e-Stat](https://www.e-stat.go.jp/)が決めた分野（カテゴリ）に分類されて公開されています。
+分野とは、 国土・気象、人口・世帯、労働・賃金、農林水産業、鉱工業、商業・サービス業、企業・家計・経済、住宅・土地・建設、エネルギー・水、運輸・観光、情報通信・科学技術、教育・文化・スポーツ・生活、行財政、司法・安全・環境、社会保障・衛生、国際、等が定義されています。
+例えば、利用者目線の「公衆トイレ」の情報は「教育・文化・スポーツ・生活」分野に含まれているようです。
+この分野は、地図上に表示するラベルとしては使いづらいため、独自の手法で種別を設定するようにしました。
+種別の詳細については、後述の「施設種別」を参照してください。
 
+　実際に取得したオープンデータをGoogle Mapに表示するサンプルを作成しました。
+　実際の画面がこちらです。<IMG SRC="opendatamaps/static/images/sample_screen.png" ALT="サンプル画面" TITLE="サンプル画面">
 
-　
-
-　実際の画面がこちらです。<IMG SRC="shinkansen_simulator/static/images/sample_screen.png" ALT="サンプル画面" TITLE="サンプル画面">
-
-　実際に見てみると想像以上の混雑ぶりでびっくりしました。特にのぞみ号の追い抜きぶりは凄くて、
-こだま号やひかり号が可哀想になります。出張ではこだま号を使っていたため身に染みてわかります。
-
+　実際に見てみると想像以上の施設が公開されていることと、重複が多いことにびっくりしました。
 
 　まだまだ不完全な部分が多いですが、ぼちぼち改善していきたいと考えています。
-
 
 　公開に際しては以下のサービスを使用させて頂きました。感謝致します。
 
@@ -34,39 +48,131 @@
 　作成に際しては以下のソフトウェアおよびデータを使用させて頂きました。感謝致します。
 
   - [Ubuntu 24.04](https://ubuntu.com/)
-  - [Python 3.6/3.10](https://www.python.org/)
-  - [JPHoliday](https://github.com/Lalcs/jpholiday)
+  - [Python 3.12](https://www.python.org/)
   - [requests-html](https://pypi.org/project/requests-html/)
   - [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/)
 
-## Web API ###
+## 2.収集済のオープンデータ
+
+　オープンデータは、都道府県および市区町村単位で公開されていますが、各市区町村のオープンデータを調査するには、
+大変な労力が必要と考えられます。そのため、市区町村のデータを含めて都道府県が公開しているオープンデータを対象とすることになしました。
+　また、小さく始めるために、最初に静岡県を対象として開発し、次いで東京都へと適用しました。
+　今後、他の道府県への適用を進めようと考えています。
+　現在収集済の都道府県を以下の表にまとめました。
+  |都道府県コード |都道府県名 |CKAN API |シラサギAPI |公開サイト |
+  |-------|--------|---------|-----------|-----------|
+  |010006 |北海道   |         |           |[北海道](http://www.pref.hokkaido.lg.jp/ss/jsk/opendata/opendata.htm) |
+  |020001 |青森県   |         |           |[青森県](https://opendata.pref.aomori.lg.jp/) |
+  |030007 |岩手県   |         |           |[岩手県](https://www.pref.iwate.jp/opendata/) |
+  |040002 |宮城県   |         |           |[宮城県](http://www.pref.miyagi.jp/site/opendata-miyagi/) |
+  |050008 |秋田県   |         |           |[秋田県](https://www.pref.akita.lg.jp/pages/archive/32419) |
+  |060003 |山形県   |         |           |[山形県](http://www.pref.yamagata.jp/ou/kikakushinko/020051/opendata.html) |
+  |070009 |福島県   |         |           |[福島県](https://www.pref.fukushima.lg.jp/sec/11045a/open-data-top.html) |
+  |080004 |茨城県   |         |           |[茨城県](http://www.pref.ibaraki.jp/kikaku/joho/it/opendata/od-00.html) |
+  |090000 |栃木県   |         |           |[栃木県](http://tochigiken.jp/) |
+  |100005 |群馬県   |         |           |[群馬県](https://www.pref.gunma.jp/07/b2700057.html) |
+  |110001 |埼玉県   |         |           |[埼玉県](https://opendata.pref.saitama.lg.jp/) |
+  |120006 |千葉県   |         |           |[千葉県](https://www.pref.chiba.lg.jp/gyoukaku/opendata/index.html) |
+  |130001 |東京都   |○[CKAN API](https://catalog.data.metro.tokyo.lg.jp/api/3/action/) |      |[東京都](http://opendata-portal.metro.tokyo.jp/www/index.html) |
+  |140007 |神奈川県 |         |           |[神奈川県](http://www.pref.kanagawa.jp/cnt/f534212/) |
+  |150002 |新潟県   |         |           |[新潟県](https://www.pref.niigata.lg.jp/site/opendata/) |
+  |160008 |富山県   |         |           |[富山県](http://opendata.pref.toyama.jp/) |
+  |170003 |石川県   |         |           |[石川県](https://www.pref.ishikawa.lg.jp/opendata/) |
+  |180009 |福井県   |         |           |[福井県](http://www.pref.fukui.lg.jp/doc/toukei-jouhou/opendata/) |
+  |190004 |山梨県   |         |           |[山梨県](https://www.pref.yamanashi.jp/opendata/) |
+  |200000 |長野県   |         |           |[長野県](https://wwwgis.pref.nagano.lg.jp/pref-nagano/OpenData) |
+  |210005 |岐阜県   |         |           |[岐阜県](https://gifu-opendata.pref.gifu.lg.jp/) |
+  |220001 |静岡県   |○[CKAN API](https://ckan.pref.shizuoka.jp/api/3/action/) |−[シラサギAPI](https://opendata.pref.shizuoka.jp/api/) |[静岡県](https://opendata.pref.shizuoka.jp/) |
+  |230006 |愛知県   |         |           |[愛知県](https://www.pref.aichi.jp/life/7/) |
+  |240001 |三重県   |         |           |[三重県](http://www.pref.mie.lg.jp/IT/HP/87579000001.htm) |
+  |250007 |滋賀県   |         |           |[滋賀県](https://www.pref.shiga.lg.jp/ippan/kurashi/ict/300004.html) |
+  |260002 |京都府   |         |           |[京都府](http://www.pref.kyoto.jp/digital/opendata/index.html) |
+  |270008 |大阪府   |         |           |[大阪府](http://www.pref.osaka.lg.jp/kikaku_keikaku/opendata/index.html) |
+  |280003 |兵庫県   |         |           |[兵庫県](https://web.pref.hyogo.lg.jp/opendata/index.php) |
+  |290009 |奈良県   |         |           |[奈良県](http://www.pref.nara.jp/44954.htm) |
+  |300004 |和歌山県 |         |           |[和歌山県](https://www.pref.wakayama.lg.jp/prefg/020400/opendata/d00207954.html) |
+  |310000 |鳥取県   |         |           |[鳥取県](https://odp-pref-tottori.tori-info.co.jp/) |
+  |320005 |島根県   |         |           |[島根県](https://shimane-opendata.jp/) |
+  |330001 |岡山県   |         |           |[岡山県](http://www.okayama-opendata.jp/) |
+  |340006 |広島県   |         |           |[広島県](https://www.pref.hiroshima.lg.jp/soshiki/265/opendata.html) |
+  |350001 |山口県   |         |           |[山口県](https://yamaguchi-opendata.jp/www/) |
+  |360007 |徳島県   |         |           |[徳島県](https://opendata.pref.tokushima.lg.jp/) |
+  |370002 |香川県   |         |           |[香川県](https://opendata.pref.kagawa.lg.jp/) |
+  |380008 |愛媛県   |         |           |[愛媛県](https://www.pref.ehime.jp/opendata-catalog/) |
+  |390003 |高知県   |         |           |[高知県](http://www.pref.kochi.lg.jp/opendata/) |
+  |400009 |福岡県   |         |           |[福岡県](https://www.open-governmentdata.org/fukuoka-pref/) |
+  |410004 |佐賀県   |         |           |[佐賀県](http://odcs.bodik.jp/410004/) |
+  |420000 |長崎県   |         |           |[長崎県](http://odcs.bodik.jp/420000/) |
+  |430005 |熊本県   |         |           |[熊本県](http://www.pref.kumamoto.jp/kiji_22038.html) |
+  |440001 |大分県   |         |           |[大分県](https://www.pref.oita.jp/soshiki/11840/opendata.html) |
+  |450006 |宮崎県   |         |           |[宮崎県](https://odcs.bodik.jp/450006/) |
+  |460001 |鹿児島県 |         |           |[鹿児島県](http://www.pref.kagoshima.jp/ac03/infra/info/opendata/) |
+  |470007 |沖縄県   |         |           |[沖縄県](https://www.pref.okinawa.lg.jp/site/kikaku/joho/kikaku/opendata/opendata.html) |
+
+## 3.施設種別
+
+　施設種別とは、e-Govやe-Statで定めた分野（カテゴリ）とは異なり、日常的に使い慣れた施設の種別を独自に定義しました。
+　現在、施設種別は、オープンデータのデータセット名から正規表現により、以下のような種別を定義しています。
+  |施設種別         |データセット名から施設種別を決定する正規表現            |
+  |----------------|------------------------------------------------|
+  |AED設置箇所      |"(AED|ＡＥＤ)" |
+  |介護サービス事業所 |"介護"        |
+  |医療機関         |"(病院|医療[^品]|医院|歯科|助産所|健診|応急救護|施術所|診療所) |
+  |薬局            |"(薬局|医薬品|医療品)" |
+  |文化財           |"文化財" |
+  |観光施設・場所    |"(観光(施設|場所|情報|マップ)|名所|眺望|見所|ブランド|るるぶ|野外彫刻|撮影スポット)" |
+  |公衆無線LAN      |"((公衆|公共)?無線(LAN|ＬＡＮ)|公衆無線|Wi\\-?[Ff]i|Ｗｉ−?[Ｆｆ]ｉ)" |
+  |公衆トイレ       |"(トイレ|便所)" |
+  |消防水利施設      |"(消防水利施設|消火栓|防火水槽)" |
+  |消防            |"消防(署|団|施設)" |
+  |指定緊急避難場所  |"(津波|緊急避難)" |
+  |避難所           |"避難(所|地|場所)" |
+  |防災            |"(防災|救護所|同報無線|飲料水|ヨウ素剤|ため池|河川カメラ|観測所)" |
+  |公共施設         |"((市|区|町|村)役所|(都|道|府|県|市|区|町|村)(の|内)(施設|機関)|庁舎|公共施設|自治体|施設情報|文化|教養|スポーツ|公民館|集会所|公会堂|(都|道|府|県|市|区|町|村)民会館|図書館|文化施設|(都|道|府|県|市|区|町|村)営住宅|斎場|墓地|環境施設|焼却施設|し尿処理|衛生検査)" |
+  |子ども食堂       |"[こ子]ども食堂" |
+  |子育て施設       |"子育て" |
+  |学校・保育施設    |"(学校|こども園|幼稚園|保育|児童館|保育施設|保育所|放課後)" |
+  |駐車場           |"駐車場" |
+  |駐輪場           |"駐輪場" |
+  |公園・花壇       |"(公園|花壇)" |
+  |公衆浴場         |"(公衆浴場|入浴|足湯)" |
+  |投票所           |"投票所" |
+  |福祉施設         |"(老人ホーム|生活支援ハウス|交流センター|高齢者相談センター|地域包括支援センター)" |
+  |健康            |"(健康|厚生)" |
+  |飲食店・販売店    |"(認定店|飲食店|直売所)" |
+  |保護保存樹木林等  |"(保護|保存)(指定)?(樹木|樹林|生け垣)" |
+　施設種別および施設種別を決定する正規表現は、随時改良する予定です。
+
+## 4.機能
 
 　以下の機能をWeb APIとして提供します。
-  - 市区町村コード一覧取得
+  - 市区町村情報一覧取得
   - 施設種別取得
-  - 市区町村毎および施設種別毎のデータ件数取得
-  - 指定市区町村の施設取得
-  - 指定中心位置から指定距離内の施設検索
+  - 施設情報取得
+  - 施設検索
 
-### Web APIの共通構文 ###
+## 5.Web_APIの構文
 
-  http[s]://{ホスト名}/{公開名/}api/{対象}/{機能名}[{手法名}][?パラメタ名=[,パラメタ名=パラメタ値...]]
+  ```
+  http[s]://{ホスト名}/{公開名/}api/{対象}/{機能名}[{手法名}][?パラメタ名=パラメタ値[&パラメタ名=パラメタ値...]]
+  ```
   - ホスト名：サーバを特定するためのDNSで解決できるドメイン名またはIPアドレスを指定します。
   - 公開名：サーバ上で機能を特定するための名称（パス）を指定します。
   - 対象：localitycode（市区町村コード）またはfacility（施設）を指定します。
   - 機能名：対象毎に以下の機能名を指定します。
-    |対象         |機能名  |機能              |機能概要                            |
-    |------------|-------|------------------|----------------------------------|
-    |localitycode|query  |市区町村コード一覧取得|市区町村コード一覧を取得する           |
-    |------------|-------|------------------|----------------------------------|
-    |facility    |kinds  |施設種別を取得       |施設種別を取得する                   |
-    |            |summary|施設情報取得        |市区町村毎および施設種別毎の情報を取得する|
-    |            |query  |施設検索           |条件に該当する施設検索を行い取得する     |
+    |対象         |機能名  |機能             |機能概要                            |
+    |------------|-------|-----------------|----------------------------------|
+    |localitycode|query  |市区町村情報一覧取得|市区町村情報一覧を取得する             |
+
+    |対象         |機能名  |機能             |機能概要                            |
+    |------------|-------|-----------------|----------------------------------|
+    |facility    |kinds  |施設種別取得       |施設種別を取得する                    |
+    |            |summary|施設情報取得       |市区町村毎および施設種別毎の情報を取得する|
+    |            |query  |施設検索          |条件に該当する施設検索を行い取得する     |
   - 手法名：施設検索を行う場合に以下の検索手法を指定します。
     |対象     |機能名 |手法名       |手法              |手法概要                           |
     |--------|------|------------|------------------|---------------------------------|
     |facility|query |center      |中心座標からの距離指定|中心座標から指定距離以内の施設を検索する|
-    |        |      |------------|------------------|---------------------------------|
     |        |      |localitycode|市区町村コード指定   |市区町村コードにより施設を検索する     |
   - パラメタ名=パラメタ値：施設検索を行う場合に以下の検索条件を指定します。
     |対象         |機能名 |手法名|指定|パラメタ名     |パラメタ値                        |
@@ -76,117 +182,509 @@
     |            |      |     |    |locality_name |市区町村名を指定する                |
     |            |      |     |    |limit         |取得する件数の上限を指定する         |
 
-    |対象      |機能名 |手法名       |指定|パラメタ名 |パラメタ値                         |
-    |---------|------|------------|----|----------|---------------------------------|
-    |facility |kinds |ー          |    |code      |取得対象の市区町村コードを指定する（複数指定可能）|
-    |         |------|------------|----|----------|-----------------------------------------|
-    |         |query |center      |必須|lat       |中心座標の緯度を指定する                      |
-    |         |      |            |必須|lng       |中心座標の経度を指定する                      |
-    |         |      |            |必須|distance  |中心座標からの距離を指定する（単位はメートル）    |
-    |         |      |            |    |kind      |取得する施設種別を指定する（複数指定可能）      |
-    |         |      |            |    |limit     |取得する件数の上限を指定する                  |
-    |         |      |------------|----|----------|-----------------------------------------|
-    |         |      |localitycode|必須|code       |市区町村コードを指定する（複数指定可能）        |
-    |         |      |            |    |kind      |取得する施設種別を指定する（複数指定可能）      |
-    |         |      |            |    |limit     |取得する件数の上限を指定する                  |
+    |対象      |機能名  |手法名       |指定|パラメタ名 |パラメタ値                         |
+    |---------|-------|------------|----|----------|---------------------------------|
+    |facility |kinds  |ー          |    |code      |取得対象の市区町村コードを指定する（複数指定可能）|
+    |         |summary|ー          |    |なし       |指定できるパラメタは無し                     |
+    |         |query  |center      |必須|lat       |中心座標の緯度を指定する                      |
+    |         |       |            |必須|lng       |中心座標の経度を指定する                      |
+    |         |       |            |必須|distance  |中心座標からの距離を指定する（単位はメートル）    |
+    |         |       |            |    |kind      |取得する施設種別を指定する（複数指定可能）      |
+    |         |       |            |    |limit     |取得する件数の上限を指定する                  |
+    |         |       |localitycode|必須|code       |市区町村コードを指定する（複数指定可能）        |
+    |         |       |            |    |kind      |取得する施設種別を指定する（複数指定可能）      |
+    |         |       |            |    |limit     |取得する件数の上限を指定する                  |
+
+## 6.対象：市区町村情報
+
+  「総務省」の「全国地方公共団体コード」ページで「[都道府県コード及び市区町村コード](https://www.soumu.go.jp/denshijiti/code.html)」が公開されています。
+この中の「コード一覧表」の最新の「Excelファイル」をダウンロードして、２つのシートをCSV形式に変換して結合したファイルを内包しています。
+このコード一覧表をデータベースに登録して取得できるようにしています。
+
+### 6.1 機能：市区町村情報一覧取得
+
+  Web APIの構文
+
+  ```
+  http[s]://{ホスト名}/{公開名/}api/localitycode/query
+          [?[[&]code=市区町村コード]
+            [[&]state_name=都道府県名]
+            [[&]locality_name=市区町村名]
+            [[&]limit=取得件数の上限]
+          ]
+  ```
+  - 機能
+    市区町村情報一覧を取得します。市区町村情報には、市区町村コード、都道府県名、市区町村名が含まれます。
+    パラメタとして検索条件（市区町村コード、都道府県名、市区町村名）と取得件数の上限を指定できます。
+  - パラメタ
+    - code=市区町村コード
+      市区町村コードを前方一致条件で検索する場合に指定します。
+      用途としては、
+      都道府県コードを指定して都道府県内の市区町村コード一覧を取得する場合や、
+      市区町村コードを指定して都道府県名および市区町村名を取得する場合を想定しています。
+    - state_name=都道府県名
+      都道府県名を条件として検索する場合に指定します。
+      用途としては、
+      都道府県名を指定して都道府県内の市区町村コード一覧を取得する場合を想定しています。
+    - locality_name=市区町村名
+      市区町村名を指定して市区町村情報を検索する場合に指定します。
+      用途としては、
+      市区町村名を指定して都道府県名および市区町村コードを取得する場合を想定しています。
+    - limit=取得件数の上限
+      取得する件数の上限を「0」または正の整数で指定します。上限なしを指定する場合に「0」を指定します。
+      本パラメタを省略した場合の上限は100件です。
+  - 取得結果
+    - 以下のJSON形式で返却します。
+      ```
+      [
+        {"code": "＜都道府県・市区町村コード＞", "state_name": "＜都道府県名＞", "locality_name": "市区町村名"}
+        ［,{"code": "＜都道府県・市区町村コード＞", "state_name": "＜都道府県名＞", "locality_name": "市区町村名"}
+        ［, ・・・ ］］
+      ]
+      ```
+  - 例
+    ```
+    http[s]://{ホスト名}/{公開名/}api/localitycode/query
+    ```
+      <details>
+      <summary>出力例<summary>
+      ```
+      [{"code": "010006", "state_name": "北海道", "locality_name": ""},
+      {"code": "011002", "state_name": "北海道", "locality_name": "札幌市"},
+      {"code": "011011", "state_name": "北海道", "locality_name": "札幌市中央区"},
+      {"code": "011029", "state_name": "北海道", "locality_name": "札幌市北区"},
+      {"code": "011037", "state_name": "北海道", "locality_name": "札幌市東区"},
+      ：（※途中90行省略）
+      {"code": "014371", "state_name": "北海道", "locality_name": "北竜町"},
+      {"code": "014389", "state_name": "北海道", "locality_name": "沼田町"},
+      {"code": "014524", "state_name": "北海道", "locality_name": "鷹栖町"},
+      {"code": "014532", "state_name": "北海道", "locality_name": "東神楽町"},
+      {"code": "014541", "state_name": "北海道", "locality_name": "当麻町"}]
+      ```
+      </details>
+    ```
+    http[s]://{ホスト名}/{公開名/}api/localitycode/query?limit=0
+    ```
+      <details>
+      <summary>出力例<summary>
+      ```
+      [{"code": "010006", "state_name": "北海道", "locality_name": ""},
+      {"code": "011002", "state_name": "北海道", "locality_name": "札幌市"},
+      {"code": "011011", "state_name": "北海道", "locality_name": "札幌市中央区"},
+      {"code": "011029", "state_name": "北海道", "locality_name": "札幌市北区"},
+      {"code": "011037", "state_name": "北海道", "locality_name": "札幌市東区"},
+      ：（※途中1959行省略）
+      {"code": "473618", "state_name": "沖縄県", "locality_name": "久米島町"},
+      {"code": "473626", "state_name": "沖縄県", "locality_name": "八重瀬町"},
+      {"code": "473758", "state_name": "沖縄県", "locality_name": "多良間村"},
+      {"code": "473812", "state_name": "沖縄県", "locality_name": "竹富町"},
+      {"code": "473821", "state_name": "沖縄県", "locality_name": "与那国町"}]
+      ```
+      </details>
+    ```
+    http[s]://{ホスト名}/{公開名/}api/localitycode/query?code=22
+    ```
+      <details>
+      <summary>出力例<summary>
+      ```
+      [{"code": "220001", "state_name": "静岡県", "locality_name": ""},
+      {"code": "221007", "state_name": "静岡県", "locality_name": "静岡市"},
+      {"code": "221015", "state_name": "静岡県", "locality_name": "静岡市葵区"},
+      {"code": "221023", "state_name": "静岡県", "locality_name": "静岡市駿河区"},
+      {"code": "221031", "state_name": "静岡県", "locality_name": "静岡市清水区"},
+      ：（※途中省略）
+      {"code": "222062", "state_name": "静岡県", "locality_name": "三島市"},
+      ：（※途中省略）
+      {"code": "223425", "state_name": "静岡県", "locality_name": "長泉町"},
+      {"code": "223441", "state_name": "静岡県", "locality_name": "小山町"},
+      {"code": "224243", "state_name": "静岡県", "locality_name": "吉田町"},
+      {"code": "224294", "state_name": "静岡県", "locality_name": "川根本町"},
+      {"code": "224618", "state_name": "静岡県", "locality_name": "森町"}]
+      ```
+      </details>
+    ```
+    http[s]://{ホスト名}/{公開名/}api/localitycode/query?code=22206
+    ```
+      <details>
+      <summary>出力例<summary>
+      ```
+      [{"code": "222062", "state_name": "静岡県", "locality_name": "三島市"}]
+      ```
+      </details>
+    ```
+    http[s]://{ホスト名}/{公開名/}api/localitycode/query?state_name=静岡県&limit=3
+    ```
+      <details>
+      <summary>出力例<summary>
+      ```
+      [{"code": "220001", "state_name": "静岡県", "locality_name": ""},
+      {"code": "221007", "state_name": "静岡県", "locality_name": "静岡市"},
+      {"code": "221015", "state_name": "静岡県", "locality_name": "静岡市葵区"}]
+      ```
+      </details>
+    ```
+    http[s]://{ホスト名}/{公開名/}api/localitycode/query?locality_name=三島市
+    ```
+      <details>
+      <summary>出力例<summary>
+      ```
+      [{"code": "222062", "state_name": "静岡県", "locality_name": "三島市"}]
+      ```
+      </details>
+
+## 7.対象：施設情報
+
+### 機能：施設種別取得
+
+  Web APIの構文
+
+  ```
+  http[s]://{ホスト名}/{公開名/}api/facility/kinds
+          [?code=市区町村コード[,市区町村コード[,・・・]]]
+  ```
+  - 機能
+    データベースに存在する施設種別を取得します。
+    パラメタで市区町村コードを指定した場合は、指定した都道府県および市区町村に含まれる施設種別を取得します。
+  - パラメタ
+    - code=市区町村コード
+      市区町村コードを前方一致条件で指定します。
+      省略した場合は、データベースに登録されている全ての市区町村の情報を取得します。
+  - 取得結果
+    - 以下のJSON形式で返却します。
+      ```
+      {"kinds": [
+        ［＜施設種別＞
+        ［,＜施設種別＞
+        ［, ・・・ ］］］
+      ]}
+      ```
+  - 例
+    ```
+    http[s]://{ホスト名}/{公開名/}api/facility/kinds
+    ```
+      <details>
+      <summary>出力例<summary>
+      ```
+      {"kinds": ["AED設置箇所", "医療機関", "飲食店・販売店", "介護サービス事業所", "学校・保育施設", "観光施設・場所", "健康", "公園・花壇", "公共施設", "公衆トイレ", "公衆無線LANアクセスポイント", "公衆浴場", "子育て施設", "指定緊急避難場所", "消防", "消防水利施設", "駐車場・駐輪場", "投票所", "避難所", "福祉施設", "文化財", "防災", "薬局"]}
+      ```
+      </details>
+    ```
+    http[s]://{ホスト名}/{公開名/}api/facility/kinds?code=22206
+    ```
+      <details>
+      <summary>出力例<summary>
+      ```
+      {"kinds": ["AED設置箇所", "介護サービス事業所", "観光施設・場所", "公園・花壇", "公共施設", "公衆トイレ", "公衆無線LANアクセスポイント", "消防水利施設", "投票所", "避難所", "文化財"]}
+      ```
+      </details>
+    ```
+    http[s]://{ホスト名}/{公開名/}api/facility/kinds?code=22203,22206
+    ```
+      <details>
+      <summary>出力例<summary>
+      ```
+      {"kinds": ["AED設置箇所", "医療機関", "介護サービス事業所", "観光施設・場所", "公園・花壇", "公共施設", "公衆トイレ", "公衆無線LANアクセスポイント", "指定緊急避難場所", "消防", "消防水利施設", "投票所", "避難所", "文化財"]}
+      ```
+      </details>
 
 
+### 機能：施設情報取得
+
+  Web APIの構文
+
+  ```
+  http[s]://{ホスト名}/{公開名/}api/facility/summary
+  ```
+  - 機能
+    データベースに存在する施設情報を取得します。
+    パラメタは指定できません。
+    施設情報とは、都道府県・市区町村毎に定義されている施設種別および施設種別の件数です。
+  - 取得結果
+    - 以下のJSON形式で返却します。
+      ```
+      [
+        ［{"code": ＜市区町村コード＞, "state_name": ＜都道府県名＞, "locality_name": ＜市区町村名＞, 
+          "kinds": [［＜施設種別＞［, ＜施設種別＞［, ・・・ ］］］], 
+          "kind_count": [［＜施設種別数＞［, ＜施設種別数＞［, ・・・ ］］］]}］
+        ［, {"code": ＜市区町村コード＞, "state_name": ＜都道府県名＞, "locality_name": ＜市区町村名＞, 
+          "kinds": [［＜施設種別＞［, ＜施設種別＞［, ・・・ ］］］], 
+          "kind_count": [［＜施設種別数＞［, ＜施設種別数＞［, ・・・ ］］］]}］
+        ［, ・・・ ］
+      ]
+      ```
+  - パラメタ
+    なし
+  - 例
+    ```
+    http[s]://{ホスト名}/{公開名/}api/facility/summary
+    ```
+      <details>
+      <summary>出力例<summary>
+      ```
+      [
+        {"code": "130001", "state_name": "東京都", "locality_name": "", "kinds": ["介護サービス事業所", "健康", "公共施設", "公園・花壇", "公衆トイレ", "公衆無線LAN", "医療機関", "学校・保育施設", "文化財", "消防水利施設", "防災", "飲食店・販売店", "駐車場・駐輪場"], "kind_count": [18, 28, 1812, 14, 8246, 737, 203, 444, 245, 36330, 8044, 210, 56]},
+        {"code": "131016", "state_name": "東京都", "locality_name": "千代田区", "kinds": ["保護保存樹木林等", "公共施設", "公衆トイレ", "公衆無線LAN", "文化財"], "kind_count": [3, 10, 37, 77, 74]},
+        ：（※途中省略）
+        {"code": "220001", "state_name": "静岡県", "locality_name": "", "kinds": ["介護サービス事業所", "公共施設", "公園・花壇", "医療機関", "指定緊急避難場所", "文化財", "薬局", "観光施設・場所", "飲食店・販売店"], "kind_count": [7, 4212, 7, 4692, 2799, 894, 16, 3, 35]},
+        {"code": "221007", "state_name": "静岡県", "locality_name": "静岡市", "kinds": ["AED設置箇所", "介護サービス事業所", "公共施設", "公園・花壇", "公衆無線LAN", "子育て施設", "学校・保育施設", "指定緊急避難場所", "文化財", "避難所"], "kind_count": [562, 5608, 868, 496, 38, 237, 376, 569, 36, 314]},
+        ：（※途中省略）
+        {"code": "222062", "state_name": "静岡県", "locality_name": "三島市", "kinds": ["AED設置箇所", "介護サービス事業所", "健康", "公共施設", "公園・花壇", "公衆トイレ", "公衆無線LAN", "医療機関", "子育て施設", "投票所", "指定緊急避難場所", "文化財", "消防水利施設", "薬局", "観光施設・場所", "避難所", "飲食店・販売店"], "kind_count": [96, 116, 14, 1042, 278, 48, 46, 133, 70, 31, 75, 96, 1602, 44, 40, 24, 233]},
+        ：（※途中省略）
+        {"code": "224618", "state_name": "静岡県", "locality_name": "森町", "kinds": ["公共施設", "公衆無線LAN", "医療機関", "子育て施設", "学校・保育施設", "消防"], "kind_count": [9, 19, 1, 19, 10, 1]}
+      ]
+      ```
+      </details>
+
+### 機能：施設検索（中心）
+
+  Web APIの構文
+
+  ```
+  http[s]://{ホスト名}/{公開名/}api/facility/query/center
+          ?lat=中心座標の緯度&lng=中心座標の経度&distance=中心座標からの距離
+          [&kind=施設種別[,施設種別[,・・・]]]
+          [&limit=取得件数の上限]
+  ```
+  - 機能
+    指定した中心座標から指定した距離（半径）内に存在する施設情報を取得します。
+    中心座標（lat、lng）および中心座標からの距離（distance）は必須パラメタです。
+    特定の施設種別を指定して検索する場合は施設種別（kind）パラメタを指定します。施設種別には複数指定可能です。
+    施設種別（kind）および取得件数の上限（limit）は省略可能なパラメタです。
+    取得件数の上限を省略した場合は
+  - パラメタ
+    - lat=中心座標の緯度
+      施設を検索する中心座標の緯度を指定します。度形式（例：35.126334）または、度分秒形式（例：35.7.34.8）で指定します。
+    - lng=中心座標の軽度
+      施設を検索する中心座標の軽度を指定します。度形式（例：138.9107634）または、度分秒形式（例：138.54.38.75）で指定します。
+    - distance=中心座標からの距
+      中心座標からの距離をメートル（m）単位で指定します。
+    - kind=施設種別[,施設種別[,・・・]]
+      取得対象の施設種別を指定します。施設種別はカンマ（,）区切りで複数指定可能です。
+      施設種別は、施設種別取得APIで取得した施設種別を指定して下さい。
+      本パラメタを省略した場合は、全施設種別を対象として検索すます。
+    - limit=取得件数の上限
+      取得する件数の上限を「0」または正の整数で指定します。上限なしを指定する場合に「0」を指定します。
+      本パラメタを省略した場合の上限は100件です。
+  - 取得結果
+    - 以下のJSON形式で返却します。
+      ```
+      [ [＜施設情報＞[,＜施設情報＞[,・・・]]] ]
+      施設情報：
+        {
+          "locality_code": ＜市区町村コード＞, 
+          "kind": ＜施設種別＞, 
+          "dataset": ＜データセット名＞, 
+          "id": ＜データセット内ID＞, 
+          "label": ＜施設名称＞", 
+          "lat": ＜緯度＞, 
+          "lng": ＜軽度＞, 
+          "info": ＜施設情報詳細文字列＞"
+        }
+      施設情報詳細文字列：
+        "[ {
+            ＜データセット内項目名＞: ＜データセット内項目値＞
+            [, ＜データセット内項目名＞: ＜データセット内項目値＞
+            [, ・・・ ] ]
+           } ]"
+      ```
+  - 例
+    ```
+    (1) 三島駅を中心として半径500m以内の公衆トイレおよび公園・花壇の一覧を取得する。
+    
+      http[s]://{ホスト名}/{公開名/}api/facility/query/center?lat=35.126334&lng=138.9107634&distance=500&kind=公衆トイレ,公園・花壇&limit=10
+    ```
+      <details>
+      <summary>出力例<summary>
+
+      ```
+      [
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_04", "label": "楽寿園南口（源兵衛川近く）", "lat": 35.1249137713607, "lng": 138.910952144609, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null, "distance": 143}, 
+        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　公園情報", "id": "msm_prk_001", "label": "楽寿園", "lat": 35.124884, "lng": 138.910918, "info": "[{\"kubun\": \"都市公園\"}, {\"address\": \"静岡県三島市一番町19-3\"}, {\"areaSize(ha)\": \"7.28\"}, {\"notes\": \"トイレ,駐車場,多目的トイレ\"}, {\"toilet\": \"有\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"parking\": \"有\"}]", "error": null, "distance": 146}, 
+        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　公園情報", "id": "msm_prk_174", "label": "三島駅北口ポケットパーク", "lat": 35.128256, "lng": 138.911074, "info": "[{\"kubun\": \"都市公園以外\"}, {\"address\": \"静岡県三島市文教町１－２７６８－１\"}, {\"areaSize(ha)\": \"0.14\"}]", "error": null, "distance": 195}, 
+        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　地域花壇マップ情報", "id": "msm_lkdn_79", "label": "三島駅南口喫煙所管理する会", "lat": 35.125889, "lng": 138.912796, "info": "[{\"address\": \"静岡県三島市一番町\"}]", "error": null, "distance": 208}, 
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_01", "label": "JR三島駅南口", "lat": 35.126013, "lng": 138.912838, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}]", "error": null, "distance": 210}, 
+        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　地域花壇マップ情報", "id": "msm_lkdn_02", "label": "寿町老人会", "lat": 35.125406, "lng": 138.908381, "info": "[{\"address\": \"静岡県三島市寿町\"}, {\"URL\": \"https://mishima-life.jp/kadan002/index.html\"}]", "error": null, "distance": 256}, 
+        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　公園情報", "id": "msm_prk_179", "label": "街の森保全公園", "lat": 35.124183, "lng": 138.912702, "info": "[{\"kubun\": \"都市公園\"}, {\"address\": \"静岡県三島市一番町2700-54外\"}, {\"areaSize(ha)\": \"0.29\"}]", "error": null, "distance": 290}, 
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_02", "label": "白滝公園", "lat": 35.1231762808803, "lng": 138.914084964739, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null, "distance": 458}, 
+        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　地域花壇マップ情報", "id": "msm_lkdn_51", "label": "なでしこ", "lat": 35.122219, "lng": 138.912935, "info": "[{\"address\": \"静岡県三島市芝本町\"}, {\"URL\": \"https://mishima-life.jp/kadan055/index.html\"}]", "error": null, "distance": 465}, 
+        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　公園情報", "id": "msm_prk_002", "label": "白滝公園", "lat": 35.123037, "lng": 138.91426, "info": "[{\"kubun\": \"都市公園\"}, {\"address\": \"静岡県三島市一番町1-1\"}, {\"areaSize(ha)\": \"0.41\"}, {\"notes\": \"複合遊具,トイレ,多目的トイレ\"}, {\"toilet\": \"有\"}, {\"Multi-Purpose Toilet\": \"有\"}]", "error": null, "distance": 481}
+      ]
+      ```
+      </details>
+
+### 機能：施設検索（市区町村）
+
+  Web APIの構文
+
+  ```
+  http[s]://{ホスト名}/{公開名/}api/facility/query/locality
+          ?code=市区町村コード[,市区町村コード[,・・・]]
+          [&kind=施設種別[,施設種別[,・・・]]]
+          [&limit=取得件数の上限]
+  ```
+  - 機能
+    指定した市区町村コードで指定したに存在する施設情報を取得します。
+    中心座標（lat、lng）および中心座標からの距離（distance）は必須パラメタです。
+    特定の施設種別を指定して検索する場合は施設種別（kind）パラメタを指定します。施設種別には複数指定可能です。
+    施設種別（kind）および取得件数の上限（limit）は省略可能なパラメタです。
+  - パラメタ
+    - code=市区町村コード[,市区町村コード[, ・・・ ]]
+      市区町村コードを指定します。複数指定可能です。
+    - kind=施設種別[,施設種別[,・・・]]
+      取得対象の施設種別を指定します。施設種別はカンマ（,）区切りで複数指定可能です。
+      施設種別は、施設種別取得APIで取得した施設種別を指定して下さい。
+      本パラメタを省略した場合は、全施設種別を対象として検索すます。
+    - limit=取得件数の上限
+      取得する件数の上限を「0」または正の整数で指定します。上限なしを指定する場合に「0」を指定します。
+      本パラメタを省略した場合の上限は100件です。
+  - 取得結果
+    - 以下のJSON形式で返却します。
+      ```
+      [ [＜施設情報＞[,＜施設情報＞[,・・・]]] ]
+      施設情報：
+        {
+          "locality_code": ＜市区町村コード＞, 
+          "kind": ＜施設種別＞, 
+          "dataset": ＜データセット名＞, 
+          "id": ＜データセット内ID＞, 
+          "label": ＜施設名称＞", 
+          "lat": ＜緯度＞, 
+          "lng": ＜軽度＞, 
+          "info": ＜施設情報詳細文字列＞"
+        }
+      施設情報詳細文字列：
+        "[ {
+            ＜データセット内項目名＞: ＜データセット内項目値＞
+            [, ＜データセット内項目名＞: ＜データセット内項目値＞
+            [, ・・・ ] ]
+           } ]"
+      ```
+  - 例
+    ```
+    (1) 三島市の施設一覧を取得する。
+    
+      http[s]://{ホスト名}/{公開名/}api/facility/query/locality?code=222038,222062&kind=公衆トイレ&limit=0
+    ```
+      <details>
+      <summary>出力例<summary>
+
+      ```
+      [
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_01", "label": "JR三島駅南口", "lat": 35.126013, "lng": 138.912838, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}]", "error": null}, 
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_02", "label": "白滝公園", "lat": 35.1231762808803, "lng": 138.914084964739, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null}, 
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_03", "label": "菰池公園", "lat": 35.1252647750385, "lng": 138.915994697557, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null}, 
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_04", "label": "楽寿園南口（源兵衛川近く）", "lat": 35.1249137713607, "lng": 138.910952144609, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null}, 
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_05", "label": "三嶋大社", "lat": 35.1208946714353, "lng": 138.920093112932, "info": "[{\"use_time\": \"8：00～18：00\"}]", "error": null}, 
+        ：（※途中6行省略）
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_12", "label": "長伏公園", "lat": 35.083701, "lng": 138.911176, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null}, 
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_13", "label": "上岩崎公園", "lat": 35.134729, "lng": 138.916462, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null}, 
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_14", "label": "向山古墳群公園", "lat": 35.106073, "lng": 138.941372, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null}, 
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_15", "label": "中郷温水池公園", "lat": 35.10889, "lng": 138.916476, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null}, 
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_16", "label": "玉沢公衆便所", "lat": 35.12296, "lng": 138.961295, "info": "[{\"use_time\": \"24時間\"}]", "error": null}
+      ]
+      ```
+      </details>
 
 
-## Renderで運用中
+## 8.Renderで運用中
 
-　以下のリンクから実際の動作を参照できます。※作業中で停止していたらごめんなさい。 m(\_.\_)m
+　以下のリンクから機能の概要を確認することができます。※作業中で停止していたらごめんなさい。 m(\_.\_)m
 
-  - <A HREF="https://shinkansen-simulator.onrender.com/" TARGET="_blank" REL="noopener noreferrer">東海道新幹線なんちゃって運行シミュレーター</A>
+  - <A HREF="https://opendatamaps.onrender.com/" TARGET="_blank" REL="noopener noreferrer">オープンデータマップス</A>
 
-## Dockerコンテナで運用する場合
+## 9.Dockerコンテナで運用する（作者メモ）
 
-### 構築手順
+　環境構築にはそれ程時間も手間も掛かりませんが、オープンデータを取得するにはクローリングと自前データベースへの登録を行うため数時間掛かります。
+
+### 9.1 構築手順
 
   1. GitHubからプロジェクトを取得する。
      ```
-     $ git clone --depth 1 https://github.com/togashigg/shinkansen-simulator.git
+     $ mkdir github
+     $ cd github
+     $ git clone --depth 1 https://github.com/togashigg/opendatamaps.git
      ```
   2. プロジェクトのディレクトリに移動する。
      ```
-     $ cd shinkansen-simulator
+     $ cd opendatamaps
      ```
   3. Dockerイメージをビルドする。
      ```
-     $ docker build -t shinkansen-simulator:latest .
+     $ ./docker_build.sh
      ```
-  4. 永続化領域用ディレクトリを作成する。
+  4. docker運用環境および永続化領域用ディレクトリを作成する。
      ```
-     $ mkdir ~/timetable
-     $ mkdir ~/timetable/cache
-     $ cp -p shinkansen_simulator/timetable/cache/* ~/timetable/cache/
-     $ mkdir ~/timetable/log
-     $ mkdir ~/timetable/output
-     $ mkdir ~/timetable/remarks
-     $ cp -p shinkansen_simulator/timetable/remarks/* ~/timetable/remarks/
+     $ cd
+     $ mkdir docker
+     $ cd docker
+     $ cp -pr ~/github/opendatamaps/docker-compose/* ./
      ```
-  5. Dockerコンテナを起動する。
+  5. SSL通信用オレオレ証明書を作成する。※できれば正式な証明書を使用したい！
      ```
-     $ docker run -d --name shinkansen-simulator -p 80:8080 \
-              --mount type=bind,src=${HOME}/timetable/cache,dst=/app/shinkansen_simulator/timetable/cache \
-              --mount type=bind,src=${HOME}/timetable/log,dst=/app/shinkansen_simulator/timetable/log \
-              --mount type=bind,src=${HOME}/timetable/output,dst=/app/shinkansen_simulator/timetable/output \
-              --mount type=bind,src=${HOME}/timetable/remarks,dst=/app/shinkansen_simulator/timetable/remarks \
-              shinkansen-simulator
+     $ cd nginx/openssl
+     $ openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -aes-256-cbc -out server.key
+       ※＜PEM pass phrase＞を入力します。
+     $ openssl req -new -key server.key -out server.csr
+       ※＜PEM pass phrase＞、＜Country Name＞、＜State or Province Name＞、＜Locality Name＞、＜Common Name＞、＜Email Address＞等を入力します。
+     $ openssl x509 -req -in server.csr -signkey server.key -days 400 -out server.crt
+       ※＜PEM pass phrase＞を入力します。
+     $ echo "＜パスワード＞" > passwd
+       ※＜PEM pass phrase＞を入力します。
+     $ chmod 622 *
+     ```
+  6. Dockerコンテナを起動する。
+     ```
+     $ docker-compose up -d
+     $ docker-compose ps
+       ※コンテナが起動されていることを確認します。
+     ```
+  7. データベースを初期化する。
+     ```
+     $ cd opendatamaps/
+     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -c 
      ```
   8. ブラウザでDockerコンテナのURLを開く。
      ```
-     http://＜IPアドレス＞/
+     https://＜サーバ＞/opendatamaps
      
-      ※＜IPアドレス＞には環境を構築したサーバのIPアドレスを指定してください。
+      ※＜サーバ＞には環境を構築したサーバのドメイン名またはIPアドレスを指定してください。
      ```
 
-### 最新の時刻表に更新する方法
+### 9.2 オープンデータを取得する
 
-　時刻表データ利用についてはＪＲ東海の許可を得ておりません。利用する際は自己責任で利用して下さい。
-
-　なお、運転日指定列車の時刻表は運転日にのみ取得できます。全列車の時刻表を完成させるには毎日実行しなければなりません。
-
-  1. 時刻表の記事ファイルを作成する。
-
-     本プロジェクトの"shinkansen_simulator/timetable/remarks/"内のファイルを参考にして、
-     最新の時刻表から記事ファイルを作成して、永続化用ディレクトリの"remarks"ディレクトリに
-     格納する。
-
-     ファイル名は重複を避けるために以下の規則で運用する。
+  1. オープンデータを取得する。
      ```
-       YYMMDD_yymmdd_remarks.csv
-       
-         ※YYMMDD：時刻表の開始日を西暦年の下2桁と月日を指定する。例：211001
-         ※yymmdd：時刻表の終了日を西暦年の下2桁と月日で指定する。例：211031
+     $ cd
+     $ cd docker/opendatamaps/
+     $ docker exec -t docker_opendatamaps_1 python3 src/crowler.py 静岡県 | tee cmd_log/crowler_静岡県.stdout
+     $ docker exec -t docker_opendatamaps_1 python3 src/crowler.py 東京都 | tee cmd_log/crowler_東京都.stdout
      ```
 
-  2. 以下のコマンドを実行してＪＲ東海HPより時刻表データを取得する。
+### 9.3 オープンデータを自前データベースに登録する
+
+  1. オープンデータを取得する。
      ```
-     $ docker exec shinkansen-simulator \
-              /app/shinkansen_simulator/timetable/get.sh [＜時刻表開始日＞ ＜時刻表終了日＞]
-     
-       ※＜時刻表開始日＞：時刻表の開始日をYYYYMMDDの８桁の数字で指定する。例：20211001
-       ※＜時刻表終了日＞：時刻表の終了日をYYYYMMDDの８桁の数字で指定する。例：20211031
-       ※時刻表開始日および時刻表終了日を省略した場合は実行当日を含む記事ファイルを参照する。
-       ※実行時間は、初回および時刻表開始日は約4時間、その他は約20分～40分程度です。
+     $ cd
+     $ cd docker/opendatamaps/
+     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -l opendatamaps -f 静岡県 | tee cmd_log/db_load_静岡県.stdout
+     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -l opendatamaps -f 東京都 | tee cmd_log/db_load_東京都.stdout
      ```
 
-### Renderでの構築手順（作成者メモ）
+## 10.Renderでの構築手順（※作成者メモ）
 
-#### Renderにユーザ登録する
+### 10.1 Renderにユーザ登録する
 
   1. Renderのユーザでない場合は、以下のURLを開いて新規登録を行う。
 
      https://render.com/
 
-#### Renderにログインする
+### 10.2 Renderにログインする
 
   1. Renderの以下のURLを開いてログインする。
 
      https://render.com/
 
-#### 新規のアプリを作成する
+### 10.3 新規のアプリを作成する
 
   1. RenderにログインしてDashboardのサービス一覧画面で\[New +\] - \[Web Service\]を選択する。
 
@@ -229,7 +727,7 @@
 
      \[Start Command\]：
 
-       \[python3 manage.py runserver 0.0.0.0:$PORT\]を設定する。
+       \[python3 manage.py runserver 0.0.0.0:$PORT --insecure\]を設定する。
 
      \[Plans\]：
 
@@ -243,12 +741,12 @@
 
      ※ただし、サービス開始までには更に5分程度かかる。
 
-#### GitHubとの連携を設定する
+### 10.4 GitHubとの連携を設定する
 
   デフォルトで連携されている。GitHubのリポジトリが更新されるとビルドされる。
 
 
-## 使用サービスおよび使用ソフトウェアのライセンスおよびポリシー
+## 11.使用サービスおよび使用ソフトウェアのライセンスおよびポリシー
 
   - [Render](https://render.com/)
     ```
@@ -346,83 +844,7 @@
     © 2021 Docker Inc. All rights reserved
     ```
 
-  - [Phina.js](https://phinajs.com/)
-    ```
-    phinajs/phina.js is licensed under the
-    MIT License
-    A short and simple permissive license with conditions only requiring preservation of copyright and license notices. Licensed works, modifications, and larger works may be distributed under different terms and without source code.
-    ---
-    MIT License
-
-    Copyright (c) 2015 phi and other contributors, http://phinajs.com
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
-    ---
-    Copyright © 2015 phi. All Rights Reserved.
-    ```
-
-  - [phina-talkbubble.js](https://github.com/pentamania/phina-talkbubble)
-    ```
-    LICENSE
-    MIT
-    ---
-    Copyright (C) pentamania, https://github.com/pentamania
-    ```
-
-  - [ＪＲ東海](https://jr-central.co.jp/)の時刻表
-    ```
-    著作権について
-    当サイトの著作権及び当サイトに含まれる文章、写真、映像、音楽、音声その他の著作物に関する著作権は、当社又は原著作者その他の権利者に帰属します。当サイトの著作物に関して、著作権法により認められている場合を除き、権利者の許諾なく複製、改変、転用、貸与、頒布、公衆送信その他一切の利用・処分等を行うことを禁止します。
-    商標権について
-    当サイトに掲載される当社の商号、商標、ロゴマーク等に関する権利は、当社に帰属します。これらを当社の許諾なく利用・処分等することを禁止します。
-    ---
-    ©Central Japan Railway Company All rights reserved.
-    ```
-
-  - [素材Library.com](https://www.sozai-library.com/)の日本地図
-    ```
-    ご利用規約
-    すべての素材データを、個人利用法人利用問わず無料でダウンロードしお使いいただけますが、素材データの著作権は管理者に帰属しますので、著作権を侵害する行為は禁止させていただきます。 また、イラスト素材はJPGとEPSもしくはAI形式（まとめてZIPでダウンロードできます）（一部、EPS・AIデータが無いのもあり）が入ってますので、必要に応じて加工は自由にしていただいて問題ありませんが、注意点が少しありますので下記「ご利用に関してのお願い」をお読みくださいませ。
-
-    ■ご利用に関してのお願い
-    ・当サイトの素材の販売は禁止させていただきます。
-    ・当サイトの素材の再配布は禁止させていただきます。
-    ・当サイトの素材を加工した素材の配布も禁止させていただきます。
-    ・会社・企業・団体などでの当サイトのイラストの使用は問題ありません。
-    ・アダルト、公序良俗、宗教系、その他管理人が不快に感じるサイトや媒体で、当サイトのイラスト素材の利用は禁止しています。
-    ・販売物への使用は禁止しています。
-    ・当サイトのイラストを使用して、直接的（※1）・間接的（※2）に利益を得ることを禁止しています。
-    ・※1 直接的とは、当サイトの素材を直接販売もしくは加工して販売することをさします。
-    ・※2 間接的とは、当サイトの素材がきっかけもしくは当サイトの素材が無いと何か販売できない状態、または利益を出せない状態で使用されることをさします。
-    ・当サイトのイラストの利用、ダウンロードに発生した障害や事故などに関していかなる保証も行いません。
-    ・当サイトからのリンクを通じアクセスされるサービス、ウェブサイトについて、いかなる責任も負いません。
-    ■免責事項
-    ・当サイトのイラストデータをご利用いただく場合には、お客様のご判断と責任におきましてご利用をお願い申し上げます。
-    ・イラスト素材データに関してのトラブルは当サイトでは、一切の責任を負いかねます事ご了承願います。
-    ・カレンダー素材、地図素材の内容関しては万全を期してはおりますが、正確性、確実性を保証するものではありません。今後、予告なしに内容を変更または廃止する場合があります。
-    ・地図素材のデータに関しては2014年7月に作成したデータとなります。市区町村合併などによりデータが古い場合がありますので、国土交通省などの地図と照らし合わせご利用することをおすすめいたします。
-    ・イラスト素材データに関してのご質問に関しては、お答え致しかねる場合もございますのでご了承ください。
-    ---
-    Copyright(c)2012-2021 無料イラストの素材ライブラリー.com ALL RIGHTS RESERVED.
-    ```
-
-  - [Ubuntu 18.04/22.04](https://ubuntu.com/)
+  - [Ubuntu 22.04](https://ubuntu.com/)
     ```
     Intellectual property rights policy
     Latest update: We updated this policy on 15 July 2015.
@@ -526,56 +948,7 @@
     © 2022 Canonical Ltd. Ubuntu and Canonical are registered trademarks of Canonical Ltd.
     ```
 
-  - [Python 3.6](https://www.python.org/)
-    ```
-    Terms and conditions for accessing or otherwise using Python
-    PSF LICENSE AGREEMENT FOR PYTHON 3.6.15
-    1. This LICENSE AGREEMENT is between the Python Software Foundation ("PSF"), and
-       the Individual or Organization ("Licensee") accessing and otherwise using Python
-       3.6.15 software in source or binary form and its associated documentation.
-
-    2. Subject to the terms and conditions of this License Agreement, PSF hereby
-       grants Licensee a nonexclusive, royalty-free, world-wide license to reproduce,
-       analyze, test, perform and/or display publicly, prepare derivative works,
-       distribute, and otherwise use Python 3.6.15 alone or in any derivative
-       version, provided, however, that PSF's License Agreement and PSF's notice of
-       copyright, i.e., "Copyright © 2001-2021 Python Software Foundation; All Rights
-       Reserved" are retained in Python 3.6.15 alone or in any derivative version
-       prepared by Licensee.
-
-    3. In the event Licensee prepares a derivative work that is based on or
-       incorporates Python 3.6.15 or any part thereof, and wants to make the
-       derivative work available to others as provided herein, then Licensee hereby
-       agrees to include in any such work a brief summary of the changes made to Python
-       3.6.15.
-
-    4. PSF is making Python 3.6.15 available to Licensee on an "AS IS" basis.
-       PSF MAKES NO REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED.  BY WAY OF
-       EXAMPLE, BUT NOT LIMITATION, PSF MAKES NO AND DISCLAIMS ANY REPRESENTATION OR
-       WARRANTY OF MERCHANTABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE OR THAT THE
-       USE OF PYTHON 3.6.15 WILL NOT INFRINGE ANY THIRD PARTY RIGHTS.
-
-    5. PSF SHALL NOT BE LIABLE TO LICENSEE OR ANY OTHER USERS OF PYTHON 3.6.15
-       FOR ANY INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES OR LOSS AS A RESULT OF
-       MODIFYING, DISTRIBUTING, OR OTHERWISE USING PYTHON 3.6.15, OR ANY DERIVATIVE
-       THEREOF, EVEN IF ADVISED OF THE POSSIBILITY THEREOF.
-
-    6. This License Agreement will automatically terminate upon a material breach of
-       its terms and conditions.
-
-    7. Nothing in this License Agreement shall be deemed to create any relationship
-       of agency, partnership, or joint venture between PSF and Licensee.  This License
-       Agreement does not grant permission to use PSF trademarks or trade name in a
-       trademark sense to endorse or promote products or services of Licensee, or any
-       third party.
-
-    8. By copying, installing or otherwise using Python 3.6.15, Licensee agrees
-       to be bound by the terms and conditions of this License Agreement.
-    ---
-    © Copyright 2001-2021, Python Software Foundation.
-    ```
-
-  - [Python 3.10](https://www.python.org/)
+  - [Python 3.12](https://www.python.org/)
     ```
     Terms and conditions for accessing or otherwise using Python
     Python software and documentation are licensed under the PSF License Agreement.
@@ -630,35 +1003,6 @@
     © Copyright 2001-2022, Python Software Foundation.
     ```
 
-  - [JPHoliday](https://github.com/Lalcs/jpholiday)
-    ```
-    Lalcs/jpholiday is licensed under the
-    MIT License
-    A short and simple permissive license with conditions only requiring preservation of copyright and license notices. Licensed works, modifications, and larger works may be distributed under different terms and without source code.
-    ---
-    MIT License
-    
-    Copyright (c) 2017 
-    
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-    
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-    
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
-    ```
-
   - [requests-html](https://pypi.org/project/requests-html/)
     ```
     License: MIT License (MIT)
@@ -710,4 +1054,4 @@
     ```
 
 ----
-Copyright (C) N.Togashi 2021-2022
+Copyright (C) N.Togashi 2026
