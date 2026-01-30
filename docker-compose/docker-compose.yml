@@ -40,11 +40,11 @@ services:
       - ./opendatamaps/cmd_log:/app/log
     environment:
       - GOOGLE_MAPS_API_KEY
-      - POSTGRESQL_HOST=db
-      - POSTGRESQL_PORT=5432
-      - POSTGRESQL_DBNAME=postgres
-      - POSTGRESQL_USER=postgres
-      - POSTGRESQL_PASS=post1234gres
+      - POSTGRESQL_HOST
+      - POSTGRESQL_PORT
+      - POSTGRESQL_DBNAME
+      - POSTGRESQL_USER
+      - POSTGRESQL_PASS
 
   db:
     # image: postgres:18.1
@@ -59,9 +59,9 @@ services:
     environment:
       - TZ=Asia/Tokyo
       - PGTZ=Asia/Tokyo
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=post1234gres
+      - POSTGRES_DB=$POSTGRESQL_DBNAME
+      - POSTGRES_USER=$POSTGRESQL_USER
+      - POSTGRES_PASSWORD=$POSTGRESQL_PASS
       - POSTGRES_INITDB_ARGS="--encoding=UTF8"
       # V<18 - PGDATA=./db/data
     volumes:
