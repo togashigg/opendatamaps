@@ -3,17 +3,27 @@
 
 ## 目次
 
-  [1.概要](#1.概要)
-  [2.収集済のオープンデータ](#2.収集済のオープンデータ)
-  [3.施設種別](#3.施設種別)
-  [4.機能](#4.機能)
-  [5.Web_APIの構文](#5.Web_APIの構文)
-  [6.対象：市区町村情報](#6.対象：市区町村情報)
-  [7.対象：施設情報](#7.対象：施設情報)
-  [8.Renderで運用中](#8.Renderで運用中)
-  [9.Dockerコンテナで運用する](#9.Dockerコンテナで運用する)
-  [10.Renderでの構築手順（※作成者メモ）](#10.Renderでの構築手順（※作成者メモ）)
-  [11.使用サービスおよび使用ソフトウェアのライセンスおよびポリシー](#11.使用サービスおよび使用ソフトウェアのライセンスおよびポリシー)
+  [1.概要](#1概要)
+
+  [2.収集済のオープンデータ](#2収集済のオープンデータ)
+
+  [3.施設種別](#3施設種別)
+
+  [4.機能](#4機能)
+
+  [5.Web_APIの構文](#5Web_APIの構文)
+
+  [6.対象：市区町村情報](#6対象：市区町村情報)
+
+  [7.対象：施設情報](#7対象：施設情報)
+
+  [8.Renderで運用中](#8Renderで運用中)
+
+  [9.Dockerコンテナで運用する](#9Dockerコンテナで運用する)
+
+  [10.Renderでの構築手順（※作成者メモ）](#10Renderでの構築手順（※作成者メモ）)
+
+  [11.使用サービスおよび使用ソフトウェアのライセンスおよびポリシー](#11使用サービスおよび使用ソフトウェアのライセンスおよびポリシー)
 
 ## 1.概要
 
@@ -247,7 +257,7 @@
     http[s]://{ホスト名}/{公開名/}api/localitycode/query
     ```
       <details>
-      <summary>出力例<summary>
+      <summary>出力例</summary>
       ```
       [{"code": "010006", "state_name": "北海道", "locality_name": ""},
       {"code": "011002", "state_name": "北海道", "locality_name": "札幌市"},
@@ -262,11 +272,12 @@
       {"code": "014541", "state_name": "北海道", "locality_name": "当麻町"}]
       ```
       </details>
+
     ```
     http[s]://{ホスト名}/{公開名/}api/localitycode/query?limit=0
     ```
       <details>
-      <summary>出力例<summary>
+      <summary>出力例</summary>
       ```
       [{"code": "010006", "state_name": "北海道", "locality_name": ""},
       {"code": "011002", "state_name": "北海道", "locality_name": "札幌市"},
@@ -281,11 +292,12 @@
       {"code": "473821", "state_name": "沖縄県", "locality_name": "与那国町"}]
       ```
       </details>
+
     ```
     http[s]://{ホスト名}/{公開名/}api/localitycode/query?code=22
     ```
       <details>
-      <summary>出力例<summary>
+      <summary>出力例</summary>
       ```
       [{"code": "220001", "state_name": "静岡県", "locality_name": ""},
       {"code": "221007", "state_name": "静岡県", "locality_name": "静岡市"},
@@ -302,31 +314,34 @@
       {"code": "224618", "state_name": "静岡県", "locality_name": "森町"}]
       ```
       </details>
+
     ```
     http[s]://{ホスト名}/{公開名/}api/localitycode/query?code=22206
     ```
       <details>
-      <summary>出力例<summary>
+      <summary>出力例</summary>
       ```
       [{"code": "222062", "state_name": "静岡県", "locality_name": "三島市"}]
       ```
       </details>
+
     ```
     http[s]://{ホスト名}/{公開名/}api/localitycode/query?state_name=静岡県&limit=3
     ```
       <details>
-      <summary>出力例<summary>
+      <summary>出力例</summary>
       ```
       [{"code": "220001", "state_name": "静岡県", "locality_name": ""},
       {"code": "221007", "state_name": "静岡県", "locality_name": "静岡市"},
       {"code": "221015", "state_name": "静岡県", "locality_name": "静岡市葵区"}]
       ```
       </details>
+
     ```
     http[s]://{ホスト名}/{公開名/}api/localitycode/query?locality_name=三島市
     ```
       <details>
-      <summary>出力例<summary>
+      <summary>出力例</summary>
       ```
       [{"code": "222062", "state_name": "静岡県", "locality_name": "三島市"}]
       ```
@@ -363,25 +378,27 @@
     http[s]://{ホスト名}/{公開名/}api/facility/kinds
     ```
       <details>
-      <summary>出力例<summary>
+      <summary>出力例</summary>
       ```
       {"kinds": ["AED設置箇所", "医療機関", "飲食店・販売店", "介護サービス事業所", "学校・保育施設", "観光施設・場所", "健康", "公園・花壇", "公共施設", "公衆トイレ", "公衆無線LANアクセスポイント", "公衆浴場", "子育て施設", "指定緊急避難場所", "消防", "消防水利施設", "駐車場・駐輪場", "投票所", "避難所", "福祉施設", "文化財", "防災", "薬局"]}
       ```
       </details>
+
     ```
     http[s]://{ホスト名}/{公開名/}api/facility/kinds?code=22206
     ```
       <details>
-      <summary>出力例<summary>
+      <summary>出力例</summary>
       ```
       {"kinds": ["AED設置箇所", "介護サービス事業所", "観光施設・場所", "公園・花壇", "公共施設", "公衆トイレ", "公衆無線LANアクセスポイント", "消防水利施設", "投票所", "避難所", "文化財"]}
       ```
       </details>
+
     ```
     http[s]://{ホスト名}/{公開名/}api/facility/kinds?code=22203,22206
     ```
       <details>
-      <summary>出力例<summary>
+      <summary>出力例</summary>
       ```
       {"kinds": ["AED設置箇所", "医療機関", "介護サービス事業所", "観光施設・場所", "公園・花壇", "公共施設", "公衆トイレ", "公衆無線LANアクセスポイント", "指定緊急避難場所", "消防", "消防水利施設", "投票所", "避難所", "文化財"]}
       ```
@@ -419,7 +436,7 @@
     http[s]://{ホスト名}/{公開名/}api/facility/summary
     ```
       <details>
-      <summary>出力例<summary>
+      <summary>出力例</summary>
       ```
       [
         {"code": "130001", "state_name": "東京都", "locality_name": "", "kinds": ["介護サービス事業所", "健康", "公共施設", "公園・花壇", "公衆トイレ", "公衆無線LAN", "医療機関", "学校・保育施設", "文化財", "消防水利施設", "防災", "飲食店・販売店", "駐車場・駐輪場"], "kind_count": [18, 28, 1812, 14, 8246, 737, 203, 444, 245, 36330, 8044, 210, 56]},
@@ -494,7 +511,7 @@
       http[s]://{ホスト名}/{公開名/}api/facility/query/center?lat=35.126334&lng=138.9107634&distance=500&kind=公衆トイレ,公園・花壇&limit=10
     ```
       <details>
-      <summary>出力例<summary>
+      <summary>出力例</summary>
 
       ```
       [
@@ -566,7 +583,7 @@
       http[s]://{ホスト名}/{公開名/}api/facility/query/locality?code=222038,222062&kind=公衆トイレ&limit=0
     ```
       <details>
-      <summary>出力例<summary>
+      <summary>出力例</summary>
 
       ```
       [
@@ -594,6 +611,11 @@
 
 ## 9.Dockerコンテナで運用する（作者メモ）
 
+　動作環境の前提条件は以下の通りです。
+    - OS: ubuntu 24.04
+    - Docker version 20.10
+    - docker-compose version 1.29
+
 　環境構築にはそれ程時間も手間も掛かりませんが、オープンデータを取得するにはクローリングと自前データベースへの登録を行うため数時間掛かります。
 
 ### 9.1 構築手順
@@ -604,21 +626,26 @@
      $ cd github
      $ git clone --depth 1 https://github.com/togashigg/opendatamaps.git
      ```
+
   2. プロジェクトのディレクトリに移動する。
      ```
      $ cd opendatamaps
      ```
+
   3. Dockerイメージをビルドする。
      ```
      $ ./docker_build.sh
      ```
+
   4. docker運用環境および永続化領域用ディレクトリを作成する。
      ```
      $ cd
      $ mkdir docker
      $ cd docker
      $ cp -pr ~/github/opendatamaps/docker-compose/* ./
+     $ mkdir db/data/18
      ```
+
   5. SSL通信用オレオレ証明書を作成する。※できれば正式な証明書を使用したい！
      ```
      $ cd nginx/openssl
@@ -630,19 +657,49 @@
        ※＜PEM pass phrase＞を入力します。
      $ echo "＜パスワード＞" > passwd
        ※＜PEM pass phrase＞を入力します。
-     $ chmod 622 *
+     $ chmod 644 *
      ```
+
+  6. 環境変数を定義する。
+
+    環境変数は、「.bashrc」ファイルの最後に定義します。ファイル更新後に「bash」を再起動して下さい。
+    「POSTGRESQL_XXXX」は、使用するデータベースを定義します。以下の定義では同時に起動するDockerコンテナ(db)を使用します。
+    また、「GOOGLE_MAPS_API_KEY」は、Google Maps APIのアクセスキーを定義します。各自が取得したアクセスキーを指定して下さい。
+     ```
+     $ cd
+     $ vi .bashrc
+     ＜ファイルの最後に移動する＞
+     export POSTGRESQL_HOST=db
+     export POSTGRESQL_PORT=5432
+     export POSTGRESQL_DBNAME=postgres
+     export POSTGRESQL_USER=postgres
+     export POSTGRESQL_PASS=post1234gres
+     export GOOGLE_MAPS_API_KEY=AIzaSyBZa9fI3N-L1OHnkiaGQODmOcPRP-HaWlA
+     ＜ファイルを保存する＞
+     :wq
+     ＜「bash」を終了する＞
+     # exit
+     ＜「bash」を再起動する＞
+     ＜環境変数を確認する＞
+     # env | grep -e POSTGRESQL -e GOOGLE_MAPS
+     ```
+
   6. Dockerコンテナを起動する。
      ```
+     $ cd
+     $ cd docker
      $ docker-compose up -d
      $ docker-compose ps
        ※コンテナが起動されていることを確認します。
      ```
+
   7. データベースを初期化する。
      ```
      $ cd opendatamaps/
-     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -c 
+     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -c localitycode opendatamaps | tee cmd_log/db_create.stdout
+     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -l localitycode | tee -a cmd_log/db_create.stdout
      ```
+
   8. ブラウザでDockerコンテナのURLを開く。
      ```
      https://＜サーバ＞/opendatamaps
@@ -666,9 +723,19 @@
      ```
      $ cd
      $ cd docker/opendatamaps/
-     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -l opendatamaps -f 静岡県 | tee cmd_log/db_load_静岡県.stdout
-     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -l opendatamaps -f 東京都 | tee cmd_log/db_load_東京都.stdout
+     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -l opendatamaps -f cache/220001_静岡県 | tee cmd_log/db_load_静岡県.stdout
+     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -l opendatamaps -f cache/130001_東京都 | tee cmd_log/db_load_東京都.stdout
      ```
+
+### 9.4 ブラウザでDockerコンテナのURLを開く
+
+  1. ブラウザで以下のURLを開く。
+     ```
+     https://＜サーバ＞/opendatamaps
+
+      ※＜サーバ＞には環境を構築したサーバのドメイン名またはIPアドレスを指定してください。
+     ```
+
 
 ## 10.Renderでの構築手順（※作成者メモ）
 
