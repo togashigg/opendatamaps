@@ -32,7 +32,7 @@ SELECT_LIMIT = 1000
 class OpendataMapsDb:
 
     COMMIT_COUNT = 100
-    LOCALITYCODE_CSV = '都道府県コード及び市区町村コード_20190501.csv'
+    LOCALITYCODE_CSV = '都道府県コード及び市区町村コード_20240101.csv'
     conn = None
     cache_dir = None
     download_dir = None

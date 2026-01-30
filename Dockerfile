@@ -39,21 +39,15 @@ RUN    apt-get update \
     && locale
 ENV    LANG ja_JP.UTF-8
 ENV    LANGUAGE ja_JP:ja
-# ユーザ切り替え(docker:oper)
-RUN    groupadd docker \
-    && useradd -g docker -u 1000 oper -m \
-    && usermod -aG sudo oper
-USER   oper
-ENV    PATH /home/oper/.local/bin:$PATH
 # Python3パッケージをインストール
 RUN    pip3 install --upgrade pip
 # Python3必須ライブラリをインストール
-RUN    mkdir /home/oper/app
-WORKDIR /home/oper/app
-ADD    requirements.txt /home/oper/app/
+RUN    mkdir /app
+WORKDIR /app
+ADD    requirements.txt /app/
 RUN    pip3 install --no-cache-dir -r requirements.txt
 # アプリケーションをインストール
-ADD    . /home/oper/app/
+ADD    . /app/
 # Djangoを常駐化
 ENTRYPOINT python3 manage.py runserver 0.0.0.0:8080 --insecure
 EXPOSE 8080

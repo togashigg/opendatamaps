@@ -1,5 +1,5 @@
 # 日本語化
-FROM postgres
+FROM postgres:18.1
 RUN  apt-get update && apt-get upgrade -y \
   && apt-get install -y locales \
   && apt-get clean \
