@@ -17,26 +17,31 @@
 
 ## 1.概要
 
-  \近年オープンデータが各都道府県および市区町村により公開されていることは、多くの方がご存じのことと思います。
+　近年オープンデータが各都道府県および市区町村により公開されていることは、多くの方がご存じのことと思います。
   また、オープンデータの中には地理上の座標や住所を含む情報があり、これらの情報は地図上に表示することが可能です。
   これらのオープンデータの中で個人的に最も重宝している情報は公衆トイレの情報です。その理由は街中を歩くことが多いためです。
   また、市区町村単位で情報が公開されているため、市区町村の境界近くでは欲しい情報を得るのがめんどうなことがあります。
   こんな状況を解決するために、各市区町村にまたがった情報を一括して取得できるようにできないかと考えました。
-  結論として、各市区町村が公開しているオープンデータの中でも座標や住所を公開している情報に着目してデータベース化することと、
+
+　結論として、各市区町村が公開しているオープンデータの中でも座標や住所を公開している情報に着目してデータベース化することと、
 現在地から近い施設（半径何メートル以内？）を抽出するWebAPIを提供することで解決できるのではないかと考えました。
-  スマホが復旧した現在では、Webブラウザを使用することで現在地が簡単に取得でき、周囲の施設を検索してGoogle Maps等で簡単に表示できます。
+
+　スマホが復旧した現在では、Webブラウザを使用することで現在地が簡単に取得でき、周囲の施設を検索してGoogle Maps等で簡単に表示できます。
   また、特定の施設等の固定的な座標から、周囲の施設を検索することのできます。
-  また、オープンデータは、[e-Gov](https://data.e-gov.go.jp/)や[e-Stat](https://www.e-stat.go.jp/)が決めた分野（カテゴリ）に分類されて公開されています。
+
+　また、オープンデータは、[e-Gov](https://data.e-gov.go.jp/)や[e-Stat](https://www.e-stat.go.jp/)が決めた分野（カテゴリ）に分類されて公開されています。
 分野とは、 国土・気象、人口・世帯、労働・賃金、農林水産業、鉱工業、商業・サービス業、企業・家計・経済、住宅・土地・建設、エネルギー・水、運輸・観光、情報通信・科学技術、教育・文化・スポーツ・生活、行財政、司法・安全・環境、社会保障・衛生、国際、等が定義されています。
 例えば、利用者目線の「公衆トイレ」の情報は「教育・文化・スポーツ・生活」分野に含まれているようです。
 この分野は、地図上に表示するラベルとしては使いづらいため、独自の手法で種別を設定するようにしました。
 種別の詳細については、後述の「施設種別」を参照してください。
 
-  実際に取得したオープンデータをGoogle Mapに表示するサンプルを作成しました。
-  実際の画面がこちらです。<IMG SRC="opendatamaps/static/images/sample_screen.png" ALT="サンプル画面" TITLE="サンプル画面">
-  実際に見てみると想像以上の施設が公開されていることと、重複が多いことにびっくりしました。
+　実際に取得したオープンデータをGoogle Mapに表示するサンプルを作成しました。
 
-  後述のAPIの例を参考にして楽しんで頂ければ幸いです。
+　実際の画面がこちらです。<IMG SRC="opendatamaps/static/images/sample_screen.png" ALT="サンプル画面" TITLE="サンプル画面">
+
+　実際に見てみると想像以上の施設が公開されていることと、重複が多いことにびっくりするかもしれません。
+
+　サンプルを参考にして頂き、後述のWebAPIの例を参考にして楽しんで頂ければ幸いです。
 
 　まだまだ不完全な部分が多いですが、ぼちぼち改善していきたいと考えています。
 
@@ -55,11 +60,13 @@
 
 ## 2.収集済のオープンデータ
 
-　オープンデータは、都道府県および市区町村単位で公開されていますが、各市区町村のオープンデータを調査するには、
+  オープンデータは、都道府県および市区町村単位で公開されていますが、各市区町村のオープンデータを調査するには、
 大変な労力が必要と考えられます。そのため、市区町村のデータを含めて都道府県が公開しているオープンデータを対象とすることになしました。
-　また、小さく始めるために、最初に静岡県を対象として開発し、次いで東京都へと適用しました。
-　今後、他の道府県への適用を進めようと考えています。
-　現在収集済の都道府県を以下の表にまとめました。
+
+  また、小さく始めるために、最初に静岡県を対象として開発し、次いで東京都へと適用しました。
+  今後、他の道府県への適用を進めようと考えています。
+
+  現在収集済の都道府県を以下の表にまとめました。
   |都道府県コード |都道府県名 |CKAN API |シラサギAPI |公開サイト |
   |-------|--------|---------|-----------|-----------|
   |010006 |北海道   |         |           |[北海道](http://www.pref.hokkaido.lg.jp/ss/jsk/opendata/opendata.htm) |
@@ -112,37 +119,39 @@
 
 ## 3.施設種別
 
-　施設種別とは、e-Govやe-Statで定めた分野（カテゴリ）とは異なり、日常的に使い慣れた施設の種別を独自に定義しました。
-　現在、施設種別は、オープンデータのデータセット名から正規表現により、以下のような種別を定義しています。
+  施設種別とは、e-Govやe-Statで定めた分野（カテゴリ）とは異なり、日常的に使い慣れた施設の種別を独自に定義しました。
+
+  現在、施設種別は、オープンデータのデータセット名から正規表現により、以下のような種別を定義しています。
   |施設種別         |データセット名から施設種別を決定する正規表現            |
   |----------------|------------------------------------------------|
-  |AED設置箇所      |"(AED|ＡＥＤ)" |
+  |AED設置箇所      |"(AED\|ＡＥＤ)" |
   |介護サービス事業所 |"介護"        |
-  |医療機関         |"(病院|医療[^品]|医院|歯科|助産所|健診|応急救護|施術所|診療所) |
-  |薬局            |"(薬局|医薬品|医療品)" |
+  |医療機関         |"(病院\|医療[^品]\|医院\|歯科\|助産所\|健診\|応急救護\|施術所\|診療所)" |
+  |薬局            |"(薬局\|医薬品\|医療品)" |
   |文化財           |"文化財" |
-  |観光施設・場所    |"(観光(施設|場所|情報|マップ)|名所|眺望|見所|ブランド|るるぶ|野外彫刻|撮影スポット)" |
-  |公衆無線LAN      |"((公衆|公共)?無線(LAN|ＬＡＮ)|公衆無線|Wi\\-?[Ff]i|Ｗｉ−?[Ｆｆ]ｉ)" |
-  |公衆トイレ       |"(トイレ|便所)" |
-  |消防水利施設      |"(消防水利施設|消火栓|防火水槽)" |
-  |消防            |"消防(署|団|施設)" |
-  |指定緊急避難場所  |"(津波|緊急避難)" |
-  |避難所           |"避難(所|地|場所)" |
-  |防災            |"(防災|救護所|同報無線|飲料水|ヨウ素剤|ため池|河川カメラ|観測所)" |
-  |公共施設         |"((市|区|町|村)役所|(都|道|府|県|市|区|町|村)(の|内)(施設|機関)|庁舎|公共施設|自治体|施設情報|文化|教養|スポーツ|公民館|集会所|公会堂|(都|道|府|県|市|区|町|村)民会館|図書館|文化施設|(都|道|府|県|市|区|町|村)営住宅|斎場|墓地|環境施設|焼却施設|し尿処理|衛生検査)" |
+  |観光施設・場所    |"(観光(施設\|場所\|情報\|マップ)\|名所\|眺望\|見所\|ブランド\|るるぶ\|野外彫刻\|撮影スポット)" |
+  |公衆無線LAN      |"((公衆\|公共)?無線(LAN\|ＬＡＮ)\|公衆無線\|Wi\\-?[Ff]i\|Ｗｉ−?[Ｆｆ]ｉ)" |
+  |公衆トイレ       |"(トイレ\|便所)" |
+  |消防水利施設      |"(消防水利施設\|消火栓\|防火水槽)" |
+  |消防            |"消防(署\|団\|施設)" |
+  |指定緊急避難場所  |"(津波\|緊急避難)" |
+  |避難所           |"避難(所\|地\|場所)" |
+  |防災            |"(防災\|救護所\|同報無線\|飲料水\|ヨウ素剤\|ため池\|河川カメラ\|観測所)" |
+  |公共施設         |"((市\|区\|町\|村\)役所\|(都\|道\|府\|県\|市\|区\|町\|村)(の\|内)(施設\|機関)\|庁舎\|公共施設\|自治体\|施設情報\|文化\|教養\|スポーツ\|公民館\|集会所\|公会堂\|(都\|道\|府\|県\|市\|区\|町\|村)民会館\|図書館\|文化施設\|(都\|道\|府\|県\|市\|区\|町\|村)営住宅\|斎場\|墓地\|環境施設\|焼却施設\|し尿処理\|衛生検査)" |
   |子ども食堂       |"[こ子]ども食堂" |
   |子育て施設       |"子育て" |
-  |学校・保育施設    |"(学校|こども園|幼稚園|保育|児童館|保育施設|保育所|放課後)" |
+  |学校・保育施設    |"(学校\|こども園\|幼稚園\|保育\|児童館\|保育施設\|保育所\|放課後)" |
   |駐車場           |"駐車場" |
   |駐輪場           |"駐輪場" |
-  |公園・花壇       |"(公園|花壇)" |
-  |公衆浴場         |"(公衆浴場|入浴|足湯)" |
+  |公園・花壇       |"(公園\|花壇)" |
+  |公衆浴場         |"(公衆浴場\|入浴\|足湯)" |
   |投票所           |"投票所" |
-  |福祉施設         |"(老人ホーム|生活支援ハウス|交流センター|高齢者相談センター|地域包括支援センター)" |
-  |健康            |"(健康|厚生)" |
-  |飲食店・販売店    |"(認定店|飲食店|直売所)" |
-  |保護保存樹木林等  |"(保護|保存)(指定)?(樹木|樹林|生け垣)" |
-　施設種別および施設種別を決定する正規表現は、随時改良する予定です。
+  |福祉施設         |"(老人ホーム\|生活支援ハウス\|交流センター\|高齢者相談センター\|地域包括支援センター)" |
+  |健康            |"(健康\|厚生)" |
+  |飲食店・販売店    |"(認定店\|飲食店\|直売所)" |
+  |保護保存樹木林等  |"(保護\|保存)(指定)?(樹木\|樹林\|生け垣)" |
+
+ 施設種別および施設種別を決定する正規表現は、随時改良する予定です。
 
 ## 4.機能
 
@@ -244,98 +253,95 @@
       ]
       ```
   - 例
-    ```
-    http[s]://{ホスト名}/{公開名/}api/localitycode/query
-    ```
+
+    1 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query](https://opendatamaps.onrender.com/api/localitycode/query)
       <details>
       <summary>出力例</summary>
-      ```
+
       [{"code": "010006", "state_name": "北海道", "locality_name": ""},
       {"code": "011002", "state_name": "北海道", "locality_name": "札幌市"},
       {"code": "011011", "state_name": "北海道", "locality_name": "札幌市中央区"},
       {"code": "011029", "state_name": "北海道", "locality_name": "札幌市北区"},
       {"code": "011037", "state_name": "北海道", "locality_name": "札幌市東区"},
+
       ：（※途中90行省略）
+
       {"code": "014371", "state_name": "北海道", "locality_name": "北竜町"},
       {"code": "014389", "state_name": "北海道", "locality_name": "沼田町"},
       {"code": "014524", "state_name": "北海道", "locality_name": "鷹栖町"},
       {"code": "014532", "state_name": "北海道", "locality_name": "東神楽町"},
       {"code": "014541", "state_name": "北海道", "locality_name": "当麻町"}]
-      ```
+
       </details>
 
-    ```
-    http[s]://{ホスト名}/{公開名/}api/localitycode/query?limit=0
-    ```
+    2 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?limit=0](https://opendatamaps.onrender.com/api/localitycode/query?limit=0)
       <details>
       <summary>出力例</summary>
-      ```
+
       [{"code": "010006", "state_name": "北海道", "locality_name": ""},
       {"code": "011002", "state_name": "北海道", "locality_name": "札幌市"},
       {"code": "011011", "state_name": "北海道", "locality_name": "札幌市中央区"},
       {"code": "011029", "state_name": "北海道", "locality_name": "札幌市北区"},
       {"code": "011037", "state_name": "北海道", "locality_name": "札幌市東区"},
+
       ：（※途中1959行省略）
+
       {"code": "473618", "state_name": "沖縄県", "locality_name": "久米島町"},
       {"code": "473626", "state_name": "沖縄県", "locality_name": "八重瀬町"},
       {"code": "473758", "state_name": "沖縄県", "locality_name": "多良間村"},
       {"code": "473812", "state_name": "沖縄県", "locality_name": "竹富町"},
       {"code": "473821", "state_name": "沖縄県", "locality_name": "与那国町"}]
-      ```
+
       </details>
 
-    ```
-    http[s]://{ホスト名}/{公開名/}api/localitycode/query?code=22
-    ```
+    3 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?code=22](https://opendatamaps.onrender.com/api/localitycode/query?code=22)
       <details>
       <summary>出力例</summary>
-      ```
+
       [{"code": "220001", "state_name": "静岡県", "locality_name": ""},
       {"code": "221007", "state_name": "静岡県", "locality_name": "静岡市"},
       {"code": "221015", "state_name": "静岡県", "locality_name": "静岡市葵区"},
       {"code": "221023", "state_name": "静岡県", "locality_name": "静岡市駿河区"},
       {"code": "221031", "state_name": "静岡県", "locality_name": "静岡市清水区"},
+
       ：（※途中省略）
+
       {"code": "222062", "state_name": "静岡県", "locality_name": "三島市"},
+
       ：（※途中省略）
+
       {"code": "223425", "state_name": "静岡県", "locality_name": "長泉町"},
       {"code": "223441", "state_name": "静岡県", "locality_name": "小山町"},
       {"code": "224243", "state_name": "静岡県", "locality_name": "吉田町"},
       {"code": "224294", "state_name": "静岡県", "locality_name": "川根本町"},
       {"code": "224618", "state_name": "静岡県", "locality_name": "森町"}]
-      ```
+
       </details>
 
-    ```
-    http[s]://{ホスト名}/{公開名/}api/localitycode/query?code=22206
-    ```
+    4 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?code=22206](https://opendatamaps.onrender.com/api/localitycode/query?code=22206)
       <details>
       <summary>出力例</summary>
-      ```
+
       [{"code": "222062", "state_name": "静岡県", "locality_name": "三島市"}]
-      ```
+
       </details>
 
-    ```
-    http[s]://{ホスト名}/{公開名/}api/localitycode/query?state_name=静岡県&limit=3
-    ```
+    5 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?state_name=静岡県&limit=3](https://opendatamaps.onrender.com/api/localitycode/query?state_name=静岡県&limit=3)
       <details>
       <summary>出力例</summary>
-      ```
+
       [{"code": "220001", "state_name": "静岡県", "locality_name": ""},
       {"code": "221007", "state_name": "静岡県", "locality_name": "静岡市"},
       {"code": "221015", "state_name": "静岡県", "locality_name": "静岡市葵区"}]
-      ```
+
       </details>
 
-    ```
-    http[s]://{ホスト名}/{公開名/}api/localitycode/query?locality_name=三島市
-    ```
+    6 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?locality_name=三島市](https://opendatamaps.onrender.com/api/localitycode/query?locality_name=三島市)
       <details>
       <summary>出力例</summary>
-      ```
+
       [{"code": "222062", "state_name": "静岡県", "locality_name": "三島市"}]
-      ```
+
       </details>
 
 ## 7.対象：施設情報
@@ -365,34 +371,28 @@
       ]}
       ```
   - 例
-    ```
-    http[s]://{ホスト名}/{公開名/}api/facility/kinds
-    ```
+    1 [http\[s\]://{ホスト名}/{公開名/}api/facility/kinds](https://opendatamaps.onrender.com/api/facility/kinds)
       <details>
       <summary>出力例</summary>
-      ```
+
       {"kinds": ["AED設置箇所", "医療機関", "飲食店・販売店", "介護サービス事業所", "学校・保育施設", "観光施設・場所", "健康", "公園・花壇", "公共施設", "公衆トイレ", "公衆無線LANアクセスポイント", "公衆浴場", "子育て施設", "指定緊急避難場所", "消防", "消防水利施設", "駐車場・駐輪場", "投票所", "避難所", "福祉施設", "文化財", "防災", "薬局"]}
-      ```
+
       </details>
 
-    ```
-    http[s]://{ホスト名}/{公開名/}api/facility/kinds?code=22206
-    ```
+    2 [http\[s\]://{ホスト名}/{公開名/}api/facility/kinds?code=22206](https://opendatamaps.onrender.com/api/facility/kinds?code=22206)
       <details>
       <summary>出力例</summary>
-      ```
+
       {"kinds": ["AED設置箇所", "介護サービス事業所", "観光施設・場所", "公園・花壇", "公共施設", "公衆トイレ", "公衆無線LANアクセスポイント", "消防水利施設", "投票所", "避難所", "文化財"]}
-      ```
+
       </details>
 
-    ```
-    http[s]://{ホスト名}/{公開名/}api/facility/kinds?code=22203,22206
-    ```
+    3 [http\[s\]://{ホスト名}/{公開名/}api/facility/kinds?code=22203,22206](https://opendatamaps.onrender.com/api/facility/kinds?code=22203,22206)
       <details>
       <summary>出力例</summary>
-      ```
+
       {"kinds": ["AED設置箇所", "医療機関", "介護サービス事業所", "観光施設・場所", "公園・花壇", "公共施設", "公衆トイレ", "公衆無線LANアクセスポイント", "指定緊急避難場所", "消防", "消防水利施設", "投票所", "避難所", "文化財"]}
-      ```
+
       </details>
 
 
@@ -423,24 +423,26 @@
   - パラメタ
     なし
   - 例
-    ```
-    http[s]://{ホスト名}/{公開名/}api/facility/summary
-    ```
+    1 [http\[s\]://{ホスト名}/{公開名/}api/facility/summary](https://opendatamaps.onrender.com/api/facility/summary)
       <details>
       <summary>出力例</summary>
-      ```
+
       [
         {"code": "130001", "state_name": "東京都", "locality_name": "", "kinds": ["介護サービス事業所", "健康", "公共施設", "公園・花壇", "公衆トイレ", "公衆無線LAN", "医療機関", "学校・保育施設", "文化財", "消防水利施設", "防災", "飲食店・販売店", "駐車場・駐輪場"], "kind_count": [18, 28, 1812, 14, 8246, 737, 203, 444, 245, 36330, 8044, 210, 56]},
         {"code": "131016", "state_name": "東京都", "locality_name": "千代田区", "kinds": ["保護保存樹木林等", "公共施設", "公衆トイレ", "公衆無線LAN", "文化財"], "kind_count": [3, 10, 37, 77, 74]},
         ：（※途中省略）
         {"code": "220001", "state_name": "静岡県", "locality_name": "", "kinds": ["介護サービス事業所", "公共施設", "公園・花壇", "医療機関", "指定緊急避難場所", "文化財", "薬局", "観光施設・場所", "飲食店・販売店"], "kind_count": [7, 4212, 7, 4692, 2799, 894, 16, 3, 35]},
         {"code": "221007", "state_name": "静岡県", "locality_name": "静岡市", "kinds": ["AED設置箇所", "介護サービス事業所", "公共施設", "公園・花壇", "公衆無線LAN", "子育て施設", "学校・保育施設", "指定緊急避難場所", "文化財", "避難所"], "kind_count": [562, 5608, 868, 496, 38, 237, 376, 569, 36, 314]},
+
         ：（※途中省略）
+
         {"code": "222062", "state_name": "静岡県", "locality_name": "三島市", "kinds": ["AED設置箇所", "介護サービス事業所", "健康", "公共施設", "公園・花壇", "公衆トイレ", "公衆無線LAN", "医療機関", "子育て施設", "投票所", "指定緊急避難場所", "文化財", "消防水利施設", "薬局", "観光施設・場所", "避難所", "飲食店・販売店"], "kind_count": [96, 116, 14, 1042, 278, 48, 46, 133, 70, 31, 75, 96, 1602, 44, 40, 24, 233]},
+
         ：（※途中省略）
+
         {"code": "224618", "state_name": "静岡県", "locality_name": "森町", "kinds": ["公共施設", "公衆無線LAN", "医療機関", "子育て施設", "学校・保育施設", "消防"], "kind_count": [9, 19, 1, 19, 10, 1]}
       ]
-      ```
+
       </details>
 
 ### 機能：施設検索（中心）
@@ -666,17 +668,19 @@
 
        デフォルトで選択されている\[Free\]のままとする。
 
-     \[Environmentes\]：
+     \[Environment Variables\]：
 
        以下の環境変数を追加します。
-       |name  |value |
-       |------|------|
-       |POSTGRESQL_HOST |db |
-       |POSTGRESQL_PORT |5432 |
-       |POSTGRESQL_DBNAME |postgres |
-       |POSTGRESQL_USER |postgres |
-       |POSTGRESQL_PASS |post1234gres |
-       |GOOGLE_MAPS_API_KEY |AIzaSyBZa9fI3N-L1OHnkiaGQODmOcPRP-HaWlA |
+       |KEY               |VALUE         |
+       |------------------|--------------|
+       |POSTGRESQL_HOST   |＜DBサーバのホスト名またはIPアドレス＞ |
+       |POSTGRESQL_PORT   |＜PostgreSQLのポート番号＞ |
+       |POSTGRESQL_DBNAME |＜PostgreSQLのDB名＞ |
+       |POSTGRESQL_USER   |＜PostgreSQLのユーザ名＞ |
+       |POSTGRESQL_PASS   |＜PostgreSQLのパスワード＞ |
+       |GOOGLE_MAPS_API_KEY |＜Google CludeのAPIキー＞ |
+
+       ※各VALUEは各自の環境に合わせて設定して下さい。
 
   4. \[Create Web Service\]ボタンをクリックする。
 
@@ -752,11 +756,12 @@
      $ vi .bashrc
      ＜ファイルの最後に移動する＞
      export POSTGRESQL_HOST=db
-     export POSTGRESQL_PORT=5432
-     export POSTGRESQL_DBNAME=postgres
-     export POSTGRESQL_USER=postgres
-     export POSTGRESQL_PASS=post1234gres
-     export GOOGLE_MAPS_API_KEY=AIzaSyBZa9fI3N-L1OHnkiaGQODmOcPRP-HaWlA
+     export POSTGRESQL_PORT=＜PostgreSQLのポート番号＞
+     export POSTGRESQL_DBNAME=＜PostgreSQLのDB名＞
+     export POSTGRESQL_USER=＜PostgreSQLのユーザ名＞
+     export POSTGRESQL_PASS=＜PostgreSQLのパスワード＞
+     export GOOGLE_MAPS_API_KEY=＜Google CludeのAPIキー＞
+       ※各値は各自の環境に合わせて設定して下さい。
      ＜ファイルを保存する＞
      :wq
      ＜「bash」を終了する＞
