@@ -10,10 +10,9 @@
   * [5.Web_APIの構文](#5Web_APIの構文)
   * [6.対象：市区町村情報](#6対象市区町村情報)
   * [7.対象：施設情報](#7対象施設情報)
-  * [8.Renderで運用中](#8Renderで運用中)
-  * [9.Renderでの構築手順（※作成者メモ）](#9Renderでの構築手順作成者メモ)
-  * [10.Dockerコンテナで運用する](#10Dockerコンテナで運用する)
-  * [11.使用サービスおよび使用ソフトウェアのライセンスおよびポリシー](#11使用サービスおよび使用ソフトウェアのライセンスおよびポリシー)
+  * [8.Renderでの構築手順（※作成者メモ）](#8Renderでの構築手順作成者メモ)
+  * [9.Dockerコンテナで運用する](#9Dockerコンテナで運用する)
+  * [10.使用サービスおよび使用ソフトウェアのライセンスおよびポリシー](#10使用サービスおよび使用ソフトウェアのライセンスおよびポリシー)
 
 ## 1.概要
 
@@ -35,11 +34,13 @@
 この分野は、地図上に表示するラベルとしては使いづらいため、独自の手法で種別を設定するようにしました。
 種別の詳細については、後述の「施設種別」を参照してください。
 
-　実際に取得したオープンデータをGoogle Mapに表示するサンプルを作成しました。
+　実際に取得したオープンデータをGoogleマップ上に表示するサンプルを作成しましたので、以下のリンクから確認してみて下さい。※作業中で停止していたらごめんなさい。 m(\_.\_)m
 
-　実際の画面がこちらです。<IMG SRC="opendatamaps/static/images/sample_screen.png" ALT="サンプル画面" TITLE="サンプル画面">
+  - <A HREF="https://opendatamaps.onrender.com/" TARGET="_blank" REL="noopener">オープンデータ on Google Maps</A>
 
-　実際に見てみると想像以上の施設が公開されていることと、重複が多いことにびっくりするかもしれません。
+　実際の画面例がこちらです。<IMG SRC="djangoapp/static/sample_screen.png" ALT="サンプル画面" TITLE="サンプル画面">
+
+　実際に見てみると多くの施設情報が公開されていることと、施設の重複が多いことがわかるかもしれません。
 
 　サンプルを参考にして頂き、後述のWebAPIの例を参考にして楽しんで頂ければ幸いです。
 
@@ -67,55 +68,56 @@
   今後、他の道府県への適用を進めようと考えています。
 
   現在収集済の都道府県を以下の表にまとめました。
-  |都道府県コード |都道府県名 |CKAN API |シラサギAPI |公開サイト |
-  |-------|--------|---------|-----------|-----------|
-  |010006 |北海道   |         |           |[北海道](http://www.pref.hokkaido.lg.jp/ss/jsk/opendata/opendata.htm) |
-  |020001 |青森県   |         |           |[青森県](https://opendata.pref.aomori.lg.jp/) |
-  |030007 |岩手県   |         |           |[岩手県](https://www.pref.iwate.jp/opendata/) |
-  |040002 |宮城県   |         |           |[宮城県](http://www.pref.miyagi.jp/site/opendata-miyagi/) |
-  |050008 |秋田県   |         |           |[秋田県](https://www.pref.akita.lg.jp/pages/archive/32419) |
-  |060003 |山形県   |         |           |[山形県](http://www.pref.yamagata.jp/ou/kikakushinko/020051/opendata.html) |
-  |070009 |福島県   |         |           |[福島県](https://www.pref.fukushima.lg.jp/sec/11045a/open-data-top.html) |
-  |080004 |茨城県   |         |           |[茨城県](http://www.pref.ibaraki.jp/kikaku/joho/it/opendata/od-00.html) |
-  |090000 |栃木県   |         |           |[栃木県](http://tochigiken.jp/) |
-  |100005 |群馬県   |         |           |[群馬県](https://www.pref.gunma.jp/07/b2700057.html) |
-  |110001 |埼玉県   |         |           |[埼玉県](https://opendata.pref.saitama.lg.jp/) |
-  |120006 |千葉県   |         |           |[千葉県](https://www.pref.chiba.lg.jp/gyoukaku/opendata/index.html) |
-  |130001 |東京都   |○[CKAN API](https://catalog.data.metro.tokyo.lg.jp/api/3/action/) |      |[東京都](http://opendata-portal.metro.tokyo.jp/www/index.html) |
-  |140007 |神奈川県 |         |           |[神奈川県](http://www.pref.kanagawa.jp/cnt/f534212/) |
-  |150002 |新潟県   |         |           |[新潟県](https://www.pref.niigata.lg.jp/site/opendata/) |
-  |160008 |富山県   |         |           |[富山県](http://opendata.pref.toyama.jp/) |
-  |170003 |石川県   |         |           |[石川県](https://www.pref.ishikawa.lg.jp/opendata/) |
-  |180009 |福井県   |         |           |[福井県](http://www.pref.fukui.lg.jp/doc/toukei-jouhou/opendata/) |
-  |190004 |山梨県   |         |           |[山梨県](https://www.pref.yamanashi.jp/opendata/) |
-  |200000 |長野県   |         |           |[長野県](https://wwwgis.pref.nagano.lg.jp/pref-nagano/OpenData) |
-  |210005 |岐阜県   |         |           |[岐阜県](https://gifu-opendata.pref.gifu.lg.jp/) |
-  |220001 |静岡県   |○[CKAN API](https://ckan.pref.shizuoka.jp/api/3/action/) |−[シラサギAPI](https://opendata.pref.shizuoka.jp/api/) |[静岡県](https://opendata.pref.shizuoka.jp/) |
-  |230006 |愛知県   |         |           |[愛知県](https://www.pref.aichi.jp/life/7/) |
-  |240001 |三重県   |         |           |[三重県](http://www.pref.mie.lg.jp/IT/HP/87579000001.htm) |
-  |250007 |滋賀県   |         |           |[滋賀県](https://www.pref.shiga.lg.jp/ippan/kurashi/ict/300004.html) |
-  |260002 |京都府   |         |           |[京都府](http://www.pref.kyoto.jp/digital/opendata/index.html) |
-  |270008 |大阪府   |         |           |[大阪府](http://www.pref.osaka.lg.jp/kikaku_keikaku/opendata/index.html) |
-  |280003 |兵庫県   |         |           |[兵庫県](https://web.pref.hyogo.lg.jp/opendata/index.php) |
-  |290009 |奈良県   |         |           |[奈良県](http://www.pref.nara.jp/44954.htm) |
-  |300004 |和歌山県 |         |           |[和歌山県](https://www.pref.wakayama.lg.jp/prefg/020400/opendata/d00207954.html) |
-  |310000 |鳥取県   |         |           |[鳥取県](https://odp-pref-tottori.tori-info.co.jp/) |
-  |320005 |島根県   |         |           |[島根県](https://shimane-opendata.jp/) |
-  |330001 |岡山県   |         |           |[岡山県](http://www.okayama-opendata.jp/) |
-  |340006 |広島県   |         |           |[広島県](https://www.pref.hiroshima.lg.jp/soshiki/265/opendata.html) |
-  |350001 |山口県   |         |           |[山口県](https://yamaguchi-opendata.jp/www/) |
-  |360007 |徳島県   |         |           |[徳島県](https://opendata.pref.tokushima.lg.jp/) |
-  |370002 |香川県   |         |           |[香川県](https://opendata.pref.kagawa.lg.jp/) |
-  |380008 |愛媛県   |         |           |[愛媛県](https://www.pref.ehime.jp/opendata-catalog/) |
-  |390003 |高知県   |         |           |[高知県](http://www.pref.kochi.lg.jp/opendata/) |
-  |400009 |福岡県   |         |           |[福岡県](https://www.open-governmentdata.org/fukuoka-pref/) |
-  |410004 |佐賀県   |         |           |[佐賀県](http://odcs.bodik.jp/410004/) |
-  |420000 |長崎県   |         |           |[長崎県](http://odcs.bodik.jp/420000/) |
-  |430005 |熊本県   |         |           |[熊本県](http://www.pref.kumamoto.jp/kiji_22038.html) |
-  |440001 |大分県   |         |           |[大分県](https://www.pref.oita.jp/soshiki/11840/opendata.html) |
-  |450006 |宮崎県   |         |           |[宮崎県](https://odcs.bodik.jp/450006/) |
-  |460001 |鹿児島県 |         |           |[鹿児島県](http://www.pref.kagoshima.jp/ac03/infra/info/opendata/) |
-  |470007 |沖縄県   |         |           |[沖縄県](https://www.pref.okinawa.lg.jp/site/kikaku/joho/kikaku/opendata/opendata.html) |
+  |団体コード |団体名 |CKAN API |シラサギAPI |サイトのURL1 |サイトのURL2 |サイトのURL3 |初回登録日 |更新日 |
+  |---------|------|-----|-----|------------|------------|------------|---------|------|
+  |010006 |北海道   |     |     |<A HREF="http://www.pref.hokkaido.lg.jp/ss/jsk/opendata/opendata.htm" TARGET="_blank" REL="noopener">サイト1</A> |https://www.harp.lg.jp/opendata/ | | | |
+  |020001 |青森県   |     |     |<A HREF="https://opendata.pref.aomori.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2019/3/11 |
+  |030007 |岩手県   |     |     |<A HREF="https://www.pref.iwate.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2024/2/6 |
+  |040002 |宮城県   |     |     |<A HREF="http://www.pref.miyagi.jp/site/opendata-miyagi/" TARGET="_blank" REL="noopener">サイト1</A> |https://miyagi.dataeye.jp/ | | |2022/11/7 |
+  |050008 |秋田県   |     |     |<A HREF="https://www.pref.akita.lg.jp/pages/archive/32419" TARGET="_blank" REL="noopener">サイト1</A> |https://opendata.pref.akita.lg.jp/ | | |2024/9/27 |
+  |060003 |山形県   |     |     |<A HREF="http://www.pref.yamagata.jp/ou/kikakushinko/020051/opendata.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |070009 |福島県   |     |     |<A HREF="https://www.pref.fukushima.lg.jp/sec/11045a/open-data-top.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |080004 |茨城県   |     |     |<A HREF="http://www.pref.ibaraki.jp/kikaku/joho/it/opendata/od-00.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |090000 |栃木県   |     |     |<A HREF="http://tochigiken.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |100005 |群馬県   |     |     |<A HREF="https://www.pref.gunma.jp/07/b2700057.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |110001 |埼玉県   |     |     |<A HREF="https://opendata.pref.saitama.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |120006 |千葉県   |     |     |<A HREF="https://www.pref.chiba.lg.jp/gyoukaku/opendata/index.html" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/3/3 |
+  |130001 |東京都   |○[CKAN API](https://catalog.data.metro.tokyo.lg.jp/api/3/action/) |     |<A HREF="http://opendata-portal.metro.tokyo.jp/www/index.html" TARGET="_blank" REL="noopener">サイト1</A> |http://www.koho.metro.tokyo.jp/opendata/ | | | |
+  |140007 |神奈川県 |     |     |<A HREF="http://www.pref.kanagawa.jp/cnt/f534212/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |150002 |新潟県   |     |     |<A HREF="https://www.pref.niigata.lg.jp/site/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/12/15 |
+  |160008 |富山県   |     |     |<A HREF="http://opendata.pref.toyama.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |170003 |石川県   |     |     |<A HREF="https://www.pref.ishikawa.lg.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |180009 |福井県   |     |     |<A HREF="http://www.pref.fukui.lg.jp/doc/toukei-jouhou/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |190004 |山梨県   |     |     |<A HREF="https://www.pref.yamanashi.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |200000 |長野県   |     |     |<A HREF="https://wwwgis.pref.nagano.lg.jp/pref-nagano/OpenData" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/11/7 |
+  |210005 |岐阜県   |     |     |<A HREF="https://gifu-opendata.pref.gifu.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |220001 |静岡県   |○[CKAN API](https://ckan.pref.shizuoka.jp/api/3/action/) |−[シラサギAPI](https://opendata.pref.shizuoka.jp/api/) |<A HREF="https://opendata.pref.shizuoka.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |230006 |愛知県   |     |     |<A HREF="https://www.pref.aichi.jp/life/7/" TARGET="_blank" REL="noopener">サイト1</A> |http://www.e-aichi.jp/cgi-bin/jump.cgi?http://www.e-aichi.jp/opendata.html | | |2020/1/30 |
+  |240001 |三重県   |     |     |<A HREF="http://www.pref.mie.lg.jp/IT/HP/87579000001.htm" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |250007 |滋賀県   |     |     |<A HREF="https://www.pref.shiga.lg.jp/ippan/kurashi/ict/300004.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |260002 |京都府   |     |     |<A HREF="http://www.pref.kyoto.jp/digital/opendata/index.html |https://odcs.bodik.jp/260002/" TARGET="_blank" REL="noopener">サイト1</A> | | |2022/1/12 |
+  |270008 |大阪府   |     |     |<A HREF="http://www.pref.osaka.lg.jp/kikaku_keikaku/opendata/index.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |280003 |兵庫県   |     |     |<A HREF="https://web.pref.hyogo.lg.jp/opendata/index.php" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/3/18 |
+  |290009 |奈良県   |     |     |<A HREF="http://www.pref.nara.jp/44954.htm" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |300004 |和歌山県 |     |     |<A HREF="https://www.pref.wakayama.lg.jp/prefg/020400/opendata/d00207954.html" TARGET="_blank" REL="noopener">サイト1</A> |https://odcs.bodik.jp/300004/ | | |2021/9/6 |
+  |310000 |鳥取県   |     |     |<A HREF="https://odp-pref-tottori.tori-info.co.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |320005 |島根県   |     |     |<A HREF="https://shimane-opendata.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |330001 |岡山県   |     |     |<A HREF="http://www.okayama-opendata.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |340006 |広島県   |     |     |<A HREF="https://www.pref.hiroshima.lg.jp/soshiki/265/opendata.html" TARGET="_blank" REL="noopener">サイト1</A> |https://hiroshima-opendata.dataeye.jp | | |2022/4/13 |
+  |350001 |山口県   |     |     |<A HREF="https://yamaguchi-opendata.jp/www/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |360007 |徳島県   |     |     |<A HREF="https://opendata.pref.tokushima.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/6/16 |
+  |370002 |香川県   |     |     |<A HREF="https://opendata.pref.kagawa.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |380008 |愛媛県   |     |     |<A HREF="https://www.pref.ehime.jp/opendata-catalog/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2020/1/30 |
+  |390003 |高知県   |     |     |<A HREF="http://www.pref.kochi.lg.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |400009 |福岡県   |     |     |<A HREF="https://www.open-governmentdata.org/fukuoka-pref/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |410004 |佐賀県   |     |     |<A HREF="http://odcs.bodik.jp/410004/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |420000 |長崎県   |     |     |<A HREF="http://odcs.bodik.jp/420000/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |430005 |熊本県   |     |     |<A HREF="http://www.pref.kumamoto.jp/kiji_22038.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |440001 |大分県   |     |     |<A HREF="https://www.pref.oita.jp/soshiki/11840/opendata.html" TARGET="_blank" REL="noopener">サイト1</A> |https://odcs.bodik.jp/440001/ | |2025/9/3 | |
+  |450006 |宮崎県   |     |     |<A HREF="https://odcs.bodik.jp/450006/" TARGET="_blank" REL="noopener">サイト1</A> | | |2019/6/17 | |
+  |460001 |鹿児島県 |     |     |<A HREF="http://www.pref.kagoshima.jp/ac03/infra/info/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+  |470007 |沖縄県   |     |     |<A HREF="https://www.pref.okinawa.lg.jp/site/kikaku/joho/kikaku/opendata/opendata.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |
+
 
 ## 3.施設種別
 
@@ -216,12 +218,12 @@
   Web APIの構文
 
   ```
-  http[s]://{ホスト名}/{公開名/}api/localitycode/query
-          [?[[&]code=市区町村コード]
-            [[&]state_name=都道府県名]
-            [[&]locality_name=市区町村名]
-            [[&]limit=取得件数の上限]
-          ]
+  https://{ホスト名}/{公開名/}api/localitycode/query
+       [?[[&]code=市区町村コード]
+         [[&]state_name=都道府県名]
+         [[&]locality_name=市区町村名]
+         [[&]limit=取得件数の上限]
+       ]
   ```
   - 機能
     市区町村情報一覧を取得します。市区町村情報には、市区町村コード、都道府県名、市区町村名が含まれます。
@@ -254,7 +256,7 @@
       ```
   - 例
 
-    1 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query](https://opendatamaps.onrender.com/api/localitycode/query){:target="_blank" rel="noopener noreferrer"}
+    1 <A HREF="https://opendatamaps.onrender.com/api/localitycode/query" TARGET="_blank" REL="noopener">http\[s\]://{ホスト名}/{公開名/}api/localitycode/query</A>
       <details>
       <summary>出力例</summary>
 
@@ -274,7 +276,7 @@
 
       </details>
 
-    2 ![http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?limit=0](https://opendatamaps.onrender.com/api/localitycode/query?limit=0)
+    2 <A HREF="https://opendatamaps.onrender.com/api/localitycode/query?limit=0" TARGET="_blank" REL="noopener">https://{ホスト名}/{公開名/}api/localitycode/query?limit=0</A>
       <details>
       <summary>出力例</summary>
 
@@ -294,7 +296,7 @@
 
       </details>
 
-    3 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?code=22](https://opendatamaps.onrender.com/api/localitycode/query?code=22){:target="_blank"}
+    3 <A HREF="https://opendatamaps.onrender.com/api/localitycode/query?code=22" TARGET="_blank" REL="noopener">https://{ホスト名}/{公開名/}api/localitycode/query?code=22</A>
       <details>
       <summary>出力例</summary>
 
@@ -318,7 +320,7 @@
 
       </details>
 
-    4 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?code=22206](https://opendatamaps.onrender.com/api/localitycode/query?code=22206){:target="_blank"}
+    4 <A HREF="https://opendatamaps.onrender.com/api/localitycode/query?code=22206" TARGET="_blank" REL="noopener">https://{ホスト名}/{公開名/}api/localitycode/query?code=22206</A>
       <details>
       <summary>出力例</summary>
 
@@ -326,7 +328,7 @@
 
       </details>
 
-    5 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?state_name=静岡県&limit=3](https://opendatamaps.onrender.com/api/localitycode/query?state_name=静岡県&limit=3){:target="_blank"}
+    5 <A HREF="https://opendatamaps.onrender.com/api/localitycode/query?state_name=静岡県&limit=3" TARGET="_blank" REL="noopener">https://{ホスト名}/{公開名/}api/localitycode/query?state_name=静岡県&limit=3</A>
       <details>
       <summary>出力例</summary>
 
@@ -336,7 +338,7 @@
 
       </details>
 
-    6 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?locality_name=三島市](https://opendatamaps.onrender.com/api/localitycode/query?locality_name=三島市){:target="_blank"}
+    6 <A HREF="https://opendatamaps.onrender.com/api/localitycode/query?locality_name=三島市" TARGET="_blank" REL="noopener">https://{ホスト名}/{公開名/}api/localitycode/query?locality_name=三島市</A>
       <details>
       <summary>出力例</summary>
 
@@ -351,8 +353,8 @@
   Web APIの構文
 
   ```
-  http[s]://{ホスト名}/{公開名/}api/facility/kinds
-          [?code=市区町村コード[,市区町村コード[,・・・]]]
+  https://{ホスト名}/{公開名/}api/facility/kinds
+       [?code=市区町村コード[,市区町村コード[,・・・]]]
   ```
   - 機能
     データベースに存在する施設種別を取得します。
@@ -371,7 +373,7 @@
       ]}
       ```
   - 例
-    1 [http\[s\]://{ホスト名}/{公開名/}api/facility/kinds](https://opendatamaps.onrender.com/api/facility/kinds){:target="_blank"}
+    1 <A HREF="https://opendatamaps.onrender.com/api/facility/kinds" TARGET="_blank" REL="noopener">https://{ホスト名}/{公開名/}api/facility/kinds</A>
       <details>
       <summary>出力例</summary>
 
@@ -379,7 +381,7 @@
 
       </details>
 
-    2 [http\[s\]://{ホスト名}/{公開名/}api/facility/kinds?code=22206](https://opendatamaps.onrender.com/api/facility/kinds?code=22206){:target="_blank"}
+    2 <A HREF="https://opendatamaps.onrender.com/api/facility/kinds?code=22206" TARGET="_blank" REL="noopener">https://{ホスト名}/{公開名/}api/facility/kinds?code=22206</A>
       <details>
       <summary>出力例</summary>
 
@@ -387,7 +389,7 @@
 
       </details>
 
-    3 [http\[s\]://{ホスト名}/{公開名/}api/facility/kinds?code=22203,22206](https://opendatamaps.onrender.com/api/facility/kinds?code=22203,22206){:target="_blank"}
+    3 <A HREF="https://opendatamaps.onrender.com/api/facility/kinds?code=22203,22206" TARGET="_blank" REL="noopener">https://{ホスト名}/{公開名/}api/facility/kinds?code=22203,22206</A>
       <details>
       <summary>出力例</summary>
 
@@ -401,7 +403,7 @@
   Web APIの構文
 
   ```
-  http[s]://{ホスト名}/{公開名/}api/facility/summary
+  https://{ホスト名}/{公開名/}api/facility/summary
   ```
   - 機能
     データベースに存在する施設情報を取得します。
@@ -423,7 +425,7 @@
   - パラメタ
     なし
   - 例
-    1 [http\[s\]://{ホスト名}/{公開名/}api/facility/summary](https://opendatamaps.onrender.com/api/facility/summary){:target="_blank"}
+    1 <A HREF="https://opendatamaps.onrender.com/api/facility/summary" TARGET="_blank" REL="noopener">https://{ホスト名}/{公開名/}api/facility/summary</A>
       <details>
       <summary>出力例</summary>
 
@@ -450,10 +452,10 @@
   Web APIの構文
 
   ```
-  http[s]://{ホスト名}/{公開名/}api/facility/query/center
-          ?lat=中心座標の緯度&lng=中心座標の経度&distance=中心座標からの距離
-          [&kind=施設種別[,施設種別[,・・・]]]
-          [&limit=取得件数の上限]
+  https://{ホスト名}/{公開名/}api/facility/query/center
+        ?lat=中心座標の緯度&lng=中心座標の経度&distance=中心座標からの距離
+        [&kind=施設種別[,施設種別[,・・・]]]
+        [&limit=取得件数の上限]
   ```
   - 機能
     指定した中心座標から指定した距離（半径）内に存在する施設情報を取得します。
@@ -501,7 +503,7 @@
   - 例
     1 三島駅を中心として半径500m以内の施設一覧を10件取得する（「消防水利施設」は除く）。
 
-      [http[s]://{ホスト名}/{公開名/}api/facility/query/center?lat=35.126334&lng=138.9107634&distance=500&kind=!消防水利施設&limit=10](https://opendatamaps.onrender.com/api/facility/query/center?lat=35.126334&lng=138.9107634&distance=500&kind=!消防水利施設&limit=10){:target="_blank"}
+      <A HREF="https://opendatamaps.onrender.com/api/facility/query/center?lat=35.126334&lng=138.9107634&distance=500&kind=!消防水利施設&limit=10" TARGET="_blank" REL="noopener">https://{ホスト名}/{公開名/}api/facility/query/center?lat=35.126334&lng=138.9107634&distance=500&kind=!消防水利施設&limit=10</A>
       <details>
       <summary>出力例</summary>
 
@@ -522,7 +524,7 @@
 
     2 三島駅を中心として半径500m以内の「公衆トイレ」および「公園・花壇」の一覧を取得する。
 
-      [http[s]://{ホスト名}/{公開名/}api/facility/query/center?lat=35.126334&lng=138.9107634&distance=500&kind=公衆トイレ,公園・花壇&limit=10](https://opendatamaps.onrender.com/api/facility/query/center?lat=35.126334&lng=138.9107634&distance=500&kind=公衆トイレ,公園・花壇&limit=10){:target="_blank"}
+      <A HREF="https://opendatamaps.onrender.com/api/facility/query/center?lat=35.126334&lng=138.9107634&distance=500&kind=公衆トイレ,公園・花壇&limit=10" TARGET="_blank" REL="noopener">https://{ホスト名}/{公開名/}api/facility/query/center?lat=35.126334&lng=138.9107634&distance=500&kind=公衆トイレ,公園・花壇&limit=10</A>
       <details>
       <summary>出力例</summary>
 
@@ -547,10 +549,10 @@
   Web APIの構文
 
   ```
-  http[s]://{ホスト名}/{公開名/}api/facility/query/locality
-          ?code=市区町村コード[,市区町村コード[,・・・]]
-          [&kind=施設種別[,施設種別[,・・・]]]
-          [&limit=取得件数の上限]
+  https://{ホスト名}/{公開名/}api/facility/query/locality
+        ?code=市区町村コード[,市区町村コード[,・・・]]
+        [&kind=施設種別[,施設種別[,・・・]]]
+        [&limit=取得件数の上限]
   ```
   - 機能
     指定した市区町村コードで指定したに存在する施設情報を取得します。
@@ -592,7 +594,8 @@
       ```
   - 例
     1 三島市の施設一覧を取得する。
-      [http[s]://{ホスト名}/{公開名/}api/facility/query/locality?code=222038,222062&kind=公衆トイレ&limit=0](){:target="_blank"}
+
+      <A HREF="https://opendatamaps.onrender.com/api/facility/query/locality?code=222038,222062&kind=公衆トイレ&limit=0" TARGET="_blank" REL="noopener">https://{ホスト名}/{公開名/}api/facility/query/locality?code=222038,222062&kind=公衆トイレ&limit=0</A>
 
       <details>
       <summary>出力例</summary>
@@ -616,28 +619,21 @@
       </details>
 
 
-## 8.Renderで運用中
+## 8.Renderでの構築手順（※作成者メモ）
 
-　以下のリンクから機能の概要を確認することができます。※作業中で停止していたらごめんなさい。 m(\_.\_)m
-
-  - <A HREF="https://opendatamaps.onrender.com/" TARGET="_blank" REL="noopener noreferrer">オープンデータ on Google Maps</A>
-
-
-## 9.Renderでの構築手順（※作成者メモ）
-
-### 9.1 Renderにユーザ登録する
+### 8.1 Renderにユーザ登録する
 
   1. Renderのユーザでない場合は、以下のURLを開いて新規登録を行う。
 
      https://render.com/
 
-### 9.2 Renderにログインする
+### 8.2 Renderにログインする
 
   1. Renderの以下のURLを開いてログインする。
 
      https://render.com/
 
-### 9.3 新規のアプリを作成する
+### 8.3 新規のアプリを作成する
 
   1. RenderにログインしてDashboardのサービス一覧画面で\[New +\] - \[Web Service\]を選択する。
 
@@ -708,12 +704,12 @@
 
      ※ただし、サービス開始までには更に5分程度かかる。
 
-### 9.4 GitHubとの連携を設定する
+### 8.4 GitHubとの連携を設定する
 
   デフォルトで連携されている。GitHubのリポジトリが更新されるとビルドされる。
 
 
-## 10.Dockerコンテナで運用する（作者メモ）
+## 9.Dockerコンテナで運用する（作者メモ）
 
 　動作環境の前提条件は以下の通りです。
     - OS: ubuntu 24.04
@@ -722,7 +718,7 @@
 
 　環境構築にはそれ程時間も手間も掛かりませんが、オープンデータを取得するにはクローリングと自前データベースへの登録を行うため数時間掛かります。
 
-### 10.1 構築手順
+### 9.1 構築手順
 
   1. GitHubからプロジェクトを取得する。
      ```
@@ -812,7 +808,7 @@
       ※＜サーバ＞には環境を構築したサーバのドメイン名またはIPアドレスを指定してください。
      ```
 
-### 10.2 オープンデータを取得する
+### 9.2 オープンデータを取得する
 
   1. オープンデータを取得する。
      ```
@@ -822,7 +818,7 @@
      $ docker exec -t docker_opendatamaps_1 python3 src/crowler.py 東京都 | tee cmd_log/crowler_東京都.stdout
      ```
 
-### 10.3 オープンデータを自前データベースに登録する
+### 9.3 オープンデータを自前データベースに登録する
 
   1. オープンデータを取得する。
      ```
@@ -832,7 +828,7 @@
      $ docker exec -t docker_opendatamaps_1 python3 src/db.py -l opendatamaps -f cache/130001_東京都 | tee cmd_log/db_load_東京都.stdout
      ```
 
-### 10.4 ブラウザでDockerコンテナのURLを開く
+### 9.4 ブラウザでDockerコンテナのURLを開く
 
   1. ブラウザで以下のURLを開く。
      ```
@@ -842,7 +838,7 @@
      ```
 
 
-## 11.使用サービスおよび使用ソフトウェアのライセンスおよびポリシー
+## 10.使用サービスおよび使用ソフトウェアのライセンスおよびポリシー
 
   - [Render](https://render.com/)
     ```
