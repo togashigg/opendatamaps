@@ -254,7 +254,7 @@
       ```
   - 例
 
-    1 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query](https://opendatamaps.onrender.com/api/localitycode/query)
+    1 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query](https://opendatamaps.onrender.com/api/localitycode/query){:target="_blank"}
       <details>
       <summary>出力例</summary>
 
@@ -274,7 +274,7 @@
 
       </details>
 
-    2 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?limit=0](https://opendatamaps.onrender.com/api/localitycode/query?limit=0)
+    2 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?limit=0](https://opendatamaps.onrender.com/api/localitycode/query?limit=0){:target="_blank"}
       <details>
       <summary>出力例</summary>
 
@@ -294,7 +294,7 @@
 
       </details>
 
-    3 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?code=22](https://opendatamaps.onrender.com/api/localitycode/query?code=22)
+    3 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?code=22](https://opendatamaps.onrender.com/api/localitycode/query?code=22){:target="_blank"}
       <details>
       <summary>出力例</summary>
 
@@ -318,7 +318,7 @@
 
       </details>
 
-    4 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?code=22206](https://opendatamaps.onrender.com/api/localitycode/query?code=22206)
+    4 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?code=22206](https://opendatamaps.onrender.com/api/localitycode/query?code=22206){:target="_blank"}
       <details>
       <summary>出力例</summary>
 
@@ -326,7 +326,7 @@
 
       </details>
 
-    5 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?state_name=静岡県&limit=3](https://opendatamaps.onrender.com/api/localitycode/query?state_name=静岡県&limit=3)
+    5 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?state_name=静岡県&limit=3](https://opendatamaps.onrender.com/api/localitycode/query?state_name=静岡県&limit=3){:target="_blank"}
       <details>
       <summary>出力例</summary>
 
@@ -336,7 +336,7 @@
 
       </details>
 
-    6 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?locality_name=三島市](https://opendatamaps.onrender.com/api/localitycode/query?locality_name=三島市)
+    6 [http\[s\]://{ホスト名}/{公開名/}api/localitycode/query?locality_name=三島市](https://opendatamaps.onrender.com/api/localitycode/query?locality_name=三島市){:target="_blank"}
       <details>
       <summary>出力例</summary>
 
@@ -371,7 +371,7 @@
       ]}
       ```
   - 例
-    1 [http\[s\]://{ホスト名}/{公開名/}api/facility/kinds](https://opendatamaps.onrender.com/api/facility/kinds)
+    1 [http\[s\]://{ホスト名}/{公開名/}api/facility/kinds](https://opendatamaps.onrender.com/api/facility/kinds){:target="_blank"}
       <details>
       <summary>出力例</summary>
 
@@ -379,7 +379,7 @@
 
       </details>
 
-    2 [http\[s\]://{ホスト名}/{公開名/}api/facility/kinds?code=22206](https://opendatamaps.onrender.com/api/facility/kinds?code=22206)
+    2 [http\[s\]://{ホスト名}/{公開名/}api/facility/kinds?code=22206](https://opendatamaps.onrender.com/api/facility/kinds?code=22206){:target="_blank"}
       <details>
       <summary>出力例</summary>
 
@@ -387,7 +387,7 @@
 
       </details>
 
-    3 [http\[s\]://{ホスト名}/{公開名/}api/facility/kinds?code=22203,22206](https://opendatamaps.onrender.com/api/facility/kinds?code=22203,22206)
+    3 [http\[s\]://{ホスト名}/{公開名/}api/facility/kinds?code=22203,22206](https://opendatamaps.onrender.com/api/facility/kinds?code=22203,22206){:target="_blank"}
       <details>
       <summary>出力例</summary>
 
@@ -423,7 +423,7 @@
   - パラメタ
     なし
   - 例
-    1 [http\[s\]://{ホスト名}/{公開名/}api/facility/summary](https://opendatamaps.onrender.com/api/facility/summary)
+    1 [http\[s\]://{ホスト名}/{公開名/}api/facility/summary](https://opendatamaps.onrender.com/api/facility/summary){:target="_blank"}
       <details>
       <summary>出力例</summary>
 
@@ -499,29 +499,48 @@
            } ]"
       ```
   - 例
-    ```
-    (1) 三島駅を中心として半径500m以内の公衆トイレおよび公園・花壇の一覧を取得する。
-    
-      http[s]://{ホスト名}/{公開名/}api/facility/query/center?lat=35.126334&lng=138.9107634&distance=500&kind=公衆トイレ,公園・花壇,!消防水利施設&limit=10
-    ```
+    1 三島駅を中心として半径500m以内の施設一覧を10件取得する（「消防水利施設」は除く）。
+
+      [http[s]://{ホスト名}/{公開名/}api/facility/query/center?lat=35.126334&lng=138.9107634&distance=500&kind=!消防水利施設&limit=10](https://opendatamaps.onrender.com/api/facility/query/center?lat=35.126334&lng=138.9107634&distance=500&kind=!消防水利施設&limit=10){:target="_blank"}
       <details>
       <summary>出力例</summary>
 
-      ```
       [
-        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_04", "label": "楽寿園南口（源兵衛川近く）", "lat": 35.1249137713607, "lng": 138.910952144609, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null, "distance": 143}, 
-        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　公園情報", "id": "msm_prk_001", "label": "楽寿園", "lat": 35.124884, "lng": 138.910918, "info": "[{\"kubun\": \"都市公園\"}, {\"address\": \"静岡県三島市一番町19-3\"}, {\"areaSize(ha)\": \"7.28\"}, {\"notes\": \"トイレ,駐車場,多目的トイレ\"}, {\"toilet\": \"有\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"parking\": \"有\"}]", "error": null, "distance": 146}, 
-        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　公園情報", "id": "msm_prk_174", "label": "三島駅北口ポケットパーク", "lat": 35.128256, "lng": 138.911074, "info": "[{\"kubun\": \"都市公園以外\"}, {\"address\": \"静岡県三島市文教町１－２７６８－１\"}, {\"areaSize(ha)\": \"0.14\"}]", "error": null, "distance": 195}, 
-        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　地域花壇マップ情報", "id": "msm_lkdn_79", "label": "三島駅南口喫煙所管理する会", "lat": 35.125889, "lng": 138.912796, "info": "[{\"address\": \"静岡県三島市一番町\"}]", "error": null, "distance": 208}, 
-        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_01", "label": "JR三島駅南口", "lat": 35.126013, "lng": 138.912838, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}]", "error": null, "distance": 210}, 
-        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　地域花壇マップ情報", "id": "msm_lkdn_02", "label": "寿町老人会", "lat": 35.125406, "lng": 138.908381, "info": "[{\"address\": \"静岡県三島市寿町\"}, {\"URL\": \"https://mishima-life.jp/kadan002/index.html\"}]", "error": null, "distance": 256}, 
-        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　公園情報", "id": "msm_prk_179", "label": "街の森保全公園", "lat": 35.124183, "lng": 138.912702, "info": "[{\"kubun\": \"都市公園\"}, {\"address\": \"静岡県三島市一番町2700-54外\"}, {\"areaSize(ha)\": \"0.29\"}]", "error": null, "distance": 290}, 
-        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_02", "label": "白滝公園", "lat": 35.1231762808803, "lng": 138.914084964739, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null, "distance": 458}, 
-        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　地域花壇マップ情報", "id": "msm_lkdn_51", "label": "なでしこ", "lat": 35.122219, "lng": 138.912935, "info": "[{\"address\": \"静岡県三島市芝本町\"}, {\"URL\": \"https://mishima-life.jp/kadan055/index.html\"}]", "error": null, "distance": 465}, 
-        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　公園情報", "id": "msm_prk_002", "label": "白滝公園", "lat": 35.123037, "lng": 138.91426, "info": "[{\"kubun\": \"都市公園\"}, {\"address\": \"静岡県三島市一番町1-1\"}, {\"areaSize(ha)\": \"0.41\"}, {\"notes\": \"複合遊具,トイレ,多目的トイレ\"}, {\"toilet\": \"有\"}, {\"Multi-Purpose Toilet\": \"有\"}]", "error": null, "distance": 481}
+        {"locality_code": "222062", "kind": "公衆無線LAN", "dataset": "三島市　公共施設Wi-Fi設置場所", "id": "msm_wifi_10", "label": "三島市総合観光案内所", "lat": 35.125624, "lng": 138.911269, "info": "[{\"id\": \"msm_wifi_10\"}, {\"http://www.w3.org/2000/01/rdf-schema#label\": \"三島市総合観光案内所\"}, {\"URL\": \"http://www.city.mishima.shizuoka.jp/\"}]", "error": null, "distance": 87}, 
+        {"locality_code": "222062", "kind": "公共施設", "dataset": "三島市　市内施設情報", "id": "msm_pfaci_048", "label": "三島市観光協会（案内所）", "lat": 35.12592, "lng": 138.911554, "info": "[{\"id\": \"msm_pfaci_048\"}, {\"http://www.w3.org/2000/01/rdf-schema#label\": \"三島市観光協会（案内所）\"}, {\"address\": \"三島市一番町16-1\"}, {\"zip_code\": \"411-0036\"}, {\"telephone\": \"055-946-6900\"}, {\"URL\": \"https://www.city.mishima.shizuoka.jp/ipn001435.html\"}]", "error": null, "distance": 89}, 
+        {"locality_code": "222062", "kind": "公衆無線LAN", "dataset": "三島市　公共施設Wi-Fi設置場所", "id": "msm_wifi_16", "label": "三島駅南口（駅前広場）", "lat": 35.125731, "lng": 138.911418, "info": "[{\"id\": \"msm_wifi_16\"}, {\"http://www.w3.org/2000/01/rdf-schema#label\": \"三島駅南口（駅前広場）\"}, {\"URL\": \"http://izupass.jp/location/detail/303\"}]", "error": null, "distance": 89}, 
+        {"locality_code": "222062", "kind": "公衆無線LAN", "dataset": "三島市　公共施設Wi-Fi設置場所", "id": "msm_wifi_15", "label": "三島駅北口（北口広場）", "lat": 35.12731, "lng": 138.910774, "info": "[{\"id\": \"msm_wifi_15\"}, {\"http://www.w3.org/2000/01/rdf-schema#label\": \"三島駅北口（北口広場）\"}, {\"URL\": \"http://izupass.jp/location/detail/302\"}]", "error": null, "distance": 98}, 
+        {"locality_code": "222062", "kind": "飲食店・販売店", "dataset": "「みしまコロッケ」認定店一覧", "id": "122", "label": "三島発　伊豆コレクション", "lat": 35.125437, "lng": 138.911347, "info": "[{\"id\": \"122\"}, {\"店名\": \"三島発　伊豆コレクション\"}, {\"住所\": \"三島市一番町15-28\"}, {\"電話\": \"055-981-3000\"}]", "error": null, "distance": 107}, 
+        {"locality_code": "222062", "kind": "飲食店・販売店", "dataset": "「みしまコロッケ」認定店一覧", "id": "174", "label": "パークコーヒー三島", "lat": 35.12719, "lng": 138.909882, "info": "[{\"id\": \"174\"}, {\"店名\": \"パークコーヒー三島\"}, {\"住所\": \"三島市文教町1-8-24　新幹線三島駅内待合室\"}, {\"電話\": \"055-989-8508\"}]", "error": null, "distance": 123}, 
+        {"locality_code": "222062", "kind": "薬局", "dataset": "三島市_市内薬局", "id": "4", "label": "みしま岩⽥薬局", "lat": 35.1253, "lng": 138.91, "info": "[{\"id\": \"4\"}, {\"薬局名\": \"みしま岩⽥薬局\"}, {\"郵便番号\": \"411-0036\"}, {\"所在地\": \"三島市⼀番町17-50\"}, {\"電話番号\": \"055-973-0844\"}]", "error": null, "distance": 129}, 
+        {"locality_code": "222062", "kind": "医療機関", "dataset": "三島市_市内医療機関", "id": "89", "label": "こばやしペインクリニック", "lat": 35.125356, "lng": 138.911645, "info": "[{\"id\": \"89\"}, {\"施設名\": \"こばやしペインクリニック\"}, {\"カテゴリ\": \"診療所\"}, {\"電話番号\": \"055-973-0336\"}, {\"郵便番号\": \"411-0036\"}, {\"都道府県名\": \"静岡県\"}, {\"市区町村名\": \"三島市\"}, {\"住所\": \"一番町15-26 ﾐｼﾏｽﾙｶﾞﾋﾞﾙ6F\"}]", "error": null, "distance": 132}, 
+        {"locality_code": "222062", "kind": "指定緊急避難場所", "dataset": "三島市　指定緊急避難場所一覧", "id": "22206203025", "label": "楽寿園", "lat": 35.12500074917371, "lng": 138.91101353930037, "info": "[{\"全国地方公共団体コード\": 222062}, {\"ID\": 22206203025}, {\"名称\": \"楽寿園\"}, {\"名称_カナ\": \"ラクジュエン\"}, {\"所在地_全国地方公共団体コード\": 222062}, {\"所在地_連結表記\": \"静岡県三島市一番町19-3\"}, {\"所在地_都道府県\": \"静岡県\"}, {\"所在地_市区町村\": \"三島市\"}, {\"所在地_町字\": \"一番町\"}, {\"所在地_番地以下\": \"19-3\"}, {\"電話番号\": \"055-975-2570\"}, {\"市区町村コード\": 222062}, {\"地方公共団体名\": \"静岡県三島市\"}, {\"災害種別_地震\": 1}, {\"災害種別_大規模な火事\": 1}, {\"想定収容人数\": 5000}]", "error": null, "distance": 136}, 
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ一覧", "id": "FF2220620003", "label": "楽寿園南口（源兵衛川近く）", "lat": 35.1249137713607, "lng": 138.910952144609, "info": "[{\"全国地方公共団体コード\": 222062}, {\"ID\": \"FF2220620003\"}, {\"地方公共団体名\": \"静岡県三島市\"}, {\"名称\": \"楽寿園南口（源兵衛川近く）\"}, {\"名称_カナ\": \"ラクジュエンミナミグチ(ゲンベエガワチカク)\"}, {\"名称_英語\": \"rakujuenminamiguchi\"}, {\"所在地_全国地方公共団体コード\": 222062}, {\"所在地_連結表記\": \"静岡県三島市一番町19-3\"}, {\"所在地_都道府県\": \"静岡県\"}, {\"所在地_市区町村\": \"三島市\"}, {\"所在地_町字\": \"一番町\"}, {\"所在地_番地以下\": \"１９ー３\"}, {\"男性トイレ総数\": 3}, {\"男性トイレ数（小便器）\": 2}, {\"男性トイレ数（和式）\": 0}, {\"男性トイレ数（洋式）\": 1}, {\"女性トイレ総数\": 2}, {\"女性トイレ数（和式）\": 0}, {\"女性トイレ数（洋式）\": 2}, {\"男女共用トイレ総数\": 0}, {\"男女共用トイレ数（和式）\": 0}, {\"男女共用トイレ数（洋式）\": 0}, {\"バリアフリートイレ数\": 1}, {\"車椅子使用者用トイレ有無\": \"有\"}, {\"乳幼児用設備設置トイレ有無\": \"無　\"}, {\"オストメイト設置トイレ有無\": \"無\"}, {\"利用開始時間\": \"24時間\"}, {\"利用可能時間特記事項\": \"バリアフリートイレは8：30～17：00のみ利用可\"}]", "error": null, "distance": 143}
       ]
       ```
       </details>
+
+    2 三島駅を中心として半径500m以内の「公衆トイレ」および「公園・花壇」の一覧を取得する。
+
+      [http[s]://{ホスト名}/{公開名/}api/facility/query/center?lat=35.126334&lng=138.9107634&distance=500&kind=公衆トイレ,公園・花壇&limit=10](https://opendatamaps.onrender.com/api/facility/query/center?lat=35.126334&lng=138.9107634&distance=500&kind=公衆トイレ,公園・花壇&limit=10){:target="_blank"}
+      <details>
+      <summary>出力例</summary>
+
+      [
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_04", "label": "楽寿園南口（源兵衛川近く）", "lat": 35.1249137713607, "lng": 138.910952144609, "info": "[{\"id\": \"msm_tlt_04\"}, {\"http://www.w3.org/2000/01/rdf-schema#label\": \"楽寿園南口（源兵衛川近く）\"}, {\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null, "distance": 143}, 
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ一覧", "id": "FF2220620003", "label": "楽寿園南口（源兵衛川近く）", "lat": 35.1249137713607, "lng": 138.910952144609, "info": "[{\"全国地方公共団体コード\": 222062}, {\"ID\": \"FF2220620003\"}, {\"地方公共団体名\": \"静岡県三島市\"}, {\"名称\": \"楽寿園南口（源兵衛川近く）\"}, {\"名称_カナ\": \"ラクジュエンミナミグチ(ゲンベエガワチカク)\"}, {\"名称_英語\": \"rakujuenminamiguchi\"}, {\"所在地_全国地方公共団体コード\": 222062}, {\"所在地_連結表記\": \"静岡県三島市一番町19-3\"}, {\"所在地_都道府県\": \"静岡県\"}, {\"所在地_市区町村\": \"三島市\"}, {\"所在地_町字\": \"一番町\"}, {\"所在地_番地以下\": \"１９ー３\"}, {\"男性トイレ総数\": 3}, {\"男性トイレ数（小便器）\": 2}, {\"男性トイレ数（和式）\": 0}, {\"男性トイレ数（洋式）\": 1}, {\"女性トイレ総数\": 2}, {\"女性トイレ数（和式）\": 0}, {\"女性トイレ数（洋式）\": 2}, {\"男女共用トイレ総数\": 0}, {\"男女共用トイレ数（和式）\": 0}, {\"男女共用トイレ数（洋式）\": 0}, {\"バリアフリートイレ数\": 1}, {\"車椅子使用者用トイレ有無\": \"有\"}, {\"乳幼児用設備設置トイレ有無\": \"無　\"}, {\"オストメイト設置トイレ有無\": \"無\"}, {\"利用開始時間\": \"24時間\"}, {\"利用可能時間特記事項\": \"バリアフリートイレは8：30～17：00のみ利用可\"}]", "error": null, "distance": 143}, 
+        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　公園情報", "id": "msm_prk_001", "label": "楽寿園", "lat": 35.124884, "lng": 138.910918, "info": "[{\"id\": \"msm_prk_001\"}, {\"http://www.w3.org/2000/01/rdf-schema#label\": \"楽寿園\"}, {\"kubun\": \"都市公園\"}, {\"address\": \"静岡県三島市一番町19-3\"}, {\"areaSize(ha)\": \"7.28\"}, {\"notes\": \"トイレ,駐車場,多目的トイレ\"}, {\"toilet\": \"有\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"parking\": \"有\"}]", "error": null, "distance": 146}, 
+        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　公園情報", "id": "msm_prk_174", "label": "三島駅北口ポケットパーク", "lat": 35.128256, "lng": 138.911074, "info": "[{\"id\": \"msm_prk_174\"}, {\"http://www.w3.org/2000/01/rdf-schema#label\": \"三島駅北口ポケットパーク\"}, {\"kubun\": \"都市公園以外\"}, {\"address\": \"静岡県三島市文教町１－２７６８－１\"}, {\"areaSize(ha)\": \"0.14\"}]", "error": null, "distance": 195}, 
+        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　地域花壇マップ情報", "id": "msm_lkdn_79", "label": "三島駅南口喫煙所管理する会", "lat": 35.125889, "lng": 138.912796, "info": "[{\"id\": \"msm_lkdn_79\"}, {\"http://www.w3.org/2000/01/rdf-schema#label\": \"三島駅南口喫煙所管理する会\"}, {\"address\": \"静岡県三島市一番町\"}]", "error": null, "distance": 208}, 
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_01", "label": "JR三島駅南口", "lat": 35.126013, "lng": 138.912838, "info": "[{\"id\": \"msm_tlt_01\"}, {\"http://www.w3.org/2000/01/rdf-schema#label\": \"JR三島駅南口\"}, {\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}]", "error": null, "distance": 210}, 
+        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　地域花壇マップ情報", "id": "msm_lkdn_02", "label": "寿町老人会", "lat": 35.125406, "lng": 138.908381, "info": "[{\"id\": \"msm_lkdn_02\"}, {\"http://www.w3.org/2000/01/rdf-schema#label\": \"寿町老人会\"}, {\"address\": \"静岡県三島市寿町\"}, {\"URL\": \"https://mishima-life.jp/kadan002/index.html\"}]", "error": null, "distance": 256}, 
+        {"locality_code": "222062", "kind": "公園・花壇", "dataset": "三島市　公園情報", "id": "msm_prk_179", "label": "街の森保全公園", "lat": 35.124183, "lng": 138.912702, "info": "[{\"id\": \"msm_prk_179\"}, {\"http://www.w3.org/2000/01/rdf-schema#label\": \"街の森保全公園\"}, {\"kubun\": \"都市公園\"}, {\"address\": \"静岡県三島市一番町2700-54外\"}, {\"areaSize(ha)\": \"0.29\"}]", "error": null, "distance": 290}, 
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_02", "label": "白滝公園", "lat": 35.1231762808803, "lng": 138.914084964739, "info": "[{\"id\": \"msm_tlt_02\"}, {\"http://www.w3.org/2000/01/rdf-schema#label\": \"白滝公園\"}, {\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null, "distance": 458}, 
+        {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ一覧", "id": "FF2220620001", "label": "白滝公園", "lat": 35.1231762808803, "lng": 138.914084964739, "info": "[{\"全国地方公共団体コード\": 222062}, {\"ID\": \"FF2220620001\"}, {\"地方公共団体名\": \"静岡県三島市\"}, {\"名称\": \"白滝公園\"}, {\"名称_カナ\": \"シラタキコウエン\"}, {\"名称_英語\": \"shiratakikoen\"}, {\"所在地_全国地方公共団体コード\": 222062}, {\"所在地_連結表記\": \"静岡県三島市一番町1-1\"}, {\"所在地_都道府県\": \"静岡県\"}, {\"所在地_市区町村\": \"三島市\"}, {\"所在地_町字\": \"一番町\"}, {\"所在地_番地以下\": \"１ー１\"}, {\"男性トイレ総数\": 3}, {\"男性トイレ数（小便器）\": 2}, {\"男性トイレ数（和式）\": 0}, {\"男性トイレ数（洋式）\": 1}, {\"女性トイレ総数\": 2}, {\"女性トイレ数（和式）\": 0}, {\"女性トイレ数（洋式）\": 2}, {\"男女共用トイレ総数\": 0}, {\"男女共用トイレ数（和式）\": 0}, {\"男女共用トイレ数（洋式）\": 0}, {\"バリアフリートイレ数\": 1}, {\"車椅子使用者用トイレ有無\": \"有\"}, {\"乳幼児用設備設置トイレ有無\": \"有\"}, {\"オストメイト設置トイレ有無\": \"無\"}, {\"利用開始時間\": \"24時間\"}, {\"利用可能時間特記事項\": \"バリアフリートイレは8：30～17：00のみ利用可\"}]", "error": null, "distance": 458}
+      ]
+      ```
+      </details>
+
 
 ### 機能：施設検索（市区町村）
 
@@ -572,29 +591,28 @@
            } ]"
       ```
   - 例
-    ```
-    (1) 三島市の施設一覧を取得する。
-    
-      http[s]://{ホスト名}/{公開名/}api/facility/query/locality?code=222038,222062&kind=公衆トイレ&limit=0
-    ```
+    1 三島市の施設一覧を取得する。
+      [http[s]://{ホスト名}/{公開名/}api/facility/query/locality?code=222038,222062&kind=公衆トイレ&limit=0](){:target="_blank"}
+
       <details>
       <summary>出力例</summary>
 
-      ```
       [
         {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_01", "label": "JR三島駅南口", "lat": 35.126013, "lng": 138.912838, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}]", "error": null}, 
         {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_02", "label": "白滝公園", "lat": 35.1231762808803, "lng": 138.914084964739, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null}, 
         {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_03", "label": "菰池公園", "lat": 35.1252647750385, "lng": 138.915994697557, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null}, 
         {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_04", "label": "楽寿園南口（源兵衛川近く）", "lat": 35.1249137713607, "lng": 138.910952144609, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null}, 
         {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_05", "label": "三嶋大社", "lat": 35.1208946714353, "lng": 138.920093112932, "info": "[{\"use_time\": \"8：00～18：00\"}]", "error": null}, 
+
         ：（※途中6行省略）
+
         {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_12", "label": "長伏公園", "lat": 35.083701, "lng": 138.911176, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null}, 
         {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_13", "label": "上岩崎公園", "lat": 35.134729, "lng": 138.916462, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null}, 
         {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_14", "label": "向山古墳群公園", "lat": 35.106073, "lng": 138.941372, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null}, 
         {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_15", "label": "中郷温水池公園", "lat": 35.10889, "lng": 138.916476, "info": "[{\"use_time\": \"24時間\"}, {\"Multi-Purpose Toilet\": \"有\"}, {\"use_time（Multi-Purpose Toilet）\": \"8：30～17：00\"}]", "error": null}, 
         {"locality_code": "222062", "kind": "公衆トイレ", "dataset": "三島市　公衆トイレ設置場所", "id": "msm_tlt_16", "label": "玉沢公衆便所", "lat": 35.12296, "lng": 138.961295, "info": "[{\"use_time\": \"24時間\"}]", "error": null}
       ]
-      ```
+
       </details>
 
 
@@ -602,7 +620,7 @@
 
 　以下のリンクから機能の概要を確認することができます。※作業中で停止していたらごめんなさい。 m(\_.\_)m
 
-  - <A HREF="https://opendatamaps.onrender.com/" TARGET="_blank" REL="noopener noreferrer">オープンデータマップス</A>
+  - <A HREF="https://opendatamaps.onrender.com/" TARGET="_blank" REL="noopener noreferrer">オープンデータ on Google Maps</A>
 
 
 ## 9.Renderでの構築手順（※作成者メモ）
