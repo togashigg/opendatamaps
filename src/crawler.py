@@ -222,7 +222,8 @@ class Crawler:
                     # 表形式の項目名からマップ情報を作成する
                     resource = self.make_map_from_table(resource, package_kind)
                     if resource is None or resource['_map_'] == {}:
-                        print('マップ情報が作成できません。', file=sys.stderr)
+                        print('マップ情報が作成できません,' \
+                                + resource['_map_msg_'], file=sys.stderr)
                         continue
                     if resource['_map_'] != None:
                         map_list.append(resource['_map_'])
@@ -1814,6 +1815,7 @@ class Crawler:
             "address": -1,
             "header": -1
         }
+        map_msg = ''
         title_rows = [list(row) for row in table[:min(HEADER_ROWS , len(table))]]
         for i_row in range(len(title_rows)):
             for i_col in range(len(title_rows[i_row])):
@@ -1892,12 +1894,15 @@ class Crawler:
         and map_info['address'] < 0 \
         or map_info['name'] == [-1]:
             # 必須項目なし
+            map_msg = str({k:v for k,v in map_info.items() \
+                           if k in ['id','name','lat','lng','address']})
             logger.info('必須項目なし, '+str(map_info))
             map_info = {}
         else:
             logger.debug('headers=' + str(title_rows[map_info['header']-1]))
             # ToDo:削除 info.append(map_info)
         resource['_map_'] = map_info
+        resource['_map_msg_'] = map_msg
 
         # 復帰
         logger.info('make_map_from_table() ended, map=' + str(map_info))

@@ -18,7 +18,7 @@ RUN    apt-get update \
     && apt-get install -y tzdata \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-ENV    TZ Asia/Tokyo
+ENV    TZ=Asia/Tokyo
 # 時刻同期
 # RUN    apt-get update \
 #     && apt-get install -y ntp \
@@ -37,8 +37,8 @@ RUN    apt-get update \
     && echo 'LANG=ja_JP.UTF-8' > /etc/default/locale \
     && LANG=ja_JP.UTF-8 && LANGUAGE=ja_JP:ja \
     && locale
-ENV    LANG ja_JP.UTF-8
-ENV    LANGUAGE ja_JP:ja
+ENV    LANG=ja_JP.UTF-8
+ENV    LANGUAGE=ja_JP:ja
 # Python3パッケージをインストール
 RUN    pip3 install --upgrade pip
 # Python3必須ライブラリをインストール
