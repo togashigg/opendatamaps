@@ -1084,8 +1084,9 @@ class Crawler:
                         i_group = 1
                 if 'trailing_name' in jpackage['result']['groups'][i_group]:
                     locality_name = jpackage['result']['groups'][i_group]['trailing_name']
-                    if locality_name == jpackage['result']['groups'][i_group]['name'].split('/')[0]:
-                        locality_name = jpackage['result']['areas'][0]['name']
+                    group_names = jpackage['result']['groups'][i_group]['name'].split('/')
+                    if len(group_names) > 1 and locality_name == group_names[1]:
+                        locality_name = group_name[0]
             if locality_name == '' \
             and 'areas' in jpackage['result']:
                 locality_name = jpackage['result']['areas'][0]['name']
@@ -1128,7 +1129,14 @@ class Crawler:
             with open(packages_path, 'r') as fh:
                 jpackages = json.loads(fh.read())
         else:
-            if site[site['webapi']]['package_list_limit'] == -1:
+            if site['webapi'] == 'シラサギ' \
+            and site[site['webapi']]['package_list_limit'] == 0:
+                url = site[site['webapi']]['api_url'] + 'package_list?limit=0&offset=0'
+                content = self.url_get(url, packages_file, dir=self.packages_dir)
+                if content is not None:
+                    jpackages = json.loads(content)
+            elif site['webapi'] == 'CKAN' \
+            and site[site['webapi']]['package_list_limit'] == -1:
                 url = site[site['webapi']]['api_url'] + 'package_list'
                 content = self.url_get(url, packages_file, dir=self.packages_dir)
                 if content is not None:

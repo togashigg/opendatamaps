@@ -56,7 +56,7 @@
 			"webapi": "シラサギ",
 			"シラサギ": {
 				"api_url": "https://opendata.pref.aomori.lg.jp/api/",
-				"package_list_limit": -1
+				"package_list_limit": 0
 			}
 		},
 		"東京都": {
@@ -89,7 +89,7 @@
 			"webapi": "シラサギ",
 			"シラサギ": {
 				"api_url": "https://opendata.pref.shizuoka.jp/api/",
-				"package_list_limit": -1
+				"package_list_limit": 0
 			},
 			"CKAN": {
 				"api_url": "https://ckan.pref.shizuoka.jp/api/3/action/",
