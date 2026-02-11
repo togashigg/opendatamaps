@@ -4,7 +4,7 @@
 		"ignore_word_in_dataset_name": [
 			"統計", "人口", "カレンダー", "コロナ",
 			"登録簿", "予算書", "決算書", "公共施設に関するデータ",
-                        "アクセス件数", "ダウンロード数"
+			"アクセス件数", "ダウンロード数"
 		],
 		"kind_list_normalized_re": {
 			"##ignore##": "(クリーニング所|毒物劇物販売業|オープンデータ一覧|統計|人口|カレンダー|コロナ|登録簿)",
@@ -51,36 +51,48 @@
 		"lng_item_list": ["経度", "東経", "lng", "LNG", "Lng", "long", "LONG", "Long"]
 	}, 
 	"local_gov": {
+		"青森県": {
+			"code": "020001",
+			"webapi": "シラサギ",
+			"シラサギ": {
+				"api_url": "https://opendata.pref.aomori.lg.jp/api/",
+				"package_list_limit": -1
+			}
+		},
 		"東京都": {
 			"code": "130001",
-			"type": "catalog",
-			"catalog": {
+			"webapi": "CKAN",
+			"CKAN": {
 				"api_url": "https://catalog.data.metro.tokyo.lg.jp/api/3/action/",
 				"package_list_limit": -1
 			}
 		},
-        "神奈川県": {
-            "code": "140007",
-            "type": "catalog",
-            "catalog": {
-                "api_url": "https://catalog.opendata.pref.kanagawa.jp/api/3/action/",
-                "package_list_limit": -1
-            }
-        },
-        "神奈川県横浜市": {
-            "code": "141003",
-            "type": "catalog",
-            "catalog": {
-                "api_url": "https://data.city.yokohama.lg.jp/api/3/action/",
-                "package_list_limit": -1
-            }
-        },
+		"神奈川県": {
+			"skip": true,
+			"code": "140007",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://catalog.opendata.pref.kanagawa.jp/api/3/action/",
+				"package_list_limit": -1
+			}
+		},
+		"神奈川県横浜市": {
+			"code": "141003",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://data.city.yokohama.lg.jp/api/3/action/",
+				"package_list_limit": -1
+			}
+		},
 		"静岡県": {
 			"code": "220001",
-                        "type": "catalog",
-			"catalog": {
-				"# api_url": "https://ckan.pref.shizuoka.jp/api/3/action/",
+			"webapi": "シラサギ",
+			"シラサギ": {
 				"api_url": "https://opendata.pref.shizuoka.jp/api/",
+				"package_list_limit": -1
+			},
+			"CKAN": {
+				"api_url": "https://ckan.pref.shizuoka.jp/api/3/action/",
 				"package_list_limit": -1
 			}
 		}

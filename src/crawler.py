@@ -92,7 +92,7 @@ class Crawler:
         self.KIND_LIST_NORMALIZED_RE = \
             {k:re.compile(v) for k, v in \
                 self.settings_json['common']['kind_list_normalized_re'].items()}
-        self.OPENDATA_SITES = self.settings_json['local_gov']
+        self.OPENDATA_SITES = self.get_opendata_sites()
         self.site_names = list(self.OPENDATA_SITES.keys())
         logger.debug('site_names=' + str(self.site_names))
        	self.id_item_list = self.settings_json['common']['id_item_list']
@@ -154,7 +154,7 @@ class Crawler:
             name = name_pkgs[0]
             site_info = self.get_site_info(name)
             print('サイト=' + site_info['code'], site_info['name'] \
-                    + '：' + site_info['catalog']['api_url'], file=sys.stderr)
+                    + '：' + site_info[site_info['webapi']]['api_url'], file=sys.stderr)
             rc = self.cache_initialize(site_info)
             if len(name_pkgs) > 1:
                 packageids = name_pkgs[1:]
@@ -244,6 +244,22 @@ class Crawler:
         # 復帰
         logger.info('crewler_main() ended, rc=' + str(rc))
         return rc
+
+    def get_opendata_sites(self):
+        """
+        crawler.jsonの有効なサイト情報を取得する。
+        """
+        logger = logging.getLogger(__name__)
+        logger.info('get_opendata_sites() start.')
+        # 実行
+        sites = {}
+        for k, v in self.settings_json['local_gov'].items():
+            if 'skip' in v and v['skip']:
+                continue
+            sites[k] = v
+        # 復帰
+        logger.info('get_opendata_sites() ended, sites=' + str(sites))
+        return sites
 
     def get_names(self):
         """
@@ -1112,8 +1128,8 @@ class Crawler:
             with open(packages_path, 'r') as fh:
                 jpackages = json.loads(fh.read())
         else:
-            if site[site['type']]['package_list_limit'] == -1:
-                url = site[site['type']]['api_url'] + 'package_list'
+            if site[site['webapi']]['package_list_limit'] == -1:
+                url = site[site['webapi']]['api_url'] + 'package_list'
                 content = self.url_get(url, packages_file, dir=self.packages_dir)
                 if content is not None:
                     jpackages = json.loads(content)
@@ -1121,8 +1137,8 @@ class Crawler:
                 offset = 0
                 results = []
                 while True:
-                    url = site[site['type']]['api_url'] + 'package_list'
-                    url += '?limit=' + str(site[site['type']]['package_list_limit']) \
+                    url = site[site['webapi']]['api_url'] + 'package_list'
+                    url += '?limit=' + str(site[site['webapi']]['package_list_limit']) \
                          + '&offset=' + str(offset)
                     content = self.url_get(url, packages_file, dir=self.packages_dir)
                     logger.info('content='+str(content)[:2048])
@@ -1133,7 +1149,7 @@ class Crawler:
                         break
                     results.extend(jpackages['result'])
                     offset += len(jpackages['result'])
-                    if len(jpackages['result']) < site[site['type']]['package_list_limit']:
+                    if len(jpackages['result']) < site[site['webapi']]['package_list_limit']:
                         break
                     os.remove(os.path.join(self.packages_dir, packages_file))
                 if len(results) > 0:
@@ -1174,7 +1190,7 @@ class Crawler:
             with open(package_path, 'r') as hf:
                 jpackage = json.loads(hf.read())
         else:
-            url = site_info[site_info['type']]['api_url'] + 'package_show?id=' + packageid
+            url = site_info[site_info['webapi']]['api_url'] + 'package_show?id=' + packageid
             content = self.url_get(url, package_file, dir=self.packages_dir)
             if content is not None:
                 jpackage = json.loads(content)
