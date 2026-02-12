@@ -59,6 +59,14 @@
 				"package_list_limit": 0
 			}
 		},
+		"宮城県": {
+			"code": "040002",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://miyagi.dataeye.jp/ckan_api/",
+				"package_list_limit": 1000
+			}
+		},
 		"東京都": {
 			"code": "130001",
 			"webapi": "CKAN",
