@@ -155,6 +155,11 @@ class Crawler:
             site_info = self.get_site_info(name)
             print('サイト=' + site_info['code'], site_info['name'] \
                     + '：' + site_info[site_info['webapi']]['api_url'], file=sys.stderr)
+            self.__request_headers = {}
+            if 'http_request_headers' in site_info[site_info['webapi']]:
+                for k, v in site_info[site_info['webapi']]['http_request_headers'].items():
+                    self.__request_headers[k] = v
+                logger.info('self.__request_headers: ' + str(self.__request_headers))
             rc = self.cache_initialize(site_info)
             if len(name_pkgs) > 1:
                 packageids = name_pkgs[1:]
@@ -164,6 +169,8 @@ class Crawler:
             map_list_name = {}
             map_list_path = os.path.join(self.packages_dir, '.map_list')
             for pno, packageid in enumerate(packageids):
+                if not isinstance(packageid, str):
+                    packageid = str(packageid)
                 print(str(pno+1)+'/'+str(len(packageids))+' ', \
                         file=sys.stderr, end='')
                 logger.debug('pno='+str(pno)+', packageid='+str(packageid))
@@ -1092,7 +1099,8 @@ class Crawler:
                 locality_name = jpackage['result']['areas'][0]['name']
             if locality_name == '' \
             and 'organization' in jpackage['result']:
-                if re.match('^[0-9a-zA-Z]+$', jpackage['result']['organization']['name']) == None:
+                if isinstance(jpackage['result']['organization']['name'], str) \
+                and re.match('^[0-9a-zA-Z]+$', jpackage['result']['organization']['name']) == None:
                     locality_name = jpackage['result']['organization']['name']
                 elif jpackage['result']['organization']['title'][-1] in ['市','区','町','村']:
                     if jpackage['result']['organization']['title'][:len(self.state)] == self.state:
@@ -1331,6 +1339,15 @@ class Crawler:
             if resource['url'] is None or resource['url'] == '':
                 if resource['download_url'] is not None and resource['download_url'] != '':
                     resource['url'] = resource['download_url']
+            if 'format' not in resource \
+            or resource['format'] is None \
+            or resource['format'] == '':
+                fmt = ''
+                url_split = resource['url'].split('.')
+                if len(url_split) > 1:
+                    fmt = url_split[-1]
+                resource['format'] = fmt
+            resource['format'] = resource['format'].upper()
             if resource['filename'] is None or resource['filename'] == '':
                 if resource['url'] is not None and resource['url'] != '':
                     resource['filename'] = resource['url'].split('/')[-1]
@@ -1376,7 +1393,7 @@ class Crawler:
                 valid[i]['format'] = 'HTML'
         # (1) formatが「CSV、TXT、XLSX、XLS、GeoJSON、HTML」以外は除外する
         valid = [v for v in valid if v['format'] in \
-                ['CSV','TXT','XLSX','XLS','GeoJSON','HTML']]
+                ['CSV','TXT','XLSX','XLS','GEOJSON','HTML']]
         # (2) １件以下なら終了
         if len(valid) <= 1:
             logger.info('get_valid_resources() ended_1, rc='+str(len(valid)))

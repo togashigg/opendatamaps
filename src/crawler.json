@@ -64,7 +64,10 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://miyagi.dataeye.jp/ckan_api/",
-				"package_list_limit": 1000
+				"package_list_limit": 1000,
+				"http_request_headers": {
+					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.7559.132 Safari/537.36"
+				}
 			}
 		},
 		"東京都": {
