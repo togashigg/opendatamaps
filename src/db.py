@@ -114,9 +114,9 @@ class OpendataMapsDb:
             sql = '''CREATE TABLE opendatamaps (
                       locality_code CHAR(6) NOT NULL,
                       kind     VARCHAR(60) NOT NULL,
-                      dataset  VARCHAR(90) NOT NULL,
-                      id       VARCHAR(18) NOT NULL,
-                      label    VARCHAR(128) NOT NULL,
+                      dataset  VARCHAR(128) NOT NULL,
+                      id       VARCHAR(32) NOT NULL,
+                      label    VARCHAR(512) NOT NULL,
                       lat      FLOAT NOT NULL,
                       lng      FLOAT NOT NULL,
                       info     TEXT,

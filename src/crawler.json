@@ -106,7 +106,16 @@
 				"api_url": "https://ckan.pref.shizuoka.jp/api/3/action/",
 				"package_list_limit": -1
 			}
-		}
+		},
+		"山口県": {
+			"code": "350001",
+			"webapi": "CKAN", 
+			"CKAN": {
+				"api_url": "https://yamaguchi-opendata.jp/ckan/api/3/action/",
+				"package_list_limit": 0,
+				"#package_list_path": "help_show?name=package_list"
+            }
+        }
 	},
 	"linkeddata": {
 		"url_base": "http://linkdata.org",

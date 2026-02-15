@@ -13,7 +13,7 @@ import json
 import copy
 import pathlib
 import requests
-from charset_normalizer import detect
+from urllib3 import ssl
 import unicodedata
 import openpyxl
 import xlrd
@@ -328,7 +328,14 @@ class Crawler:
             for try_i in range(self.__requests_retry_max):
                 try_ok = False
                 try:
-                    res = requests.get(url, headers=self.__request_headers, \
+                    ssl_context = ssl.create_default_context()
+                    ssl_context.set_ciphers("DEFAULT:!aNULL:!eNULL:!MD5:!3DES:!DES:!RC4:!IDEA:!SEED:!aDSS:!SRP:!PSK")
+                    session = requests.session()
+                    adapter = requests.adapters.HTTPAdapter()
+                    adapter.init_poolmanager(1, 1,  ssl_context=ssl_context)
+                    session.adapters.pop("https://", None)
+                    session.mount("https://", adapter)
+                    res = session.get(url, headers=self.__request_headers, \
                             proxies=self.__proxies, timeout=(15.0, 60.0))
                     try_ok = True
                 except TimeoutError as e:
@@ -1138,14 +1145,26 @@ class Crawler:
                 jpackages = json.loads(fh.read())
         else:
             if site['webapi'] == 'シラサギ' \
+            and 'package_list_limit' in site[site['webapi']] \
             and site[site['webapi']]['package_list_limit'] == 0:
                 url = site[site['webapi']]['api_url'] + 'package_list?limit=0&offset=0'
                 content = self.url_get(url, packages_file, dir=self.packages_dir)
                 if content is not None:
                     jpackages = json.loads(content)
             elif site['webapi'] == 'CKAN' \
-            and site[site['webapi']]['package_list_limit'] == -1:
+            and 'package_list_limit' in site[site['webapi']] \
+            and (site[site['webapi']]['package_list_limit'] == -1
+              or site[site['webapi']]['package_list_limit'] == 0):
                 url = site[site['webapi']]['api_url'] + 'package_list'
+                if site[site['webapi']]['package_list_limit'] == 0:
+                    url += '?limit=0&offset=0'
+                content = self.url_get(url, packages_file, dir=self.packages_dir)
+                if content is not None:
+                    jpackages = json.loads(content)
+            elif site['webapi'] == 'CKAN' \
+            and  'package_list_path' in site[site['webapi']]:
+                url = site[site['webapi']]['api_url'] \
+                    + site[site['webapi']]['package_list_path']
                 content = self.url_get(url, packages_file, dir=self.packages_dir)
                 if content is not None:
                     jpackages = json.loads(content)

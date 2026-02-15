@@ -62,16 +62,17 @@
 ## 2.収集済のオープンデータ
 
   オープンデータは、都道府県および市区町村単位で公開されていますが、各市区町村のオープンデータを調査するには、
-大変な労力が必要と考えられます。そのため、市区町村のデータを含めて都道府県が公開しているオープンデータを対象とすることになしました。
+大変な労力が必要と考えています。そのため、市区町村のデータを含めて都道府県が公開しているオープンデータを対象とすることにしました。
 
   また、小さく始めるために、最初に静岡県を対象として開発し、次いで東京都へと適用しました。
-  今後、他の道府県への適用を進めようと考えています。
+  今後、他の道府県への適用を進めています。
 
-  現在収集済の都道府県を以下の表にまとめました。
-  |団体コード |団体名 |CKAN API |シラサギAPI |サイトのURL1 |サイトのURL2 |サイトのURL3 |初回登録日 |更新日 |備考 |
+  以下の表は、「デジタル庁」が公開している「[オープンデータ取組済自治体資料](https://www.digital.go.jp/resources/data_local_governments)」を参考にして、
+現在までに収集済の都道府県を以下の表にまとめました。一部は、都道府県単位では収集できなかったため、市区町村単位に収集したところもあります。
+  |団体コード |団体名 |☆CKAN API |☆シラサギAPI |サイトのURL1 |サイトのURL2 |サイトのURL3 |初回登録日 |更新日 |☆備考 |
   |---------|------|-----|-----|------------|------------|------------|---------|------|---- |
   |010006 |北海道   |     |     |<A HREF="http://www.pref.hokkaido.lg.jp/ss/jsk/opendata/opendata.htm" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://www.harp.lg.jp/opendata/" TARGET="_blank" REL="noopener">サイト2</A> | | | |     |
-  |020001 |青森県   |     |○[シラサギAPI](https://opendata.pref.aomori.lg.jp/api/) |<A HREF="https://opendata.pref.aomori.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2019/3/11 |     |
+  |020001 |青森県   |     |○[シラサギAPI](https://opendata.pref.aomori.lg.jp/api/) |<A HREF="https://opendata.pref.aomori.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2019/3/11 |約100件／回で収集中 |
   |030007 |岩手県   |     |     |<A HREF="https://www.pref.iwate.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2024/2/6 |     |
   |040002 |宮城県   |○[CKAN API](https://miyagi.dataeye.jp/ckan_api/) |     |<A HREF="http://www.pref.miyagi.jp/site/opendata-miyagi/" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://miyagi.dataeye.jp/" TARGET="_blank" REL="noopener">サイト2</A> | | |2022/11/7 |     |
   |050008 |秋田県   |     |     |<A HREF="https://www.pref.akita.lg.jp/pages/archive/32419" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://opendata.pref.akita.lg.jp/" TARGET="_blank" REL="noopener">サイト2</A> | | |2024/9/27 |     |
@@ -105,7 +106,7 @@
   |320005 |島根県   |     |     |<A HREF="https://shimane-opendata.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |330001 |岡山県   |     |     |<A HREF="http://www.okayama-opendata.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |340006 |広島県   |     |     |<A HREF="https://www.pref.hiroshima.lg.jp/soshiki/265/opendata.html" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://hiroshima-opendata.dataeye.jp" TARGET="_blank" REL="noopener">サイト2</A> | | |2022/4/13 |     |
-  |350001 |山口県   |     |     |<A HREF="https://yamaguchi-opendata.jp/www/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
+  |350001 |山口県   |○[CKAN API](https://yamaguchi-opendata.jp/ckan/api/3/action/) |     |<A HREF="https://yamaguchi-opendata.jp/www/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |360007 |徳島県   |     |     |<A HREF="https://opendata.pref.tokushima.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/6/16 |     |
   |370002 |香川県   |     |     |<A HREF="https://opendata.pref.kagawa.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |380008 |愛媛県   |     |     |<A HREF="https://www.pref.ehime.jp/opendata-catalog/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2020/1/30 |     |
@@ -118,6 +119,7 @@
   |450006 |宮崎県   |     |     |<A HREF="https://odcs.bodik.jp/450006/" TARGET="_blank" REL="noopener">サイト1</A> | | |2019/6/17 | |     |
   |460001 |鹿児島県 |     |     |<A HREF="http://www.pref.kagoshima.jp/ac03/infra/info/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |470007 |沖縄県   |     |     |<A HREF="https://www.pref.okinawa.lg.jp/site/kikaku/joho/kikaku/opendata/opendata.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
+  ☆：追加項目です。
 
 
 ## 3.施設種別
