@@ -893,7 +893,7 @@ if __name__ == '__main__':
             print(msg, file=sys.stderr)
         if args.create:
             db.create_tables(args.tables)
-            msg = 'テーブルを定義しました。'
+            msg = 'テーブルを定義しました。' + str(args.tables)
             logger.info(msg)
             print(msg, file=sys.stderr)
         if args.load:

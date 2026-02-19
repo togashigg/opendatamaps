@@ -70,6 +70,14 @@
 				}
 			}
 		},
+		"秋田県": {
+            "code": "050008",
+            "webapi": "CKAN", 
+            "CKAN": {
+                "api_url": "https://ckan.pref.akita.lg.jp/api/3/action/",
+                "package_list_limit": 0
+			}
+		},
 		"東京都": {
 			"code": "130001",
 			"webapi": "CKAN",
