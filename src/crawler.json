@@ -71,13 +71,30 @@
 			}
 		},
 		"秋田県": {
-            "code": "050008",
-            "webapi": "CKAN", 
-            "CKAN": {
-                "api_url": "https://ckan.pref.akita.lg.jp/api/3/action/",
-                "package_list_limit": 0
+			"code": "050008",
+			"webapi": "CKAN", 
+			"CKAN": {
+				"api_url": "https://ckan.pref.akita.lg.jp/api/3/action/",
+				"package_list_limit": 0
 			}
 		},
+		"栃木県": {
+			"code": "090000",
+			"webapi": "CKAN", 
+			"CKAN": {
+				"api_url": "https://data.bodik.jp/api/3/action/",
+				"package_list_limit": 0,
+				"package_id_match": "^09"
+			}
+		},
+		"埼玉県": {
+			"code": "110001",
+			"webapi": "CKAN", 
+			"CKAN": {
+				"api_url": "https://opendata.pref.saitama.lg.jp/ckan_api/",
+				"package_list_limit": 100
+			}
+        },
 		"東京都": {
 			"code": "130001",
 			"webapi": "CKAN",
@@ -101,6 +118,22 @@
 			"CKAN": {
 				"api_url": "https://data.city.yokohama.lg.jp/api/3/action/",
 				"package_list_limit": -1
+			}
+		},
+		"富山県": {
+			"code": "160008",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://opendata.pref.toyama.jp/api/3/action/",
+				"package_list_limit": 0
+			}
+		},
+		"石川県": {
+			"code": "170003",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://ckan.opendata.pref.ishikawa.lg.jp/api/3/action/",
+				"package_list_limit": 0
 			}
 		},
 		"静岡県": {

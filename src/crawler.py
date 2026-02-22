@@ -8,6 +8,7 @@ import sys
 import datetime
 import time
 import re
+import chardet
 import csv
 import json
 import copy
@@ -166,12 +167,18 @@ class Crawler:
             else:
                 packageids = self.get_packageids_in_site(site_info)
             # マップ情報一覧を初期化する
+            re_pid = None
+            if 'package_id_match' in site_info[site_info['webapi']]:
+                re_pid = re.compile(site_info[site_info['webapi']]['package_id_match'])
+                pids = [p for p in packageids if re_pid.match(p)]
+                logger.debug('package_id_match: '+str(len(packageids))+'->'+str(len(pids)))
+                packageids = pids
             map_list_name = {}
             map_list_path = os.path.join(self.packages_dir, '.map_list')
             for pno, packageid in enumerate(packageids):
                 if not isinstance(packageid, str):
                     packageid = str(packageid)
-                print(str(pno+1)+'/'+str(len(packageids))+' ', \
+                print(str(pno+1)+'/'+str(len(packageids))+'['+packageid+']', \
                         file=sys.stderr, end='')
                 logger.debug('pno='+str(pno)+', packageid='+str(packageid))
                 map_list = []
@@ -399,10 +406,10 @@ class Crawler:
                 cont += lines[i]
         res = {'encoding': 'utf-8', 'confidence': 0.5, 'language': 'Japanese'}
         try:
-            res = detect(cont)
+            res = chardet.detect(cont)
         except Exception as e:
             logger.exception(e)
-        logger.debug('detect=' + str(res))
+        logger.debug('chardet.detect()=' + str(res))
         if res['encoding'] is None \
         or not (res['encoding'].upper() == 'UTF-8' or res['encoding'].upper() == 'UTF-16'):
             res['encoding'] = 'CP932'
@@ -1100,7 +1107,7 @@ class Crawler:
                     locality_name = jpackage['result']['groups'][i_group]['trailing_name']
                     group_names = jpackage['result']['groups'][i_group]['name'].split('/')
                     if len(group_names) > 1 and locality_name == group_names[1]:
-                        locality_name = group_name[0]
+                        locality_name = group_names[0]
             if locality_name == '' \
             and 'areas' in jpackage['result']:
                 locality_name = jpackage['result']['areas'][0]['name']
@@ -1169,11 +1176,13 @@ class Crawler:
                 if content is not None:
                     jpackages = json.loads(content)
             else:
+                limit = site[site['webapi']]['package_list_limit']
                 offset = 0
                 results = []
+                jp_top = {}
                 while True:
                     url = site[site['webapi']]['api_url'] + 'package_list'
-                    url += '?limit=' + str(site[site['webapi']]['package_list_limit']) \
+                    url += '?limit=' + str(limit) \
                          + '&offset=' + str(offset)
                     content = self.url_get(url, packages_file, dir=self.packages_dir)
                     logger.info('content='+str(content)[:2048])
@@ -1182,12 +1191,15 @@ class Crawler:
                     jpackages = json.loads(content)
                     if jpackages['success'] is not True:
                         break
+                    if jp_top == {}:
+                        jp_top = {k:v for k,v in jpackages.items() if k!='result'}
                     results.extend(jpackages['result'])
                     offset += len(jpackages['result'])
-                    if len(jpackages['result']) < site[site['webapi']]['package_list_limit']:
+                    if len(jpackages['result']) < limit:
                         break
                     os.remove(os.path.join(self.packages_dir, packages_file))
                 if len(results) > 0:
+                    jpackages = jp_top
                     jpackages['result'] = results
                     content = json.dumps(jpackages, ensure_ascii=False)
                     with open(os.path.join(self.packages_dir, packages_file), 'w') as pfh:
@@ -1434,7 +1446,7 @@ class Crawler:
             uniq_urls = []
             for n in uniq_names:
                 f_exists = False
-                for f in ['CSV','TXT','XLSX','XLS','GeoJSON','HTML']:
+                for f in ['CSV','TXT','XLSX','XLS','GEOJSON','HTML']:
                     for i in range(len(valid)):
                         if valid[i]['name'] != n:
                             continue
@@ -1733,9 +1745,9 @@ class Crawler:
                 if b'{' in resource['_content_'][0:4] \
                 and  b'}' in resource['_content_'][-3:]:
                     # JSON形式(そのまま) 
-                    if resource['format'] != 'GeoJSON':
+                    if resource['format'] != 'GEOJSON':
                         logger.warning('format変更3, ' + resource['format'] + ' -> GeoJSON')
-                        resource['format'] = 'GeoJSON'
+                        resource['format'] = 'GEOJSON'
                 elif resource['_content_'].count(b'\n') \
                         <= resource['_content_'].count(b','):
                     # CSV形式 
@@ -1755,9 +1767,9 @@ class Crawler:
                 if '{' in resource['_content_'][0:4] \
                 and  '}' in resource['_content_'][-3:]:
                     # JSON形式(そのまま)
-                    if resource['format'] != 'GeoJSON':
+                    if resource['format'] != 'GEOJSON':
                         logger.warning('format変更6, ' + resource['format'] + ' -> GeoJSON')
-                        resource['format'] = 'GeoJSON'
+                        resource['format'] = 'GEOJSON'
                 elif resource['_content_'].count('\n') \
                         <= resource['_content_'].count(','):
                     # CSV形式 
@@ -1785,7 +1797,7 @@ class Crawler:
             dataset_path = os.path.join(dir, resource['filename'])
 
         # 必要ならコード変換を行う
-        if resource['format'] in ['CSV', 'TEXT', 'TSV', 'TXT', 'GeoJSON']: 
+        if resource['format'] in ['CSV', 'TEXT', 'TSV', 'TXT', 'GEOJSON']: 
             content = self.convert_to_utf8(resource['_content_'])
             if content is None:
                 logger.error('content format error, format=' + resource['format'])
@@ -1832,7 +1844,7 @@ class Crawler:
             # Excel形式(XLSX) 
             logger.debug('format is ' + resource['format'])
             table = self.table_from_xlsx(os.path.join(dir, resource['filename']))
-        elif resource['format'] == 'GeoJSON':
+        elif resource['format'] == 'GEOJSON':
             # GeoJSON形式(JSON)
             logger.debug('format is ' + resource['format'])
             table = self.table_from_GeoJSON(resource['_content_'])
