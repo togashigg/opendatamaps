@@ -23,7 +23,7 @@
                         "防災": "(防災|救護所|同報無線|飲料水|ヨウ素剤|ため池|河川カメラ|観測所)",
 			"公共施設": "((市|区|町|村)役所|(都|道|府|県|市|区|町|村)(の|内)(施設|機関)|庁舎|公共施設|自治体|施設情報|文化|教養|スポーツ|公民館|集会所|公会堂|(都|道|府|県|市|区|町|村)民会館|図書館|文化施設|(都|道|府|県|市|区|町|村)営住宅|斎場|墓地|環境施設|焼却施設|し尿処理|衛生検査)",
                         "子ども食堂": "[こ子]ども食堂",
-			"子育て施設": "子育て",
+			"子育て施設": "(子育て|子どものお出かけ先)",
 			"学校・保育施設": "(学校|こども園|幼稚園|保育|児童(養護)?(館|施設)|保育施設|保育所|放課後)",
 			"駐車場": "駐車場",
                         "駐輪場": "駐輪場",
@@ -136,6 +136,14 @@
 				"package_list_limit": 0
 			}
 		},
+		"岐阜県": {
+			"code": "210005",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://gifu-opendata.pref.gifu.lg.jp/api/3/action/",
+				"package_list_limit": 0
+			}
+		},
 		"静岡県": {
 			"code": "220001",
 			"webapi": "シラサギ",
@@ -146,6 +154,33 @@
 			"CKAN": {
 				"api_url": "https://ckan.pref.shizuoka.jp/api/3/action/",
 				"package_list_limit": -1
+			}
+		},
+		"三重県": {
+			"code": "240001",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://data.bodik.jp/api/3/action/",
+				"package_list_limit": 0,
+				"package_id_match": "^24"
+			}
+		},
+		"京都府": {
+			"code": "260002",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://data.bodik.jp/api/3/action/",
+				"package_list_limit": 0,
+				"package_id_match": "^26"
+			}
+		},
+		"大阪府": {
+			"code": "270008",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://data.bodik.jp/api/3/action/",
+				"package_list_limit": 0,
+				"package_id_match": "^27"
 			}
 		},
 		"山口県": {

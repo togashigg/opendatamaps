@@ -74,12 +74,12 @@
   |010006 |北海道   |−   |−   |<A HREF="http://www.pref.hokkaido.lg.jp/ss/jsk/opendata/opendata.htm" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://www.harp.lg.jp/opendata/" TARGET="_blank" REL="noopener">サイト2</A> | | | |     |
   |020001 |青森県   |△   |[シラサギ](https://opendata.pref.aomori.lg.jp/api/package_list) |<A HREF="https://opendata.pref.aomori.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2019/3/11 |約100件／日で収集中 |
   |030007 |岩手県   |−   |−   |<A HREF="https://www.pref.iwate.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2024/2/6 |     |
-  |040002 |宮城県   |○   |[CKAN](https://miyagi.dataeye.jp/ckan_api/) |<A HREF="http://www.pref.miyagi.jp/site/opendata-miyagi/" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://miyagi.dataeye.jp/" TARGET="_blank" REL="noopener">サイト2</A> | | |2022/11/7 |     |
+  |040002 |宮城県   |○   |[CKAN](https://miyagi.dataeye.jp/ckan_api/package_list) |<A HREF="http://www.pref.miyagi.jp/site/opendata-miyagi/" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://miyagi.dataeye.jp/" TARGET="_blank" REL="noopener">サイト2</A> | | |2022/11/7 |     |
   |050008 |秋田県   |○   |[CKAN](https://ckan.pref.akita.lg.jp/api/3/action/package_list) |<A HREF="https://www.pref.akita.lg.jp/pages/archive/32419" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://opendata.pref.akita.lg.jp/" TARGET="_blank" REL="noopener">サイト2</A> | | |2024/9/27 |     |
   |060003 |山形県   |−   |−   |<A HREF="http://www.pref.yamagata.jp/ou/kikakushinko/020051/opendata.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |070009 |福島県   |−   |−   |<A HREF="https://www.pref.fukushima.lg.jp/sec/11045a/open-data-top.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |080004 |茨城県   |−   |−   |<A HREF="http://www.pref.ibaraki.jp/kikaku/joho/it/opendata/od-00.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |090000 |栃木県   |○   |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="http://tochigiken.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |複数県の情報か？ |
+  |090000 |栃木県   |○   |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="http://tochigiken.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |複数県？の情報から"^09"を抽出 |
   |100005 |群馬県   |−   |−   |<A HREF="https://www.pref.gunma.jp/07/b2700057.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |110001 |埼玉県   |○   |[CKAN](https://opendata.pref.saitama.lg.jp/ckan_api/package_list) |<A HREF="https://opendata.pref.saitama.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |120006 |千葉県   |−   |−   |<A HREF="https://www.pref.chiba.lg.jp/gyoukaku/opendata/index.html" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/3/3 |     |
@@ -92,13 +92,13 @@
   |180009 |福井県   |−   |−   |<A HREF="http://www.pref.fukui.lg.jp/doc/toukei-jouhou/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |190004 |山梨県   |−   |−   |<A HREF="https://www.pref.yamanashi.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |200000 |長野県   |−   |−   |<A HREF="https://wwwgis.pref.nagano.lg.jp/pref-nagano/OpenData" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/11/7 |     |
-  |210005 |岐阜県   |     |     |<A HREF="https://gifu-opendata.pref.gifu.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
+  |210005 |岐阜県   |○   |[CKAN](https://gifu-opendata.pref.gifu.lg.jp/api/3/action/package_list) |<A HREF="https://gifu-opendata.pref.gifu.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |220001 |静岡県   |○   |[シラサギ](https://opendata.pref.shizuoka.jp/api/package_list) |<A HREF="https://opendata.pref.shizuoka.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |230006 |愛知県   |     |     |<A HREF="https://www.pref.aichi.jp/life/7/" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="http://www.e-aichi.jp/cgi-bin/jump.cgi?http://www.e-aichi.jp/opendata.html" TARGET="_blank" REL="noopener">サイト2</A> | | |2020/1/30 |     |
-  |240001 |三重県   |     |     |<A HREF="http://www.pref.mie.lg.jp/IT/HP/87579000001.htm" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |250007 |滋賀県   |     |     |<A HREF="https://www.pref.shiga.lg.jp/ippan/kurashi/ict/300004.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |260002 |京都府   |     |     |<A HREF="http://www.pref.kyoto.jp/digital/opendata/index.html" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://odcs.bodik.jp/260002/" TARGET="_blank" REL="noopener">サイト2</A> | | |2022/1/12 |     |
-  |270008 |大阪府   |     |     |<A HREF="http://www.pref.osaka.lg.jp/kikaku_keikaku/opendata/index.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
+  |230006 |愛知県   |−   |−   |<A HREF="https://www.pref.aichi.jp/life/7/" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="http://www.e-aichi.jp/cgi-bin/jump.cgi?http://www.e-aichi.jp/opendata.html" TARGET="_blank" REL="noopener">サイト2</A> | | |2020/1/30 |     |
+  |240001 |三重県   |○   |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="http://www.pref.mie.lg.jp/IT/HP/87579000001.htm" TARGET="_blank" REL="noopener">サイト1</A> | | | | |複数県？の情報から"^24"を抽出 |
+  |250007 |滋賀県   |−   |−   |<A HREF="https://www.pref.shiga.lg.jp/ippan/kurashi/ict/300004.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
+  |260002 |京都府   |○   |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="http://www.pref.kyoto.jp/digital/opendata/index.html" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://odcs.bodik.jp/260002/" TARGET="_blank" REL="noopener">サイト2</A> | | |2022/1/12 |複数県？の情報から"^26"を抽出 |
+  |270008 |大阪府   |○   |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="http://www.pref.osaka.lg.jp/kikaku_keikaku/opendata/index.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | | 複数県情報から"^27"を抽出 |
   |280003 |兵庫県   |     |     |<A HREF="https://web.pref.hyogo.lg.jp/opendata/index.php" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/3/18 |     |
   |290009 |奈良県   |     |     |<A HREF="http://www.pref.nara.jp/44954.htm" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |300004 |和歌山県 |     |     |<A HREF="https://www.pref.wakayama.lg.jp/prefg/020400/opendata/d00207954.html" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://odcs.bodik.jp/300004/" TARGET="_blank" REL="noopener">サイト2</A> | | |2021/9/6 |     |
