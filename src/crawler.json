@@ -64,7 +64,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://miyagi.dataeye.jp/ckan_api/",
-				"package_list_limit": 1000,
+				"package_list_limit": 9999,
 				"http_request_headers": {
 					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.7559.132 Safari/537.36"
 				}
@@ -183,6 +183,37 @@
 				"package_id_match": "^27"
 			}
 		},
+		"和歌山県": {
+			"code": "300004",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://data.bodik.jp/api/3/action/",
+				"package_list_limit": 0,
+				"package_id_match": "^30"
+			}
+		},
+		"島根県": {
+			"code": "320005",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://shimane-opendata.jp/ckan_api/",
+				"package_list_limit": 9999,
+				"http_request_headers": {
+					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.7559.132 Safari/537.36"
+				}
+			}
+		},
+		"岡山県": {
+			"code": "330001",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://www.okayama-opendata.jp/ckan_api/",
+				"package_list_limit": 9999,
+				"http_request_headers": {
+					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.7559.132 Safari/537.36"
+				}
+			}
+		},
 		"山口県": {
 			"code": "350001",
 			"webapi": "CKAN", 
@@ -191,7 +222,15 @@
 				"package_list_limit": 0,
 				"#package_list_path": "help_show?name=package_list"
             }
-        }
+        },
+		"徳島県": {
+			"code": "360007",
+			"webapi": "シラサギ",
+			"シラサギ": {
+				"api_url": "https://opendata.pref.tokushima.lg.jp/api/",
+				"package_list_limit": 0
+			}
+		}
 	},
 	"linkeddata": {
 		"url_base": "http://linkdata.org",

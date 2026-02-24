@@ -98,16 +98,16 @@
   |240001 |三重県   |○   |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="http://www.pref.mie.lg.jp/IT/HP/87579000001.htm" TARGET="_blank" REL="noopener">サイト1</A> | | | | |複数県？の情報から"^24"を抽出 |
   |250007 |滋賀県   |−   |−   |<A HREF="https://www.pref.shiga.lg.jp/ippan/kurashi/ict/300004.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |260002 |京都府   |○   |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="http://www.pref.kyoto.jp/digital/opendata/index.html" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://odcs.bodik.jp/260002/" TARGET="_blank" REL="noopener">サイト2</A> | | |2022/1/12 |複数県？の情報から"^26"を抽出 |
-  |270008 |大阪府   |○   |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="http://www.pref.osaka.lg.jp/kikaku_keikaku/opendata/index.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | | 複数県情報から"^27"を抽出 |
-  |280003 |兵庫県   |     |     |<A HREF="https://web.pref.hyogo.lg.jp/opendata/index.php" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/3/18 |     |
-  |290009 |奈良県   |     |     |<A HREF="http://www.pref.nara.jp/44954.htm" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |300004 |和歌山県 |     |     |<A HREF="https://www.pref.wakayama.lg.jp/prefg/020400/opendata/d00207954.html" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://odcs.bodik.jp/300004/" TARGET="_blank" REL="noopener">サイト2</A> | | |2021/9/6 |     |
-  |310000 |鳥取県   |     |     |<A HREF="https://odp-pref-tottori.tori-info.co.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |320005 |島根県   |     |     |<A HREF="https://shimane-opendata.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |330001 |岡山県   |     |     |<A HREF="http://www.okayama-opendata.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
+  |270008 |大阪府   |○   |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="http://www.pref.osaka.lg.jp/kikaku_keikaku/opendata/index.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |複数県情報から"^27"を抽出 |
+  |280003 |兵庫県   |−   |−   |<A HREF="https://web.pref.hyogo.lg.jp/opendata/index.php" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/3/18 |     |
+  |290009 |奈良県   |−   |−   |<A HREF="http://www.pref.nara.jp/44954.htm" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
+  |300004 |和歌山県 |○   |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="https://www.pref.wakayama.lg.jp/prefg/020400/opendata/d00207954.html" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://odcs.bodik.jp/300004/" TARGET="_blank" REL="noopener">サイト2</A> | | |2021/9/6 |複数県情報から"^30"を抽出 |
+  |310000 |鳥取県   |−   |−   |<A HREF="https://odp-pref-tottori.tori-info.co.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
+  |320005 |島根県   |○   |[CKAN](https://shimane-opendata.jp/ckan_api/package_list) |<A HREF="https://shimane-opendata.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
+  |330001 |岡山県   |○   |[CKAN](https://www.okayama-opendata.jp/ckan_api/package_list) |<A HREF="http://www.okayama-opendata.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |340006 |広島県   |     |     |<A HREF="https://www.pref.hiroshima.lg.jp/soshiki/265/opendata.html" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://hiroshima-opendata.dataeye.jp" TARGET="_blank" REL="noopener">サイト2</A> | | |2022/4/13 |     |
-  |350001 |山口県   |○[CKAN API](https://yamaguchi-opendata.jp/ckan/api/3/action/package_list) |     |<A HREF="https://yamaguchi-opendata.jp/www/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |360007 |徳島県   |     |     |<A HREF="https://opendata.pref.tokushima.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/6/16 |     |
+  |350001 |山口県   |○   |[CKAN API](https://yamaguchi-opendata.jp/ckan/api/3/action/package_list) |<A HREF="https://yamaguchi-opendata.jp/www/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
+  |360007 |徳島県   |     |[シラサギ](https://opendata.pref.tokushima.lg.jp/api/package_list)|<A HREF="https://opendata.pref.tokushima.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/6/16 |     |
   |370002 |香川県   |     |     |<A HREF="https://opendata.pref.kagawa.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |380008 |愛媛県   |     |     |<A HREF="https://www.pref.ehime.jp/opendata-catalog/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2020/1/30 |     |
   |390003 |高知県   |     |     |<A HREF="http://www.pref.kochi.lg.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
