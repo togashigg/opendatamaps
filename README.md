@@ -107,11 +107,11 @@
   |330001 |岡山県   |○   |[CKAN](https://www.okayama-opendata.jp/ckan_api/package_list) |<A HREF="http://www.okayama-opendata.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |340006 |広島県   |     |     |<A HREF="https://www.pref.hiroshima.lg.jp/soshiki/265/opendata.html" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://hiroshima-opendata.dataeye.jp" TARGET="_blank" REL="noopener">サイト2</A> | | |2022/4/13 |     |
   |350001 |山口県   |○   |[CKAN API](https://yamaguchi-opendata.jp/ckan/api/3/action/package_list) |<A HREF="https://yamaguchi-opendata.jp/www/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |360007 |徳島県   |     |[シラサギ](https://opendata.pref.tokushima.lg.jp/api/package_list)|<A HREF="https://opendata.pref.tokushima.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/6/16 |     |
-  |370002 |香川県   |     |     |<A HREF="https://opendata.pref.kagawa.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |380008 |愛媛県   |     |     |<A HREF="https://www.pref.ehime.jp/opendata-catalog/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2020/1/30 |     |
-  |390003 |高知県   |     |     |<A HREF="http://www.pref.kochi.lg.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |400009 |福岡県   |     |     |<A HREF="https://www.open-governmentdata.org/fukuoka-pref/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
+  |360007 |徳島県   |○   |[シラサギ](https://opendata.pref.tokushima.lg.jp/api/package_list)|<A HREF="https://opendata.pref.tokushima.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/6/16 |     |
+  |370002 |香川県   |−   |−   |<A HREF="https://opendata.pref.kagawa.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
+  |380008 |愛媛県   |○   |[シラサギ](https://www.pref.ehime.jp/opendata-catalog/api/package_list) |<A HREF="https://www.pref.ehime.jp/opendata-catalog/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2020/1/30 |     |
+  |390003 |高知県   |−   |−   |<A HREF="http://www.pref.kochi.lg.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
+  |400009 |福岡県   |     |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="https://www.open-governmentdata.org/fukuoka-pref/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |410004 |佐賀県   |     |     |<A HREF="http://odcs.bodik.jp/410004/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |420000 |長崎県   |     |     |<A HREF="http://odcs.bodik.jp/420000/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |430005 |熊本県   |     |     |<A HREF="http://www.pref.kumamoto.jp/kiji_22038.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |

@@ -230,6 +230,23 @@
 				"api_url": "https://opendata.pref.tokushima.lg.jp/api/",
 				"package_list_limit": 0
 			}
+		},
+		"愛媛県": {
+			"code": "380008",
+			"webapi": "シラサギ",
+			"シラサギ": {
+				"api_url": "https://www.pref.ehime.jp/opendata-catalog/api/",
+				"package_list_limit": 0
+			}
+		},
+		"福岡県": {
+			"code": "400009",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://data.bodik.jp/api/3/action/",
+				"package_list_limit": 0,
+				"package_id_match": "^40"
+			}
 		}
 	},
 	"linkeddata": {
