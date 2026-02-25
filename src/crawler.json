@@ -247,6 +247,42 @@
 				"package_list_limit": 0,
 				"package_id_match": "^40"
 			}
+		},
+		"佐賀県": {
+			"code": "410004",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://data.bodik.jp/api/3/action/",
+				"package_list_limit": 0,
+				"package_id_match": "^41"
+			}
+		},
+		"長崎県": {
+			"code": "420000",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://data.bodik.jp/api/3/action/",
+				"package_list_limit": 0,
+				"package_id_match": "^42"
+			}
+		},
+		"熊本県": {
+			"code": "430005",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://data.bodik.jp/api/3/action/",
+				"package_list_limit": 0,
+				"package_id_match": "^43"
+			}
+		},
+		"大分県": {
+			"code": "440001",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://data.bodik.jp/api/3/action/",
+				"package_list_limit": 0,
+				"package_id_match": "^44"
+			}
 		}
 	},
 	"linkeddata": {

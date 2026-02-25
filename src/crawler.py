@@ -411,7 +411,9 @@ class Crawler:
             logger.exception(e)
         logger.debug('chardet.detect()=' + str(res))
         if res['encoding'] is None \
-        or not (res['encoding'].upper() == 'UTF-8' or res['encoding'].upper() == 'UTF-16'):
+        or not ((len(res['encoding'])>=5 and res['encoding'].upper()[:5] == 'UTF-8') \
+             or (len(res['encoding'])>=6 and res['encoding'].upper()[:6] == 'UTF-16') \
+             or (len(res['encoding'])>=3 and res['encoding'].upper()[:3] == 'EUC')):
             res['encoding'] = 'CP932'
         try:
             data = content.decode(res['encoding'], errors='replace')

@@ -111,11 +111,11 @@
   |370002 |香川県   |−   |−   |<A HREF="https://opendata.pref.kagawa.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |380008 |愛媛県   |○   |[シラサギ](https://www.pref.ehime.jp/opendata-catalog/api/package_list) |<A HREF="https://www.pref.ehime.jp/opendata-catalog/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2020/1/30 |     |
   |390003 |高知県   |−   |−   |<A HREF="http://www.pref.kochi.lg.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |400009 |福岡県   |     |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="https://www.open-governmentdata.org/fukuoka-pref/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |410004 |佐賀県   |     |     |<A HREF="http://odcs.bodik.jp/410004/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |420000 |長崎県   |     |     |<A HREF="http://odcs.bodik.jp/420000/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |430005 |熊本県   |     |     |<A HREF="http://www.pref.kumamoto.jp/kiji_22038.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |440001 |大分県   |     |     |<A HREF="https://www.pref.oita.jp/soshiki/11840/opendata.html" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://odcs.bodik.jp/440001/" TARGET="_blank" REL="noopener">サイト2</A> | |2025/9/3 | |     |
+  |400009 |福岡県   |○   |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="https://www.open-governmentdata.org/fukuoka-pref/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
+  |410004 |佐賀県   |○   |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="http://odcs.bodik.jp/410004/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |複数県情報から"^41"を抽出 |
+  |420000 |長崎県   |○   |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="http://odcs.bodik.jp/420000/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |複数県情報から"^42"を抽出 |
+  |430005 |熊本県   |○   |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="http://www.pref.kumamoto.jp/kiji_22038.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |複数県情報から"^43"を抽出 |
+  |440001 |大分県   |○   |[CKAN](https://data.bodik.jp/api/3/action/packate_list) |<A HREF="https://www.pref.oita.jp/soshiki/11840/opendata.html" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://odcs.bodik.jp/440001/" TARGET="_blank" REL="noopener">サイト2</A> | |2025/9/3 | |複数県情報から"^44"を抽出 |
   |450006 |宮崎県   |     |     |<A HREF="https://odcs.bodik.jp/450006/" TARGET="_blank" REL="noopener">サイト1</A> | | |2019/6/17 | |     |
   |460001 |鹿児島県 |     |     |<A HREF="http://www.pref.kagoshima.jp/ac03/infra/info/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |470007 |沖縄県   |     |     |<A HREF="https://www.pref.okinawa.lg.jp/site/kikaku/joho/kikaku/opendata/opendata.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
