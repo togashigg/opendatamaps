@@ -51,6 +51,15 @@
 		"lng_item_list": ["経度", "東経", "lng", "LNG", "Lng", "long", "LONG", "Long"]
 	}, 
 	"local_gov": {
+		"北海道上砂川町": {
+			"code": "014257",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://data.bodik.jp/api/3/action/",
+				"package_list_limit": 0,
+				"package_id_match": "^014257"
+			}
+		},
 		"青森県": {
 			"code": "020001",
 			"webapi": "シラサギ",
@@ -95,6 +104,15 @@
 				"package_list_limit": 100
 			}
         },
+		"千葉県船橋市": {
+			"code": "122041",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://data.bodik.jp/api/3/action/",
+				"package_list_limit": 0,
+				"package_id_match": "^122041"
+			}
+		},
 		"東京都": {
 			"code": "130001",
 			"webapi": "CKAN",

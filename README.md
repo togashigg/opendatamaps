@@ -72,6 +72,7 @@
   |団体コード |団体名 |☆取得 |☆API |サイトのURL1 |サイトのURL2 |サイトのURL3 |初回登録日 |更新日 |☆備考 |
   |---------|------|-----|-----|------------|------------|------------|---------|------|---- |
   |010006 |北海道   |−   |−   |<A HREF="http://www.pref.hokkaido.lg.jp/ss/jsk/opendata/opendata.htm" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://www.harp.lg.jp/opendata/" TARGET="_blank" REL="noopener">サイト2</A> | | | |     |
+  |014257 |北海道上砂川町 |○    |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="https://odcs.bodik.jp/014257/" TARGET="_blank" REL="noopener">サイト1</A> |     |     | | |複数県？の情報から"^014257"を抽出 |
   |020001 |青森県   |△   |[シラサギ](https://opendata.pref.aomori.lg.jp/api/package_list) |<A HREF="https://opendata.pref.aomori.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2019/3/11 |約100件／日で収集中 |
   |030007 |岩手県   |−   |−   |<A HREF="https://www.pref.iwate.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2024/2/6 |     |
   |040002 |宮城県   |○   |[CKAN](https://miyagi.dataeye.jp/ckan_api/package_list) |<A HREF="http://www.pref.miyagi.jp/site/opendata-miyagi/" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://miyagi.dataeye.jp/" TARGET="_blank" REL="noopener">サイト2</A> | | |2022/11/7 |     |
@@ -83,6 +84,7 @@
   |100005 |群馬県   |−   |−   |<A HREF="https://www.pref.gunma.jp/07/b2700057.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |110001 |埼玉県   |○   |[CKAN](https://opendata.pref.saitama.lg.jp/ckan_api/package_list) |<A HREF="https://opendata.pref.saitama.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |120006 |千葉県   |−   |−   |<A HREF="https://www.pref.chiba.lg.jp/gyoukaku/opendata/index.html" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/3/3 |     |
+  |122041 |千葉県船橋市 |○   |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="https://odcs.bodik.jp/122041/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |複数県？の情報から"^122041"を抽出 |
   |130001 |東京都   |○   |[CKAN](https://catalog.data.metro.tokyo.lg.jp/api/3/action/package_list) |<A HREF="http://opendata-portal.metro.tokyo.jp/www/index.html" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="http://www.koho.metro.tokyo.jp/opendata/" TARGET="_blank" REL="noopener">サイト2</A> | | | |     |
   |140007 |神奈川県 |○   |[CKAN](https://catalog.opendata.pref.kanagawa.jp/api/3/action/package_list) |<A HREF="http://www.pref.kanagawa.jp/cnt/f534212/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |施設情報に座標無し |
   |141003 |神奈川県横浜市 |○   |[CKAN](https://data.city.yokohama.lg.jp/api/3/action/package_list) |<A HREF="https://data.city.yokohama.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
@@ -940,7 +942,7 @@
     © 2021 Docker Inc. All rights reserved
     ```
 
-  - [Ubuntu 22.04](https://ubuntu.com/)
+  - [Ubuntu 24.04](https://ubuntu.com/)
     ```
     Intellectual property rights policy
     Latest update: We updated this policy on 15 July 2015.
@@ -1053,35 +1055,34 @@
 
     Some software incorporated into Python is under different licenses. The licenses are listed with code falling under that license. See Licenses and Acknowledgements for Incorporated Software for an incomplete list of these licenses.
 
-    PSF LICENSE AGREEMENT FOR PYTHON 3.10.7
+    PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2
     1. This LICENSE AGREEMENT is between the Python Software Foundation ("PSF"), and
-       the Individual or Organization ("Licensee") accessing and otherwise using Python
-       3.10.7 software in source or binary form and its associated documentation.
+       the Individual or Organization ("Licensee") accessing and otherwise using this
+       software ("Python") in source or binary form and its associated documentation.
 
     2. Subject to the terms and conditions of this License Agreement, PSF hereby
        grants Licensee a nonexclusive, royalty-free, world-wide license to reproduce,
        analyze, test, perform and/or display publicly, prepare derivative works,
-       distribute, and otherwise use Python 3.10.7 alone or in any derivative
+       distribute, and otherwise use Python alone or in any derivative
        version, provided, however, that PSF's License Agreement and PSF's notice of
-       copyright, i.e., "Copyright © 2001-2022 Python Software Foundation; All Rights
-       Reserved" are retained in Python 3.10.7 alone or in any derivative version
+       copyright, i.e., "Copyright © 2001-2023 Python Software Foundation; All Rights
+       Reserved" are retained in Python alone or in any derivative version
        prepared by Licensee.
 
     3. In the event Licensee prepares a derivative work that is based on or
-       incorporates Python 3.10.7 or any part thereof, and wants to make the
+       incorporates Python or any part thereof, and wants to make the
        derivative work available to others as provided herein, then Licensee hereby
-       agrees to include in any such work a brief summary of the changes made to Python
-       3.10.7.
+       agrees to include in any such work a brief summary of the changes made to Python.
 
-    4. PSF is making Python 3.10.7 available to Licensee on an "AS IS" basis.
+    4. PSF is making Python available to Licensee on an "AS IS" basis.
        PSF MAKES NO REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED.  BY WAY OF
        EXAMPLE, BUT NOT LIMITATION, PSF MAKES NO AND DISCLAIMS ANY REPRESENTATION OR
        WARRANTY OF MERCHANTABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE OR THAT THE
-       USE OF PYTHON 3.10.7 WILL NOT INFRINGE ANY THIRD PARTY RIGHTS.
+       USE OF PYTHON WILL NOT INFRINGE ANY THIRD PARTY RIGHTS.
 
-    5. PSF SHALL NOT BE LIABLE TO LICENSEE OR ANY OTHER USERS OF PYTHON 3.10.7
+    5. PSF SHALL NOT BE LIABLE TO LICENSEE OR ANY OTHER USERS OF PYTHON
        FOR ANY INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES OR LOSS AS A RESULT OF
-       MODIFYING, DISTRIBUTING, OR OTHERWISE USING PYTHON 3.10.7, OR ANY DERIVATIVE
+       MODIFYING, DISTRIBUTING, OR OTHERWISE USING PYTHON, OR ANY DERIVATIVE
        THEREOF, EVEN IF ADVISED OF THE POSSIBILITY THEREOF.
 
     6. This License Agreement will automatically terminate upon a material breach of
@@ -1093,10 +1094,10 @@
        trademark sense to endorse or promote products or services of Licensee, or any
        third party.
 
-    8. By copying, installing or otherwise using Python 3.10.7, Licensee agrees
+    8. By copying, installing or otherwise using Python, Licensee agrees
        to be bound by the terms and conditions of this License Agreement.
     ---
-    © Copyright 2001-2022, Python Software Foundation.
+    © Copyright 2001-2025, Python Software Foundation.
     ```
 
   - [requests-html](https://pypi.org/project/requests-html/)

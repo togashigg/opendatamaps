@@ -184,7 +184,7 @@ class Crawler:
                 map_list = []
                 package_info = self.get_package_info(site_info, packageid)
                 if package_info is None:
-                    msg = 'パッケージの取得に失敗しました。id=' + packageid
+                    msg = 'パッケージの取得に失敗しました。'
                     print(msg, file=sys.stderr)
                     logger.debug(msg)
                     continue
