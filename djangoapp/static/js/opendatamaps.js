@@ -4,6 +4,8 @@
 ----- */
 	var DEBUG=true;
 	if(DEBUG) console.log(nowToString()+' javascript start');
+	var apiLogs=[];
+	var apiLogsMax=20;
 	var ESCAPE_RED='\u001b[31m';
 	var ESCAPE_RESET='\u001b[0m';
 	var urlApiFacilitySummary='api/facility/summary';
@@ -83,6 +85,14 @@
 		if(DEBUG) console.log(nowToString()+' onLoad() ended');
 		return false;
 	}
+	function apiLogsAppend(log) {
+		if(DEBUG) console.log(nowToString()+' apiLogsAppend() start');
+		if(apiLogs.length>=apiLogsMax) {
+			apiLogs.shift();
+		}
+		apiLogs.push(log);
+		if(DEBUG) console.log(nowToString()+' apiLogsAppend() ended');
+    }
 	// パラメタチェック
 	function checkParameters() {
 		if(DEBUG) console.log(nowToString()+' checkParameters() start');
@@ -214,7 +224,7 @@
 		htmlTags+='<option value="0">全て</option>\n';
 		htmlTags+='</select></td>\n';
 		htmlTags+='<td nowrap><input id="traceButton" type="button" value="'+buttonLabel+'" onClick="toggleTraceButton();" style="width:5em;" /></td>\n';
-		htmlTags+='<td nowrap><input id="settingsButton" type="button" value="設定" onClick="showSettings();" style="width:3em;" /></td>\n';
+		htmlTags+='<td nowrap><input id="settingsButton" type="button" value="設定/ﾛｸﾞ" onClick="showSettings();" style="width:4em;" /></td>\n';
 		// htmlTags+='<td colspan="4" nowrap><span id="centerAddress" style="text-overflow:ellipsis; white-space:nowrap; overflow:hidden; padding:10px;"></span></td>';
 		htmlTags+='</tr></table>';
 		operationMenu.innerHTML=htmlTags;
@@ -318,6 +328,13 @@
 		centerLocalityCode=codeName[0];
 		centerLocalityName=codeName[1];
 		document.getElementById("centerAddress").innerHTML=centerLocalityName;
+		// APIログ表示
+		let apiLog=document.getElementById("apiLog");
+		htmlTags='';
+		apiLogs.forEach(function(log) {
+			htmlTags+=log+'\r\n';
+		});
+		apiLog.innerHTML=htmlTags;
 		if(DEBUG) console.log(nowToString()+' showDataList() ended');
 	}
 	// モード選択
@@ -493,6 +510,7 @@
 		}
 		url+=kinds;
 		console.log('url='+url);
+		apiLogsAppend('GET '+url);
 		return readDataRetry(url, httpRetryMax);
 	}
 	function readDataRetry(url, retry) {
@@ -504,7 +522,9 @@
 			if (httpObj.readyState==4) {
 				if(httpObj.status==200) {
 					if(DEBUG) console.log(nowToString()+' OK HTTP response.');
+					apiLogsAppend('RESPONSE 200');
 					let readText=httpObj.responseText;
+					apiLogsAppend(readText);
 					data=[];
 					data=dataFromJson(readText);
 					if(DEBUG) console.log(nowToString()+' readData().OK, data.length='+data.length);
@@ -516,11 +536,12 @@
 					showMarkers();
 					myMap.setOptions({ draggableCursor: 'hand' });
 				} else {
+					console.log(ESCAPE_RED+'error in HTTP GET(1) '+url+', retryCount='+httpRetryCount+', httpObj='+JSON.stringify(httpObj)+ESCAPE_RESET);
 					if(httpRetryCount>0) {
-						console.log(ESCAPE_RED+'error in HTTP GET(1) '+url+', retryCount='+httpRetryCount+', httpObj='+JSON.stringify(httpObj)+ESCAPE_RESET);
 						httpRetryCount--;
 						setTimeout(readDataRetry(url,httpRetryCount), 3000);
 					} else {
+						apiLogsAppend('RESPONSE '+JSON.stringify(httpObj));
 						alert('データファイルの読み込みに失敗.\n'+url+'\nstatus='+httpObj.status+')。');
 						myMap.setOptions({ draggableCursor: 'hand' });
 					}
@@ -706,6 +727,7 @@
 		if(myMap!=null) {
 			myMap.setOptions({ draggableCursor: 'progress' });
 		}
+		apiLogsAppend('GET '+url);
 		let request=new XMLHttpRequest();
 		request.open("GET", url, false);	// 同期処理
 		request.send();
@@ -714,10 +736,13 @@
 		}
 		if (request.status != 200) {
 			// 失敗
+			apiLogsAppend('RESPONSE '+request.status);
 			console.log(ESCAPE_RED+nowToString()+' request.status='+request.status+', url='+url+ESCAPE_RESET);
 			return null;
 		}
 		let result=JSON.parse(request.responseText);
+		apiLogsAppend('RESPONSE '+request.status);
+		apiLogsAppend(request.responseText);
 		request=null;
 		if (DEBUG) console.log(nowToString()+' httpGetToJson() ended, result='+JSON.stringify(result));
 		return result;
