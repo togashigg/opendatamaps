@@ -74,7 +74,7 @@
   |団体コード |団体名 |☆取得 |☆API |サイトのURL1 |サイトのURL2 |サイトのURL3 |初回登録日 |更新日 |☆備考 |
   |---------|------|-----|-----|------------|------------|------------|---------|------|---- |
   |010006 |北海道   |−   |−   |<A HREF="http://www.pref.hokkaido.lg.jp/ss/jsk/opendata/opendata.htm" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://www.harp.lg.jp/opendata/" TARGET="_blank" REL="noopener">サイト2</A> | | | |     |
-  |014257 |北海道上砂川町 |○    |[CKAN](https://data.bodik.jp/api/3/action/package_list) |<A HREF="https://odcs.bodik.jp/014257/" TARGET="_blank" REL="noopener">サイト1</A> |     |     | | |複数県？の情報から"^014257"を抽出 |
+  |014257 |北海道上砂川町 |○    |[CKAN](https://data.bodik.jp/api/3/action/package_search?facet.limit=-1&facet.field=["name"]&fq=author:上砂川町&sort=&rows=0) |<A HREF="https://odcs.bodik.jp/014257/" TARGET="_blank" REL="noopener">サイト1</A> |     |     | | |複数県？の情報から"^014257"を抽出 |
   |020001 |青森県   |△   |[シラサギ](https://opendata.pref.aomori.lg.jp/api/package_list) |<A HREF="https://opendata.pref.aomori.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2019/3/11 |約100件／日で収集中 |
   |030007 |岩手県   |−   |−   |<A HREF="https://www.pref.iwate.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2024/2/6 |     |
   |040002 |宮城県   |○   |[CKAN](https://miyagi.dataeye.jp/ckan_api/package_list) |<A HREF="http://www.pref.miyagi.jp/site/opendata-miyagi/" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://miyagi.dataeye.jp/" TARGET="_blank" REL="noopener">サイト2</A> | | |2022/11/7 |     |
@@ -850,7 +850,7 @@
 
   - [Google Maps](https://mapsplatform.google.com/)
 
-    ※表記を探索中です。
+    引用できる量ではないため、[Google Maps Platform Terms of Service](https://cloud.google.com/maps-platform/terms)を参照して下さい。
 
   - [Render](https://render.com/)
     ```
