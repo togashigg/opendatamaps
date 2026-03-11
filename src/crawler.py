@@ -30,19 +30,6 @@ MY_CONFIG = {
 CONTENT_HEADER_XLS  = bytes.fromhex('d0cf11e0a1b11ae1')
 CONTENT_HEADER_XLSX = bytes.fromhex('504b03041400')
 HEADER_ROWS = 3
-LINKDATA_URL_BASE = 'http://linkdata.org'
-LINKDATA_DOWNLOAD_CONTENT = """<!DOCTYPE html>
-<!--
-
-    _/  _/            _/              _/              _/
-   _/      _/_/_/    _/  _/      _/_/_/    _/_/_/  _/_/_/_/    _/_/_/        _/_/    _/  _/_/    _/_/_/
-  _/  _/  _/    _/  _/_/      _/    _/  _/    _/    _/      _/    _/      _/    _/  _/_/      _/    _/
- _/  _/  _/    _/  _/  _/    _/    _/  _/    _/    _/      _/    _/      _/    _/  _/        _/    _/
-_/  _/  _/    _/  _/    _/    _/_/_/    _/_/_/      _/_/    _/_/_/  _/    _/_/    _/          _/_/_/
-                                                                                                 _/
-                                                                                            _/_/
-Link and Publish your data as RDF to the Linked Open Data Community
--->"""
 XHTML_PAGE = '<!DOCTYPE html>'
 FLOAT_FORMAT_RE = re.compile('([0-9]+\\.[0-9]+)')
 
@@ -102,6 +89,10 @@ class Crawler:
         self.address_item_list = self.settings_json['common']['address_item_list']
         self.lat_item_list = self.settings_json['common']['lat_item_list']
         self.lng_item_list = self.settings_json['common']['lng_item_list']
+        self.LINKEDDATA_URL_BASE = self.settings_json['linkeddata']['url_base']
+        self.LINKEDDATA_DOWNLOAD_CONTENT = ''
+        for v in self.settings_json['linkeddata']['content_header']:
+            self.LINKEDDATA_DOWNLOAD_CONTENT += v
         # download_dirの確認
         self.download_dir = os.path.join(self.BASE_DIR, MY_CONFIG['download_dir'])
         if not os.path.exists(self.download_dir):
@@ -1036,6 +1027,8 @@ class Crawler:
                 MY_CONFIG['dir_name'].format(code=site_info['code'],
                 name=site_info['name']))
         packages = self.get_package_list(site_info)
+        if packages is None:
+            raise Exception('パッケージリストの取得に失敗しました。' + str(site_info))
 
         # 復帰
         logger.info('get_packageids_in_site() ended, packages=' \
@@ -1141,6 +1134,8 @@ class Crawler:
         # 実行
         content = None
         jpackages = None
+        pkg_list = None
+        get_loop = False
         self.packages_dir = os.path.join(self.download_dir, \
                 MY_CONFIG['dir_name'].format(code=site['code'], name=site['name']))
         if not os.path.exists(self.packages_dir):
@@ -1152,67 +1147,72 @@ class Crawler:
         if os.path.exists(packages_path):
             with open(packages_path, 'r') as fh:
                 jpackages = json.loads(fh.read())
-        else:
-            if site['webapi'] == 'シラサギ' \
-            and 'package_list_limit' in site[site['webapi']] \
-            and site[site['webapi']]['package_list_limit'] == 0:
-                url = site[site['webapi']]['api_url'] + 'package_list?limit=0&offset=0'
-                content = self.url_get(url, packages_file, dir=self.packages_dir)
-                if content is not None:
-                    jpackages = json.loads(content)
-            elif site['webapi'] == 'CKAN' \
-            and 'package_list_limit' in site[site['webapi']] \
-            and (site[site['webapi']]['package_list_limit'] == -1
-              or site[site['webapi']]['package_list_limit'] == 0):
+
+        elif 'package_list_limit' in site[site['webapi']] \
+          and site[site['webapi']]['package_list_limit'] > 0:
+            # package_list and loop
+            get_loop = True
+
+        elif 'package_list' in site[site['webapi']]:
+            # package_list
+            url = site[site['webapi']]['api_url'] + site[site['webapi']]['package_list']
+            content = self.url_get(url, packages_file, dir=self.packages_dir)
+            if content is not None:
+                jpackages = json.loads(content)
+
+        elif 'package_search' in site[site['webapi']]:
+            # package_search
+            url = site[site['webapi']]['api_url'] + site[site['webapi']]['package_search']
+            content = self.url_get(url, packages_file, dir=self.packages_dir)
+            if content is not None:
+                jpackages = json.loads(content)
+                if 'result' in jpackages \
+                and 'facets' in jpackages['result'] \
+                and 'name' in jpackages['result']['facets']:
+                    pkg_list = [k for k in jpackages['result']['facets']['name'].keys()]
+
+        if get_loop:
+            limit = site[site['webapi']]['package_list_limit']
+            offset = 0
+            results = []
+            jp_top = {}
+            while True:
                 url = site[site['webapi']]['api_url'] + 'package_list'
-                if site[site['webapi']]['package_list_limit'] == 0:
-                    url += '?limit=0&offset=0'
+                url += '?limit=' + str(limit) \
+                     + '&offset=' + str(offset)
                 content = self.url_get(url, packages_file, dir=self.packages_dir)
-                if content is not None:
-                    jpackages = json.loads(content)
-            elif site['webapi'] == 'CKAN' \
-            and  'package_list_path' in site[site['webapi']]:
-                url = site[site['webapi']]['api_url'] \
-                    + site[site['webapi']]['package_list_path']
-                content = self.url_get(url, packages_file, dir=self.packages_dir)
-                if content is not None:
-                    jpackages = json.loads(content)
-            else:
-                limit = site[site['webapi']]['package_list_limit']
-                offset = 0
-                results = []
-                jp_top = {}
-                while True:
-                    url = site[site['webapi']]['api_url'] + 'package_list'
-                    url += '?limit=' + str(limit) \
-                         + '&offset=' + str(offset)
-                    content = self.url_get(url, packages_file, dir=self.packages_dir)
-                    logger.info('content='+str(content)[:2048])
-                    if content is None:
-                        break
-                    jpackages = json.loads(content)
-                    if jpackages['success'] is not True:
-                        break
-                    if jp_top == {}:
-                        jp_top = {k:v for k,v in jpackages.items() if k!='result'}
-                    results.extend(jpackages['result'])
-                    offset += len(jpackages['result'])
-                    if len(jpackages['result']) < limit:
-                        break
-                    os.remove(os.path.join(self.packages_dir, packages_file))
-                if len(results) > 0:
-                    jpackages = jp_top
-                    jpackages['result'] = results
-                    content = json.dumps(jpackages, ensure_ascii=False)
-                    with open(os.path.join(self.packages_dir, packages_file), 'w') as pfh:
-                        pfh.write(content)
+                logger.info('content='+str(content)[:2048])
+                if content is None:
+                    break
+                jpackages = json.loads(content)
+                if jpackages['success'] is not True:
+                    break
+                if jp_top == {}:
+                    jp_top = {k:v for k,v in jpackages.items() if k!='result'}
+                results.extend(jpackages['result'])
+                offset += len(jpackages['result'])
+                if len(jpackages['result']) < limit:
+                    break
+                os.remove(os.path.join(self.packages_dir, packages_file))
+            if len(results) > 0:
+                jpackages = jp_top
+                jpackages['result'] = results
+                content = json.dumps(jpackages, ensure_ascii=False)
+                with open(os.path.join(self.packages_dir, packages_file), 'w') as pfh:
+                    pfh.write(content)
+
+        # 復帰値を設定
+        if pkg_list is None:
+            if jpackages is not None:
+                if 'result' in jpackages and type(jpackages['result']) is list:
+                    pkg_list = jpackages['result']
+
         # 復帰
-        if jpackages is None:
-            end_msg = 'None'
-        else:
-            end_msg = str(len(jpackages['result']))
+        end_msg = 'None'
+        if pkg_list is not None:
+            end_msg = str(len(pkg_list))
         logger.info('get_package_list() ended, result=' + end_msg)
-        return jpackages['result']
+        return pkg_list
 
     def get_package_info(self, site_info, packageid):
         # パッケージ情報を取得する
@@ -1530,10 +1530,12 @@ class Crawler:
         cont_str = resource['_content_'].decode('UTF-8', \
                 errors='replace').replace('\r\n','\n')
         cont_str_strip = cont_str.strip()
-        if len(cont_str_strip) > len(XHTML_PAGE) and cont_str_strip[:len(XHTML_PAGE)] != XHTML_PAGE:
+        if len(cont_str_strip) > len(XHTML_PAGE) \
+        and cont_str_strip[:len(XHTML_PAGE)] != XHTML_PAGE:
             logger.info('check_html_page() ended_2, content is not HTML')
             return resource
-        elif cont_str[:len(LINKDATA_DOWNLOAD_CONTENT)] == LINKDATA_DOWNLOAD_CONTENT:
+        elif cont_str[:len(self.LINKEDDATA_DOWNLOAD_CONTENT)] \
+                 == self.LINKEDDATA_DOWNLOAD_CONTENT:
             resource['_content_'] = cont_str
             resource['_redirect_'] = 'LINKDATA'
             resource = self.check_html_page_linkdata(resource, dir)
@@ -1628,7 +1630,7 @@ class Crawler:
         }
         # 実行
         redirect = None
-        url_base = LINKDATA_URL_BASE
+        url_base = self.LINKEDDATA_URL_BASE
         match = re.search(r"LD.systemUrl = '([^']+)';", resource['_content_'])
         if match is not None:
             url_base = match.group(1)

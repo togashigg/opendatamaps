@@ -56,8 +56,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
-				"package_list_limit": 0,
-				"package_id_match": "^014257"
+				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:014257_*&sort=&rows=0"
 			}
 		},
 		"青森県": {
@@ -65,7 +64,7 @@
 			"webapi": "シラサギ",
 			"シラサギ": {
 				"api_url": "https://opendata.pref.aomori.lg.jp/api/",
-				"package_list_limit": 0
+				"package_list": "package_list?limit=0&offset=0"
 			}
 		},
 		"宮城県": {
@@ -73,7 +72,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://miyagi.dataeye.jp/ckan_api/",
-				"package_list_limit": 9999,
+				"package_list": "package_list?limit=9999",
 				"http_request_headers": {
 					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.7559.132 Safari/537.36"
 				}
@@ -84,7 +83,7 @@
 			"webapi": "CKAN", 
 			"CKAN": {
 				"api_url": "https://ckan.pref.akita.lg.jp/api/3/action/",
-				"package_list_limit": 0
+				"package_list": "package_list"
 			}
 		},
 		"栃木県": {
@@ -92,8 +91,7 @@
 			"webapi": "CKAN", 
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
-				"package_list_limit": 0,
-				"package_id_match": "^09"
+				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:09*&sort=&rows=0"
 			}
 		},
 		"埼玉県": {
@@ -101,7 +99,8 @@
 			"webapi": "CKAN", 
 			"CKAN": {
 				"api_url": "https://opendata.pref.saitama.lg.jp/ckan_api/",
-				"package_list_limit": 100
+				"package_list_limit": 100,
+				"package_list": "package_list"
 			}
         },
 		"千葉県船橋市": {
@@ -109,8 +108,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
-				"package_list_limit": 0,
-				"package_id_match": "^122041"
+				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:122041_*&sort=&rows=0"
 			}
 		},
 		"東京都": {
@@ -118,7 +116,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://catalog.data.metro.tokyo.lg.jp/api/3/action/",
-				"package_list_limit": -1
+				"package_list": "package_list?limit=0"
 			}
 		},
 		"神奈川県": {
@@ -127,7 +125,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://catalog.opendata.pref.kanagawa.jp/api/3/action/",
-				"package_list_limit": -1
+				"package_list": "package_list?limit=0"
 			}
 		},
 		"神奈川県横浜市": {
@@ -135,7 +133,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://data.city.yokohama.lg.jp/api/3/action/",
-				"package_list_limit": -1
+				"package_list": "package_list?limit=0"
 			}
 		},
 		"富山県": {
@@ -143,7 +141,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://opendata.pref.toyama.jp/api/3/action/",
-				"package_list_limit": 0
+				"package_list": "package_list?limit=0"
 			}
 		},
 		"石川県": {
@@ -151,7 +149,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://ckan.opendata.pref.ishikawa.lg.jp/api/3/action/",
-				"package_list_limit": 0
+				"package_list": "package_list?limit=0"
 			}
 		},
 		"岐阜県": {
@@ -159,7 +157,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://gifu-opendata.pref.gifu.lg.jp/api/3/action/",
-				"package_list_limit": 0
+				"package_list": "package_list?limit=0"
 			}
 		},
 		"静岡県": {
@@ -167,11 +165,11 @@
 			"webapi": "シラサギ",
 			"シラサギ": {
 				"api_url": "https://opendata.pref.shizuoka.jp/api/",
-				"package_list_limit": 0
+				"package_list": "package_list?limit=0"
 			},
 			"CKAN": {
 				"api_url": "https://ckan.pref.shizuoka.jp/api/3/action/",
-				"package_list_limit": -1
+				"package_list": "package_list?limit=0"
 			}
 		},
 		"三重県": {
@@ -179,8 +177,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
-				"package_list_limit": 0,
-				"package_id_match": "^24"
+				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:24*&sort=&rows=0"
 			}
 		},
 		"京都府": {
@@ -188,8 +185,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
-				"package_list_limit": 0,
-				"package_id_match": "^26"
+				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:26*&sort=&rows=0"
 			}
 		},
 		"大阪府": {
@@ -197,8 +193,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
-				"package_list_limit": 0,
-				"package_id_match": "^27"
+				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:27*&sort=&rows=0"
 			}
 		},
 		"和歌山県": {
@@ -206,8 +201,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
-				"package_list_limit": 0,
-				"package_id_match": "^30"
+				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:30*&sort=&rows=0"
 			}
 		},
 		"島根県": {
@@ -215,7 +209,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://shimane-opendata.jp/ckan_api/",
-				"package_list_limit": 9999,
+				"package_list": "package_list?limit=9999",
 				"http_request_headers": {
 					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.7559.132 Safari/537.36"
 				}
@@ -226,7 +220,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://www.okayama-opendata.jp/ckan_api/",
-				"package_list_limit": 9999,
+				"package_list": "package_list?limit=9999",
 				"http_request_headers": {
 					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.7559.132 Safari/537.36"
 				}
@@ -237,8 +231,7 @@
 			"webapi": "CKAN", 
 			"CKAN": {
 				"api_url": "https://yamaguchi-opendata.jp/ckan/api/3/action/",
-				"package_list_limit": 0,
-				"#package_list_path": "help_show?name=package_list"
+				"package_list": "package_list?limit=0"
             }
         },
 		"徳島県": {
@@ -246,7 +239,7 @@
 			"webapi": "シラサギ",
 			"シラサギ": {
 				"api_url": "https://opendata.pref.tokushima.lg.jp/api/",
-				"package_list_limit": 0
+				"package_list": "package_list?limit=0"
 			}
 		},
 		"愛媛県": {
@@ -254,7 +247,7 @@
 			"webapi": "シラサギ",
 			"シラサギ": {
 				"api_url": "https://www.pref.ehime.jp/opendata-catalog/api/",
-				"package_list_limit": 0
+				"package_list": "package_list?limit=0&offset=0"
 			}
 		},
 		"福岡県": {
@@ -262,8 +255,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
-				"package_list_limit": 0,
-				"package_id_match": "^40"
+				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:40*&sort=&rows=0"
 			}
 		},
 		"佐賀県": {
@@ -271,8 +263,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
-				"package_list_limit": 0,
-				"package_id_match": "^41"
+				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:41*&sort=&rows=0"
 			}
 		},
 		"長崎県": {
@@ -280,8 +271,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
-				"package_list_limit": 0,
-				"package_id_match": "^42"
+				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:42*&sort=&rows=0"
 			}
 		},
 		"熊本県": {
@@ -289,8 +279,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
-				"package_list_limit": 0,
-				"package_id_match": "^43"
+				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:43*&sort=&rows=0"
 			}
 		},
 		"大分県": {
@@ -298,8 +287,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
-				"package_list_limit": 0,
-				"package_id_match": "^44"
+				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:44*&sort=&rows=0"
 			}
 		},
 		"宮崎県": {
@@ -307,8 +295,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
-				"package_list_limit": 0,
-				"package_id_match": "^45"
+				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:45*&sort=&rows=0"
 			}
 		},
 		"鹿児島県": {
@@ -316,8 +303,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
-				"package_list_limit": 0,
-				"package_id_match": "^46"
+				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:46*&sort=&rows=0"
 			}
 		},
 		"沖縄県": {
@@ -325,8 +311,7 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
-				"package_list_limit": 0,
-				"package_id_match": "^47"
+				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:47*&sort=&rows=0"
 			}
 		}
 	},
