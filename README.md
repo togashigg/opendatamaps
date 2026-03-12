@@ -38,7 +38,9 @@
 
   - <A HREF="https://opendatamaps.onrender.com/" TARGET="_blank" REL="noopener">オープンデータ on Google Maps</A>
 
-　実際の画面例がこちらです。<IMG SRC="djangoapp/static/sample_screen.png" ALT="サンプル画面" TITLE="サンプル画面">
+　実際の画面例がこちらです。
+  <IMG SRC="djangoapp/static/sample_screen_h.png" ALT="サンプル画面_横" TITLE="サンプル画面_横">
+  <IMG SRC="djangoapp/static/sample_screen_v.png" ALT="サンプル画面_縦" TITLE="サンプル画面_縦">
 
 　実際に見てみると多くの施設情報が公開されていると感じます。
 
