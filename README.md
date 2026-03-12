@@ -76,7 +76,7 @@
   |団体コード |団体名 |☆取得 |☆API |サイトのURL1 |サイトのURL2 |サイトのURL3 |初回登録日 |更新日 |☆備考 |
   |---------|------|-----|-----|------------|------------|------------|---------|------|---- |
   |010006 |北海道   |−   |−   |<A HREF="http://www.pref.hokkaido.lg.jp/ss/jsk/opendata/opendata.htm" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://www.harp.lg.jp/opendata/" TARGET="_blank" REL="noopener">サイト2</A> | | | |     |
-  |014257 |北海道上砂川町 |○    |[CKAN](https://data.bodik.jp/api/3/action/package_search?facet.limit=-1&facet.field=["name"]&fq=name:014257_*&sort=&rows=0) |<A HREF="https://odcs.bodik.jp/014257/" TARGET="_blank" REL="noopener">サイト1</A> |     |     | | |name:014257_*を抽出 |
+  |014257 |北海道<BR>上砂川町 |○    |[CKAN](https://data.bodik.jp/api/3/action/package_search?facet.limit=-1&facet.field=["name"]&fq=name:014257_*&sort=&rows=0) |<A HREF="https://odcs.bodik.jp/014257/" TARGET="_blank" REL="noopener">サイト1</A> |     |     | | |name:014257_*を抽出 |
   |020001 |青森県   |○   |[シラサギ](https://opendata.pref.aomori.lg.jp/api/package_list?limit=0&offset=0) |<A HREF="https://opendata.pref.aomori.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2019/3/11 |取得は約100件／日 |
   |030007 |岩手県   |−   |−   |<A HREF="https://www.pref.iwate.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2024/2/6 |     |
   |040002 |宮城県   |○   |[CKAN](https://miyagi.dataeye.jp/ckan_api/package_list?limit=9999) |<A HREF="http://www.pref.miyagi.jp/site/opendata-miyagi/" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://miyagi.dataeye.jp/" TARGET="_blank" REL="noopener">サイト2</A> | | |2022/11/7 |     |
@@ -88,10 +88,10 @@
   |100005 |群馬県   |−   |−   |<A HREF="https://www.pref.gunma.jp/07/b2700057.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |110001 |埼玉県   |○   |[CKAN](https://opendata.pref.saitama.lg.jp/ckan_api/package_list?limit=100&offset=0) |<A HREF="https://opendata.pref.saitama.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |120006 |千葉県   |−   |−   |<A HREF="https://www.pref.chiba.lg.jp/gyoukaku/opendata/index.html" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/3/3 |     |
-  |122041 |千葉県船橋市 |○   |[CKAN](https://data.bodik.jp/api/3/action/package_search?facet.limit=-1&facet.field=["name"]&fq=name:122041_*&sort=&rows=0) |<A HREF="https://odcs.bodik.jp/122041/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |name:122041_*を抽出 |
+  |122041 |千葉県<BR>船橋市 |○   |[CKAN](https://data.bodik.jp/api/3/action/package_search?facet.limit=-1&facet.field=["name"]&fq=name:122041_*&sort=&rows=0) |<A HREF="https://odcs.bodik.jp/122041/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |name:122041_*を抽出 |
   |130001 |東京都   |○   |[CKAN](https://catalog.data.metro.tokyo.lg.jp/api/3/action/package_list?limit=0) |<A HREF="http://opendata-portal.metro.tokyo.jp/www/index.html" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="http://www.koho.metro.tokyo.jp/opendata/" TARGET="_blank" REL="noopener">サイト2</A> | | | |     |
   |140007 |神奈川県 |△   |[CKAN](https://catalog.opendata.pref.kanagawa.jp/api/3/action/package_list?limit=0) |<A HREF="http://www.pref.kanagawa.jp/cnt/f534212/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |施設情報に座標無し |
-  |141003 |神奈川県横浜市 |○   |[CKAN](https://data.city.yokohama.lg.jp/api/3/action/package_list?limit=0) |<A HREF="https://data.city.yokohama.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
+  |141003 |神奈川県<BR>横浜市 |○   |[CKAN](https://data.city.yokohama.lg.jp/api/3/action/package_list?limit=0) |<A HREF="https://data.city.yokohama.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |150002 |新潟県   |−   |−   |<A HREF="https://www.pref.niigata.lg.jp/site/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/12/15 |     |
   |160008 |富山県   |○   |[CKAN](https://opendata.pref.toyama.jp/api/3/action/package_list?limit=0) |<A HREF="http://opendata.pref.toyama.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |170003 |石川県   |○   |[CKAN](https://ckan.opendata.pref.ishikawa.lg.jp/api/3/action/package_list?limit=0) |<A HREF="https://www.pref.ishikawa.lg.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
