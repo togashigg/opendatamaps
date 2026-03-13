@@ -1,6 +1,6 @@
 /* -----
 	opendatamaps.js: オープンデータMaps API用サンプルJavaScript（オープンデータ on Google Maps）。
-	Copyright (C) N.Togashi 2023
+	Copyright (C) N.Togashi 2026
 ----- */
 	var DEBUG=true;
 	if(DEBUG) console.log(nowToString()+' javascript start');
@@ -74,7 +74,8 @@
 	/*	let script=document.createElement('script');
 		script.type='text/javascript';
 		let api_key=atob(document.getElementById("GoogleMapsApiKey").getAttribute('value'));
-		script.src='https://maps.googleapis.com/maps/api/js?key='+api_key+'&callback=initMap';
+		script.src='https://maps.googleapis.com/maps/api/js?key='
+					+api_key+'&callback=initMap';
 		let firstScript=document.getElementsByTagName('script')[0];
 		firstScript.parentNode.insertBefore(script, firstScript);
 	*/
@@ -98,7 +99,8 @@
 		if(DEBUG) console.log(nowToString()+' checkParameters() start');
 		let myUrl=new URL(window.location.href);
 		let myUrlParams=myUrl.searchParams;
-		let myParam={locality_list: null, datalist: null, 
+		let myParam={locality_list: null, locality_dict: null, locality_codes: null,
+				datalist: null, 
 				mode: myInitialMode, locality: myInitialLocality, kind: myInitialKind,
 				distance: myInitialDistance, count: myInitialCount,
 				kind_selected: [], not_kind_selected: ['消防水利施設']};
@@ -124,12 +126,6 @@
 		}
 		// 市区町村単位データリストを取得
 		myParam.locality_list=httpGetToJson(urlApiFacilitySummary);
-/* [
-	{"code": "131156", "state_name": "東京都", "locality_name": "杉並区", "kinds": ["公衆トイレ"], "kind_count": [246]}, 
-	{"code": "222038", "state_name": "静岡県", "locality_name": "沼津市", "kinds": ["AED", "Wi-Fiスポット", "介護サービス事業所", "公共施設", "公衆トイレ", "包括支援センター", "医療機関", "子育て施設", "文化財", "津波緊急避難施設", "津波避難ビル", "消防水利施設", "消防署", "緊急避難場所", "観光施設", "避難所", "駐輪場"], "kind_count": [131, 11, 806, 326, 79, 13, 341, 67, 99, 6, 189, 4580, 12, 98, 18, 49, 10]}, 
-	{"code": "222054", "state_name": "静岡県", "locality_name": "熱海市", "kinds": ["Wi-Fiスポット", "避難所"], "kind_count": [11, 12]}, 
-	{"code": "222062", "state_name": "静岡県", "locality_name": "三島市", "kinds": ["AED", "Wi-Fiスポット", "みしまタニタ健康くらぶ活動量拠点", "公共施設", "公園", "公衆トイレ", "医療機関", "投票所", "桜の名所", "消防水利施設", "眺望地点", "花壇", "薬局", "みしまコロッケ認定店", "避難所"], "kind_count": [223, 24, 14, 135, 185, 16, 133, 31, 12, 1602, 13, 93, 44, 233, 24]}
-] */
 		// 市区町村コードをキーとする辞書に変換する
 		myParam.locality_dict={}
 		for(let i=0; i<myParam.locality_list.length; i++) {
@@ -139,12 +135,17 @@
 		if(DEBUG) console.log('myParam.locality_codes='+myParam.locality_codes);
 		// 都道府県名と市区町村名を結合する
 		myParam.locality_codes.forEach(function(code) {
-			myParam.locality_dict[code].name=myParam.locality_dict[code].state_name+myParam.locality_dict[code].locality_name;
+			myParam.locality_dict[code].name
+				=myParam.locality_dict[code].state_name
+				+myParam.locality_dict[code].locality_name;
 		});
 		// 全分類一覧を取得
 		myParam.allKinds=[];
 		myParam.locality_codes.forEach(function(code) {
-			myParam.allKinds=Array.from(new Set([...myParam.allKinds, ...myParam.locality_dict[code].kinds]));
+			myParam.allKinds=Array.from(
+				new Set([...myParam.allKinds, 
+						...myParam.locality_dict[code].kinds.flatMap(
+							obj => Object.keys(obj))]));
 		});
 		if(DEBUG) console.log('allKinds='+myParam.allKinds)
 		// kindパラメタをチェック
@@ -152,14 +153,17 @@
 			myParam.kind='-';
 		} else if(myParam.kind!='-') {
 			if(!myParam.allKinds.includes(myParam.kind)) {
-				console.log(ESCAPE_RED+nowToString()+' ERROR:kind is not found, kind='+myParam.kind+ESCAPE_RESET);
+				console.log(ESCAPE_RED+nowToString()+' ERROR:kind is not found, kind='
+							+myParam.kind+ESCAPE_RESET);
 				myParam.kind='-';
 			}
 		}
 		// localityパラメタをチェック
 		if(myParam.locality!=null && myParam.locality!='-') {
 			if(!myParam.locality_codes.includes(myParam.locality)) {
-				console.log(ESCAPE_RED+nowToString()+' ERROR:locality code is not found, locality='+myParam.locality+ESCAPE_RESET);
+				console.log(ESCAPE_RED+nowToString()
+						+' ERROR:locality code is not found, locality='
+						+myParam.locality+ESCAPE_RESET);
 				myParam.locality='-';
 			}
 		}
@@ -201,7 +205,9 @@
 		// 種別一覧作成（表示選択）
 		htmlTags='<table><tr>';
 		selected='';
-		htmlTags+='<td nowrap><select id="selectKindList" name="selectKindList" style="width:128px;" onChange="selectKind(this.options[this.selectedIndex].value);">\n';
+		htmlTags+='<td nowrap><select id="selectKindList" name="selectKindList" '
+				+'style="width:128px;" '
+				+'onChange="selectKind(this.options[this.selectedIndex].value);">\n';
 		htmlTags+='<option value="-"'+selected+'>(未選択)</option>\n';
 		selected='';
 		let kind_list=[];
@@ -211,24 +217,33 @@
 			}
 			kind_list=Array.from(new Set(kind_list)).sort();
 		} else {
-			kind_list=myParam.locality_dict[myParam.locality].kinds;
+			kind_list=myParam.locality_dict[myParam.locality].kinds.flatMap(
+						obj => Object.keys(obj));
 		}
 		kind_list.forEach(function(kind) {
 			htmlTags+='<option value="'+kind+'"'+selected+'>'+kind+'</option>\n';
 		});
 		htmlTags+='</select></td>\n';
-		htmlTags+='<td nowrap><select name="markCountList" id="markCountList" style="width:64px;" onChange="myParam.count=parseInt(this.options[this.selectedIndex].value,10);delMarkers=true;showMarkers();">\n';
+		htmlTags+='<td nowrap><select name="markCountList" id="markCountList" '
+				+'style="width:64px;" '
+				+'onChange="myParam.count=parseInt(this.options['
+				+'this.selectedIndex].value,10);delMarkers=true;showMarkers();">\n';
 		htmlTags+='<option value="10">10件</option>\n';
 		htmlTags+='<option value="20">20件</option>\n';
 		htmlTags+='<option value="50">50件</option>\n';
 		htmlTags+='<option value="0">全て</option>\n';
 		htmlTags+='</select></td>\n';
-		htmlTags+='<td nowrap><input id="traceButton" type="button" value="'+buttonLabel+'" onClick="toggleTraceButton();" style="width:5em;" /></td>\n';
-		htmlTags+='<td nowrap><input id="settingsButton" type="button" value="設定/ﾛｸﾞ" onClick="showSettings();" style="width:4em;" /></td>\n';
-		// htmlTags+='<td colspan="4" nowrap><span id="centerAddress" style="text-overflow:ellipsis; white-space:nowrap; overflow:hidden; padding:10px;"></span></td>';
+		htmlTags+='<td nowrap><input id="traceButton" type="button" value="'
+				+buttonLabel+'" onClick="toggleTraceButton();" style="width:5em;" /></td>\n';
+		htmlTags+='<td nowrap><input id="settingsButton" type="button" value="設定/ﾛｸﾞ" '
+				+'onClick="showSettings();" style="width:4em;" /></td>\n';
+		// htmlTags+='<td colspan="4" nowrap><span id="centerAddress" '
+				+'style="text-overflow:ellipsis; white-space:nowrap; '
+				+'overflow:hidden; padding:10px;"></span></td>';
 		htmlTags+='</tr></table>';
 		operationMenu.innerHTML=htmlTags;
-		document.getElementById("markCountList").querySelector("option[value='"+myParam.count+"']").setAttribute("selected", "selected");
+		document.getElementById("markCountList").querySelector("option[value='"
+				+myParam.count+"']").setAttribute("selected", "selected");
 		// 設定画面
 		if(myParam.mode=='center') {
 			document.getElementById('mode_center').checked=true;
@@ -239,7 +254,8 @@
 		let localityData=document.getElementById("localityData");
 		htmlTags='';
 		selected='';
-		htmlTags+='<select id="selectLocalityList" name="selectLocalityList" onChange="selectLocality(this.options[this.selectedIndex].value);">\n';
+		htmlTags+='<select id="selectLocalityList" name="selectLocalityList" '
+				+'onChange="selectLocality(this.options[this.selectedIndex].value);">\n';
 		htmlTags+='<option value="-" '+selected+'>(未選択)</option>\n';
 		let state_name='';
 		Object.keys(myParam.locality_dict).forEach(function(code) {
@@ -254,7 +270,8 @@
 					htmlTags+='<optgroup label="'+state_name+'">\n';
 				}
 			}
-			htmlTags+='<option value="'+code+'"'+selected+'>'+code+':'+myParam.locality_dict[code].name+'</option>\n';
+			htmlTags+='<option value="'+code+'"'+selected+'>'
+					+code+':'+myParam.locality_dict[code].name+'</option>\n';
 		});
 		htmlTags+='</optgroup></select>\n';
 		localityData.innerHTML=htmlTags;
@@ -263,10 +280,12 @@
 		htmlTags='';
 		kind_list=myParam.allKinds;
 		if(myParam.locality!='-') {
-			kind_list=myParam.locality_dict[myParam.locality].kinds;
+			kind_list=myParam.locality_dict[myParam.locality].kinds.flatMap(
+						obj => Object.keys(obj));
 		}
 		// ToDo: 複数選択リストボックスとチェックボックスのどちらが良いか？
-		htmlTags+='<select id="settingsKindList" name="settingsKindList" size="5" multiple style="height:7.6em;" onChange="changekindListSelect(this);">\n';
+		htmlTags+='<select id="settingsKindList" name="settingsKindList" size="5" '
+				+'multiple style="height:7.6em;" onChange="changekindListSelect(this);">\n';
 		let id_no=0;
 		kind_list.forEach(function(kind) {
 			let selected='';
@@ -275,7 +294,8 @@
 				selected=' selected';
 				checked='☑ ';
 			}
-			htmlTags+='<option value="'+kind+'" onClick="clickkindListOption(this);"'+selected+'>'+checked+kind+'</option>\n';
+			htmlTags+='<option value="'+kind+'" onClick="clickkindListOption(this);"'
+					+selected+'>'+checked+kind+'</option>\n';
 		});
 		htmlTags+='</select>\n';
 /* ToDo:
@@ -284,7 +304,9 @@
 			if(myParam.kind_selected.indexOf(kind) >= 0) {
 				selected=' checked';
 			}
-			htmlTags+='<input type="checkbox" value="'+kind+'"'+selected+' onclick="clickkindListOption(this.value, this.checked);" /><label>'+kind+'</label>\n';
+			htmlTags+='<input type="checkbox" value="'+kind+'"'+selected
+					+' onclick="clickkindListOption(this.value, this.checked);" '
+					+'/><label>'+kind+'</label>\n';
 		});
 */
 		kindListSelect.innerHTML=htmlTags;
@@ -293,10 +315,13 @@
 		htmlTags='';
 		kind_list=myParam.allKinds;
 		if(myParam.locality!='-') {
-			kind_list=myParam.locality_dict[myParam.locality].kinds;
+			kind_list=myParam.locality_dict[myParam.locality].kinds.flatMap(
+						obj => Object.keys(obj));
 		}
 		// ToDo: 複数選択リストボックスとチェックボックスのどちらが良いか？
-		htmlTags+='<select id="settingsNotKindList" name="settingsNotKindList" size="5" multiple style="height:7.6em;" onChange="changeNotkindListSelect(this);">\n';
+		htmlTags+='<select id="settingsNotKindList" name="settingsNotKindList" '
+				+'size="5" multiple style="height:7.6em;" '
+				+'onChange="changeNotkindListSelect(this);">\n';
 		id_no=0;
 		kind_list.forEach(function(kind) {
 			let selected='';
@@ -305,7 +330,8 @@
 				selected=' selected';
 				checked='☑ ';
 			}
-			htmlTags+='<option value="'+kind+'" onClick="clickNotkindListOption(this);"'+selected+'>'+checked+kind+'</option>\n';
+			htmlTags+='<option value="'+kind+'" onClick="clickNotkindListOption(this);"'
+					+selected+'>'+checked+kind+'</option>\n';
 		});
 		htmlTags+='</select>\n';
 		notKindListSelect.innerHTML=htmlTags;
@@ -764,16 +790,17 @@
 		return codeName;
 	}
 	function codeFromLocalityDict(code) {
+		let rc=code;
 		if(!(code in myParam.locality_dict)) {
 			Object.keys(myParam.locality_dict).some(function(key, index) {
 				if(key.substring(0, code.length)==code) {
-					code=key;
+					rc=key;
 					return true;
 				}
 				return false;
 			});
 		}
-		return code;
+		return rc;
 	}
 	function toggleTraceButton() {
 		if(DEBUG) console.log(nowToString()+' toggleTraceButton() start');

@@ -55,23 +55,24 @@
   - [GitHub](https://github.com/)
   - [Docker Hub](https://hub.docker.com/)
 
-　作成に際しては以下のソフトウェアおよびデータを使用させて頂きました。感謝致します。
+　作成に際しては以下のソフトウェアを使用させて頂きました。感謝致します。
 
   - [Ubuntu 24.04](https://ubuntu.com/)
   - [Python 3.12](https://www.python.org/)
   - [requests-html](https://pypi.org/project/requests-html/)
   - [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/)
+  - [PostgreSQL](https://www.postgresql.org/)
 
 ## 2.収集済のオープンデータ
 
-  オープンデータは、都道府県および市区町村単位で公開されていますが、各市区町村のオープンデータを調査するには、
+　オープンデータは、都道府県および市区町村単位で公開されていますが、各市区町村のオープンデータを調査するには、
 大変な労力が必要と考えています。そのため、市区町村のデータを含めて都道府県が公開しているオープンデータを対象とすることにしました。
-  収集方法は、APIとして[CKAN](https://data.e-gov.go.jp/data/api_guide)または[シラサギ](https://www.ss-proj.org/)をサポートしているところのみを対象としました。
+　収集方法は、APIとして[CKAN](https://data.e-gov.go.jp/data/api_guide)または[シラサギ](https://www.ss-proj.org/)をサポートしているところのみを対象としました。
 
-  また、小さく始めるために、最初に静岡県を対象として開発し、次いで東京都へと適用しました。
-  今後、他の道府県への適用を進めています。
+　また、小さく始めるために、最初に静岡県を対象として開発し、次いで東京都へと適用しました。
+随時、他の道府県への適用を進めています。
 
-  以下の表は、「デジタル庁」が公開している「[オープンデータ取組済自治体資料](https://www.digital.go.jp/resources/data_local_governments)」を参考にして、
+　以下の表は、「デジタル庁」が公開している「[オープンデータ取組済自治体資料](https://www.digital.go.jp/resources/data_local_governments)」を参考にして、
 現在までに収集済の都道府県を以下の表にまとめました。一部は、都道府県単位では収集できなかったため、市区町村単位に収集したところもあります。
   |団体コード |団体名 |☆取得 |☆API |サイトのURL1 |サイトのURL2 |サイトのURL3 |初回登録日 |更新日 |☆備考 |
   |---------|------|-----|-----|------------|------------|------------|---------|------|---- |
@@ -112,7 +113,7 @@
   |320005 |島根県   |○   |[CKAN](https://shimane-opendata.jp/ckan_api/package_list?limit=9999) |<A HREF="https://shimane-opendata.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |330001 |岡山県   |○   |[CKAN](https://www.okayama-opendata.jp/ckan_api/package_list?limit=9999) |<A HREF="http://www.okayama-opendata.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |340006 |広島県   |−   |−   |<A HREF="https://www.pref.hiroshima.lg.jp/soshiki/265/opendata.html" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://hiroshima-opendata.dataeye.jp" TARGET="_blank" REL="noopener">サイト2</A> | | |2022/4/13 |     |
-  |350001 |山口県   |○   |[CKAN API](https://yamaguchi-opendata.jp/ckan/api/3/action/package_list?limit=0) |<A HREF="https://yamaguchi-opendata.jp/www/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
+  |350001 |山口県   |○   |[CKAN](https://yamaguchi-opendata.jp/ckan/api/3/action/package_list?limit=0) |<A HREF="https://yamaguchi-opendata.jp/www/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |360007 |徳島県   |○   |[シラサギ](https://opendata.pref.tokushima.lg.jp/api/package_list?limit=0)|<A HREF="https://opendata.pref.tokushima.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/6/16 |     |
   |370002 |香川県   |−   |−   |<A HREF="https://opendata.pref.kagawa.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |380008 |愛媛県   |○   |[シラサギ](https://www.pref.ehime.jp/opendata-catalog/api/package_list?limit=0&offset=0) |<A HREF="https://www.pref.ehime.jp/opendata-catalog/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2020/1/30 |     |
@@ -131,9 +132,9 @@
 
 ## 3.施設種別
 
-  施設種別とは、e-Govやe-Statで定めた分野（カテゴリ）とは異なり、日常的に使い慣れた施設の種別を独自に定義しました。
+　施設種別とは、e-Govやe-Statで定めた分野（カテゴリ）とは異なり、日常的に使い慣れた施設の種別を独自に定義しました。
 
-  現在、施設種別は、オープンデータのデータセット名から正規表現により、以下のような種別を定義しています。
+　現在、施設種別は、オープンデータのデータセット名から正規表現により、以下のような種別を定義しています。
   |施設種別         |データセット名から施設種別を決定する正規表現            |
   |----------------|------------------------------------------------|
   |AED設置箇所      |"(AED\|ＡＥＤ)" |
@@ -163,7 +164,7 @@
   |飲食店・販売店    |"(認定店\|飲食店\|直売所)" |
   |保護保存樹木林等  |"(保護\|保存)(指定)?(樹木\|樹林\|生け垣)" |
 
- 施設種別および施設種別を決定する正規表現は、随時改良する予定です。
+　施設種別および施設種別を決定する正規表現は、随時改良する予定です。
 
 ## 4.機能
 
@@ -172,6 +173,8 @@
   - 施設種別取得
   - 施設情報取得
   - 施設検索
+
+　機能の詳細は、次章以降で説明します。
 
 ## 5.Web_APIの構文
 
@@ -219,13 +222,13 @@
 
 ## 6.対象：市区町村情報
 
-  「総務省」の「全国地方公共団体コード」ページで「[都道府県コード及び市区町村コード](https://www.soumu.go.jp/denshijiti/code.html)」が公開されています。
+　「総務省」の「全国地方公共団体コード」ページで「[都道府県コード及び市区町村コード](https://www.soumu.go.jp/denshijiti/code.html)」が公開されています。
 この中の「コード一覧表」の最新の「Excelファイル」をダウンロードして、２つのシートをCSV形式に変換して結合したファイルを内包しています。
 このコード一覧表をデータベースに登録して取得できるようにしています。
 
 ### 6.1 機能：市区町村情報一覧取得
 
-  Web APIの構文
+　Web APIの構文
 
   ```
   https://{ホスト名}/{公開名/}api/localitycode/query
@@ -236,37 +239,43 @@
        ]
   ```
   - 機能
+
     市区町村情報一覧を取得します。市区町村情報には、市区町村コード、都道府県名、市区町村名が含まれます。
     パラメタとして検索条件（市区町村コード、都道府県名、市区町村名）と取得件数の上限を指定できます。
   - パラメタ
     - code=市区町村コード
+
       市区町村コードを前方一致条件で検索する場合に指定します。
       用途としては、
       都道府県コードを指定して都道府県内の市区町村コード一覧を取得する場合や、
       市区町村コードを指定して都道府県名および市区町村名を取得する場合を想定しています。
     - state_name=都道府県名
+
       都道府県名を条件として検索する場合に指定します。
       用途としては、
       都道府県名を指定して都道府県内の市区町村コード一覧を取得する場合を想定しています。
     - locality_name=市区町村名
+
       市区町村名を指定して市区町村情報を検索する場合に指定します。
       用途としては、
       市区町村名を指定して都道府県名および市区町村コードを取得する場合を想定しています。
     - limit=取得件数の上限
+
       取得する件数の上限を「0」または正の整数で指定します。上限なしを指定する場合に「0」を指定します。
       本パラメタを省略した場合の上限は100件です。
   - 取得結果
-    - 以下のJSON形式で返却します。
-      ```
-      [
-        {"code": "＜都道府県・市区町村コード＞", "state_name": "＜都道府県名＞", "locality_name": "市区町村名"}
-        ［,{"code": "＜都道府県・市区町村コード＞", "state_name": "＜都道府県名＞", "locality_name": "市区町村名"}
-        ［, ・・・ ］］
-      ]
-      ```
+
+    以下のJSON形式で返却します。
+    ```
+    [
+      {"code": "＜都道府県・市区町村コード＞", "state_name": "＜都道府県名＞", "locality_name": "市区町村名"}
+      ［,{"code": "＜都道府県・市区町村コード＞", "state_name": "＜都道府県名＞", "locality_name": "市区町村名"}
+      ［, ・・・ ］］
+    ]
+    ```
   - 例
 
-    1 <A HREF="https://opendatamaps.onrender.com/api/localitycode/query" TARGET="_blank" REL="noopener">http\[s\]://{ホスト名}/{公開名/}api/localitycode/query</A>
+    1 <A HREF="https://opendatamaps.onrender.com/api/localitycode/query" TARGET="_blank" REL="noopener">https://{ホスト名}/{公開名/}api/localitycode/query</A>
       <details>
       <summary>出力例</summary>
 
@@ -358,31 +367,35 @@
 
 ## 7.対象：施設情報
 
-### 機能：施設種別取得
+### 7.1 機能：施設種別取得
 
-  Web APIの構文
+　Web APIの構文
 
   ```
   https://{ホスト名}/{公開名/}api/facility/kinds
        [?code=市区町村コード[,市区町村コード[,・・・]]]
   ```
   - 機能
+
     データベースに存在する施設種別を取得します。
     パラメタで市区町村コードを指定した場合は、指定した都道府県および市区町村に含まれる施設種別を取得します。
   - パラメタ
     - code=市区町村コード
+
       市区町村コードを前方一致条件で指定します。
       省略した場合は、データベースに登録されている全ての市区町村の情報を取得します。
   - 取得結果
-    - 以下のJSON形式で返却します。
-      ```
-      {"kinds": [
-        ［＜施設種別＞
-        ［,＜施設種別＞
-        ［, ・・・ ］］］
-      ]}
-      ```
+
+    以下のJSON形式で返却します。
+    ```
+    {"kinds": [
+      ［＜施設種別＞
+      ［,＜施設種別＞
+      ［, ・・・ ］］］
+    ]}
+    ```
   - 例
+
     1 <A HREF="https://opendatamaps.onrender.com/api/facility/kinds" TARGET="_blank" REL="noopener">https://{ホスト名}/{公開名/}api/facility/kinds</A>
       <details>
       <summary>出力例</summary>
@@ -407,44 +420,51 @@
 
       </details>
 
+### 7.2 機能：施設情報取得
 
-### 機能：施設情報取得
-
-  Web APIの構文
+　Web APIの構文
 
   ```
   https://{ホスト名}/{公開名/}api/facility/summary
   ```
   - 機能
+
     データベースに存在する施設情報を取得します。
     パラメタは指定できません。
     施設情報とは、都道府県・市区町村毎に定義されている施設種別および施設種別の件数です。
-  - 取得結果
-    - 以下のJSON形式で返却します。
-      ```
-      [
-        ［{"code": ＜市区町村コード＞, "state_name": ＜都道府県名＞, "locality_name": ＜市区町村名＞, 
-          "kinds": [［＜施設種別＞［, ＜施設種別＞［, ・・・ ］］］], 
-          "kind_count": [［＜施設種別数＞［, ＜施設種別数＞［, ・・・ ］］］]}］
-        ［, {"code": ＜市区町村コード＞, "state_name": ＜都道府県名＞, "locality_name": ＜市区町村名＞, 
-          "kinds": [［＜施設種別＞［, ＜施設種別＞［, ・・・ ］］］], 
-          "kind_count": [［＜施設種別数＞［, ＜施設種別数＞［, ・・・ ］］］]}］
-        ［, ・・・ ］
-      ]
-      ```
   - パラメタ
+
     なし
+  - 取得結果
+
+    以下のJSON形式で返却します。
+    ```
+    [
+      ［{"code": ＜市区町村コード＞, "state_name": ＜都道府県名＞, "locality_name": ＜市区町村名＞, 
+        "kinds": [［{＜施設種別＞: ＜施設種別数＞}［, {＜施設種別＞: ＜施設種別数＞}［, ・・・ ］］］]}］ 
+      ［, {"code": ＜市区町村コード＞, "state_name": ＜都道府県名＞, "locality_name": ＜市区町村名＞, 
+        "kinds": [［＜施設種別＞: ＜施設種別数＞}［, {＜施設種別＞: ＜施設種別数＞}［, ・・>・ ］］］]}］
+      ［, ・・・ ］
+    ]
+    ```
   - 例
+
     1 <A HREF="https://opendatamaps.onrender.com/api/facility/summary" TARGET="_blank" REL="noopener">https://{ホスト名}/{公開名/}api/facility/summary</A>
       <details>
       <summary>出力例</summary>
 
       [
-        {"code": "130001", "state_name": "東京都", "locality_name": "", "kinds": ["介護サービス事業所", "健康", "公共施設", "公園・花壇", "公衆トイレ", "公衆無線LAN", "医療機関", "学校・保育施設", "文化財", "消防水利施設", "防災", "飲食店・販売店", "駐車場・駐輪場"], "kind_count": [18, 28, 1812, 14, 8246, 737, 203, 444, 245, 36330, 8044, 210, 56]},
-        {"code": "131016", "state_name": "東京都", "locality_name": "千代田区", "kinds": ["保護保存樹木林等", "公共施設", "公衆トイレ", "公衆無線LAN", "文化財"], "kind_count": [3, 10, 37, 77, 74]},
+        {"code": "130001", "state_name": "東京都", "locality_name": "", "kinds": [{"医療機関": 62}, {"飲食店・販売店": 210}, {"介護サービス事業所": 18}, {"学校・保育施設": 358}, {"公園・花壇": 14}, {"公共施設": 1528}, {"公衆トイレ": 8501}, {"公衆無線LAN": 737}, {"消防水利施設": 35460}, {"駐車場": 56}, {"避難所": 4811}, {"文化財": 245}, {"防災": 3233}]},
+        {"code": "131016", "state_name": "東京都", "locality_name": "千代田区", "kinds": [{"公共施設": 10}, {"公衆トイレ": 37}, {"公衆無線LAN": 77}, {"文化財": 74}, {"保護保存樹木林等": 3}]},
+
         ：（※途中省略）
-        {"code": "220001", "state_name": "静岡県", "locality_name": "", "kinds": ["介護サービス事業所", "公共施設", "公園・花壇", "医療機関", "指定緊急避難場所", "文化財", "薬局", "観光施設・場所", "飲食店・販売店"], "kind_count": [7, 4212, 7, 4692, 2799, 894, 16, 3, 35]},
-        {"code": "221007", "state_name": "静岡県", "locality_name": "静岡市", "kinds": ["AED設置箇所", "介護サービス事業所", "公共施設", "公園・花壇", "公衆無線LAN", "子育て施設", "学校・保育施設", "指定緊急避難場所", "文化財", "避難所"], "kind_count": [562, 5608, 868, 496, 38, 237, 376, 569, 36, 314]},
+
+        {"code": "220001", "state_name": "静岡県", "locality_name": "", "kinds": [{"医療機関": 4607}, {"飲食店・販売店": 35}, {"介護サービス事業所": 59583}, {"観光施設・場所": 3}, {"公園・花壇": 7}, {"公共施設": 4052}, {"公衆トイレ": 299}, {"子育て施設": 1735}, {"指定緊急避難場所": 2799}, {"文化財": 908}, {"薬局": 16}]},
+        {"code": "221007", "state_name": "静岡県", "locality_name": "静岡市", "kinds": [{"AED設置箇所": 573}, {"医療機関": 935}, {"介護サービス事業所": 6934}, {"学校・保育施設": 376}, {"公園・花壇": 496}, {"公共施設": 849}, {"公衆無線LAN": 38}, {"子育て施設": 241}, {"文化財": 36}]},
+
+        ：（※途中省略）
+
+        {"code": "222062", "state_name": "静岡県", "locality_name": "三島市", "kinds": [{"AED設置箇所": 96}, {"医療機関": 133}, {"飲食店・販売店": 233}, {"介護サービス事業所": 116}, {"観光施設・場所": 40}, {"健康": 14}, {"公園・花壇": 278}, {"公共施設": 1042}, {"公衆トイレ": 48}, {"公衆無線LAN": 34}, {"子育て施設": 70}, {"指定緊急避難場所": 75}, {"消防水利施設": 1602}, {"投票所": 31}, {"避難所": 24}, {"文化財": 96}, {"薬局": 44}]},
 
         ：（※途中省略）
 
@@ -452,14 +472,15 @@
 
         ：（※途中省略）
 
-        {"code": "224618", "state_name": "静岡県", "locality_name": "森町", "kinds": ["公共施設", "公衆無線LAN", "医療機関", "子育て施設", "学校・保育施設", "消防"], "kind_count": [9, 19, 1, 19, 10, 1]}
+        {"code": "355020", "state_name": "山口県", "locality_name": "阿武町", "kinds": [{"AED設置箇所": 13}, {"医療機関": 3}, {"観光施設・場所": 23}, {"公共施設": 24}, {"指定緊急避難場所": 9}, {"文化財": 12}]}
+
       ]
 
       </details>
 
-### 機能：施設検索（中心）
+### 7.3 機能：施設検索（中心）
 
-  Web APIの構文
+　Web APIの構文
 
   ```
   https://{ホスト名}/{公開名/}api/facility/query/center
@@ -468,6 +489,7 @@
         [&limit=取得件数の上限]
   ```
   - 機能
+
     指定した中心座標から指定した距離（半径）内に存在する施設情報を取得します。
     中心座標（lat、lng）および中心座標からの距離（distance）は必須パラメタです。
     特定の施設種別を指定して検索する場合は施設種別（kind）パラメタを指定します。施設種別には複数指定可能です。
@@ -475,42 +497,48 @@
     取得件数の上限を省略した場合は
   - パラメタ
     - lat=中心座標の緯度
+
       施設を検索する中心座標の緯度を指定します。度形式（例：35.126334）または、度分秒形式（例：35.7.34.8）で指定します。
     - lng=中心座標の軽度
+
       施設を検索する中心座標の軽度を指定します。度形式（例：138.9107634）または、度分秒形式（例：138.54.38.75）で指定します。
     - distance=中心座標からの距
+
       中心座標からの距離をメートル（m）単位で指定します。
     - kind=施設種別[,施設種別[,・・・]]
+
       取得対象の施設種別を指定します。施設種別はカンマ（,）区切りで複数指定可能です。
       施設種別は、施設種別取得APIで取得した施設種別を指定して下さい。
       先頭に半角文字「!」を付加した施設種別を指定した場合は、取得対象外とすることを指定します。施設種別の「消防水利施設」は多数存在するため、必要な場合以外は「!消防水利施設」を指定することをお勧めします。
       本パラメタを省略した場合は、全施設種別を対象として検索します。
     - limit=取得件数の上限
+
       取得する件数の上限を「0」または正の整数で指定します。上限なしを指定する場合に「0」を指定します。
       本パラメタを省略した場合の上限は100件です。
   - 取得結果
-    - 以下のJSON形式で返却します。
-      ```
-      [ [＜施設情報＞[,＜施設情報＞[,・・・]]] ]
-      施設情報：
-        {
-          "locality_code": ＜市区町村コード＞, 
-          "kind": ＜施設種別＞, 
-          "dataset": ＜データセット名＞, 
-          "id": ＜データセット内ID＞, 
-          "label": ＜施設名称＞", 
-          "lat": ＜緯度＞, 
-          "lng": ＜軽度＞, 
-          "info": ＜施設情報詳細文字列＞"
-        }
-      施設情報詳細文字列：
-        "[ {
-            ＜データセット内項目名＞: ＜データセット内項目値＞
-            [, ＜データセット内項目名＞: ＜データセット内項目値＞
-            [, ・・・ ] ]
-           } ]"
-      ```
+    以下のJSON形式で返却します。
+    ```
+    [ [＜施設情報＞[,＜施設情報＞[,・・・]]] ]
+    施設情報：
+      {
+        "locality_code": ＜市区町村コード＞, 
+        "kind": ＜施設種別＞, 
+        "dataset": ＜データセット名＞, 
+        "id": ＜データセット内ID＞, 
+        "label": ＜施設名称＞", 
+        "lat": ＜緯度＞, 
+        "lng": ＜軽度＞, 
+        "info": ＜施設情報詳細文字列＞"
+      }
+    施設情報詳細文字列：
+      "[ {
+          ＜データセット内項目名＞: ＜データセット内項目値＞
+          [, ＜データセット内項目名＞: ＜データセット内項目値＞
+          [, ・・・ ] ]
+         } ]"
+    ```
   - 例
+
     1 三島駅を中心として半径500m以内の施設一覧を10件取得する（「消防水利施設」は除く）。
 
       <A HREF="https://opendatamaps.onrender.com/api/facility/query/center?lat=35.126334&lng=138.9107634&distance=500&kind=!消防水利施設&limit=10" TARGET="_blank" REL="noopener">https://{ホスト名}/{公開名/}api/facility/query/center?lat=35.126334&lng=138.9107634&distance=500&kind=!消防水利施設&limit=10</A>
@@ -553,10 +581,9 @@
 
       </details>
 
+### 7.4 機能：施設検索（市区町村）
 
-### 機能：施設検索（市区町村）
-
-  Web APIの構文
+　Web APIの構文
 
   ```
   https://{ホスト名}/{公開名/}api/facility/query/locality
@@ -565,44 +592,49 @@
         [&limit=取得件数の上限]
   ```
   - 機能
+
     指定した市区町村コードで指定したに存在する施設情報を取得します。
     中心座標（lat、lng）および中心座標からの距離（distance）は必須パラメタです。
     特定の施設種別を指定して検索する場合は施設種別（kind）パラメタを指定します。施設種別には複数指定可能です。
     施設種別（kind）および取得件数の上限（limit）は省略可能なパラメタです。
   - パラメタ
     - code=市区町村コード[,市区町村コード[, ・・・ ]]
+
       市区町村コードを指定します。複数指定可能です。
     - kind=施設種別[,施設種別[,・・・]]
+
       取得対象の施設種別を指定します。施設種別はカンマ（,）区切りで複数指定可能です。
       施設種別は、施設種別取得APIで取得した施設種別を指定して下さい。
       先頭に半角文字「!」を付加した施設種別を指定した場合は、取得対象外とすることを指定します。施設種別の「消防水利施設」は多数存在するため、必要な場合以外は「!消防水利施設」を指定することをお勧めします。
       本パラメタを省略した場合は、全施設種別を対象として検索します。
     - limit=取得件数の上限
+
       取得する件数の上限を「0」または正の整数で指定します。上限なしを指定する場合に「0」を指定します。
       本パラメタを省略した場合の上限は100件です。
   - 取得結果
-    - 以下のJSON形式で返却します。
-      ```
-      [ [＜施設情報＞[,＜施設情報＞[,・・・]]] ]
-      施設情報：
-        {
-          "locality_code": ＜市区町村コード＞, 
-          "kind": ＜施設種別＞, 
-          "dataset": ＜データセット名＞, 
-          "id": ＜データセット内ID＞, 
-          "label": ＜施設名称＞", 
-          "lat": ＜緯度＞, 
-          "lng": ＜軽度＞, 
-          "info": ＜施設情報詳細文字列＞"
-        }
-      施設情報詳細文字列：
-        "[ {
-            ＜データセット内項目名＞: ＜データセット内項目値＞
-            [, ＜データセット内項目名＞: ＜データセット内項目値＞
-            [, ・・・ ] ]
-           } ]"
-      ```
+    以下のJSON形式で返却します。
+    ```
+    [ [＜施設情報＞[,＜施設情報＞[,・・・]]] ]
+    施設情報：
+      {
+        "locality_code": ＜市区町村コード＞, 
+        "kind": ＜施設種別＞, 
+        "dataset": ＜データセット名＞, 
+        "id": ＜データセット内ID＞, 
+        "label": ＜施設名称＞", 
+        "lat": ＜緯度＞, 
+        "lng": ＜軽度＞, 
+        "info": ＜施設情報詳細文字列＞"
+      }
+    施設情報詳細文字列：
+      "[ {
+          ＜データセット内項目名＞: ＜データセット内項目値＞
+          [, ＜データセット内項目名＞: ＜データセット内項目値＞
+          [, ・・・ ] ]
+         } ]"
+    ```
   - 例
+
     1 三島市の施設一覧を取得する。
 
       <A HREF="https://opendatamaps.onrender.com/api/facility/query/locality?code=222038,222062&kind=公衆トイレ&limit=0" TARGET="_blank" REL="noopener">https://{ホスト名}/{公開名/}api/facility/query/locality?code=222038,222062&kind=公衆トイレ&limit=0</A>
@@ -627,7 +659,6 @@
       ]
 
       </details>
-
 
 ## 8.Renderでの構築手順（※作成者メモ）
 
@@ -854,62 +885,75 @@
 
     引用できる量ではないため、[Google Maps Platform Terms of Service](https://cloud.google.com/maps-platform/terms)を参照して下さい。
 
-  - [Render](https://render.com/)
+  - [Render](https://render.com/acceptable-use)
     ```
-    Render Acceptable Use Policy
+Render Acceptable Use Policy
 
-    Last Updated: June 15, 2021
+Last Modified: August 22, 2025
+Your use of the Service is subject to this Acceptable Use Policy. If you are found to be in violation of our policies at any time, as determined by Render in its sole discretion, we may warn you, take down your User Content, or suspend or terminate your account. Please note that we may change our Acceptable Use Policy at any time, and pursuant to the Render Terms of Service ("Terms"), it is your responsibility to keep up-to-date with and adhere to the policies posted here. All capitalized terms used herein have the meanings stated in the Terms, unless stated otherwise.
 
-    Your use of the Service is subject to this Acceptable Use Policy. If you are found to be in violation of our policies at any time, as determined by Render in its sole discretion, we may warn you or suspend or terminate your account. Please note that we may change our Acceptable Use Policy at any time, and pursuant to the Render Terms of Service (”Terms”), it is your responsibility to keep up-to-date with and adhere to the policies posted here. All capitalized terms used herein have the meanings stated in the Terms, unless stated otherwise.
+You agree not to use the Service to:
 
-    You agree not to engage in any of the following prohibited activities:
+Scrape, Crawl, or Harvest Data: Scrape, crawl, or harvest data from the Service, or use automated means to access or extract data without Render’s express written consent.
+Engage in Illegal, Harmful, or Fraudulent Activities: Post, transmit, host, or distribute unlawful, abusive, defamatory, hateful, or otherwise objectionable content, including any content that promotes or depicts child sexual exploitation or abuse, or engage in unlawful or harmful activities.
+Abuse Network Resources or Service Capacity: Impose an unreasonable or disproportionately large load on our infrastructure, including intentionally uploading excessive amounts of data or otherwise abusing the Service in a manner that degrades performance for others, especially for the purpose of evading payment or financial obligations.
+Violate Security or Integrity: Attempt to interfere with, compromise the system integrity or security of, or decipher any transmissions to or from the servers running the Service.
+Send Unsolicited Communications: Transmit spam, chain letters, unsolicited bulk email, or other forms of unsolicited messages or advertising.
+Infringe Intellectual Property or Privacy Rights: Infringe upon intellectual property (including copyrights) or privacy rights, or collect personal information from other users without proper consent.
+Resell or Misuse the Service: Resell, rent, lease, or otherwise provide the Service to third parties, use the Service for cryptocurrency mining or other unauthorized commercial purposes, or intentionally misuse the Service to avoid payment or financial responsibility.
+Impersonate or Misrepresent: Impersonate any person or entity, or misrepresent your affiliation or identity.
+Bypass Access or Usage Restrictions: Attempt to bypass, circumvent, or defeat any access or usage restrictions, authentication, or security measures, including using the Service to bypass network restrictions or access non-public services.
+Transmit Malicious Content: Upload, transmit, or distribute viruses, malware, worms, Trojan horses, corrupted files, or any other items intended to damage or interfere with the operation of the Service or any other system, network, or data.
 
-    1. copying, distributing, or disclosing any part of the Service in any medium, including without limitation by any automated or non-automated “scraping”;
+Enforcement
+We reserve the right to investigate any suspected violation of this Acceptable Use Policy. In the event of a suspected or actual violation, we may, at our sole discretion, remove or disable access to any content, resource, or account that is believed to be in violation of this Policy. You agree to cooperate fully with us in any investigation or enforcement action related to your use of the Service, including providing information and taking any remedial actions we reasonably request.
 
-    2. using any automated system, including without limitation “robots,” “spiders,” “offline readers,” etc., to access the Service in a manner that sends more request messages to the Render servers than a human can reasonably produce in the same period of time by using a conventional on-line web browser (except that Render grants the operators of public search engines revocable permission to use spiders to copy publicly available materials from the Service for the sole purpose of and solely to the extent necessary for creating publicly available searchable indices of the materials, but not caches or archives of such materials);
-
-    3. transmitting spam, chain letters, or other unsolicited email;
-
-    4. attempting to interfere with, compromise the system integrity or security or decipher any transmissions to or from the servers running the Service;
-
-    5. taking any action that imposes, or may impose at our sole discretion an unreasonable or disproportionately large load on our infrastructure;
-
-    6. uploading invalid data, viruses, worms, or other software agents through the Service;
-
-    7. collecting or harvesting any personally identifiable information, including account names, from the Service;
-
-    8. reselling, renting or leasing the Service to your own customers directly;
-
-    9. impersonating another person or otherwise misrepresenting your affiliation with a person or entity, conducting fraud, hiding or attempting to hide your identity;
-
-    10. interfering with the proper working of the Service;
-
-    11. accessing any content on the Service through any technology or means other than those provided or authorized by the Service;
-
-    12. using the Service to mine cryptocurrencies;
-
-    13. bypassing the measures we may use to prevent or restrict access to the Service, including without limitation features that prevent or restrict use or copying of any content or enforce limitations on use of the Service or the content therein;
-
-    14. or engaging in any unlawful or objectionable activities on the Service, as determined in our sole discretion.
-    ---
-    © Render 2022
+Reporting of Violations
+If you become aware of any violation of this Acceptable Use Policy, you are encouraged to report it to us promptly. Please follow our abuse reporting process by contacting abuse@render.com. We will review all reports and take appropriate action as necessary to protect the integrity and security of the Service.
     ```
 
-  - [GitHub](https://github.com/)
+  - [GitHub](https://github.com/github/site-policy/tree/main)
     ```
-    Site Policy on GitHub
-    ...
-    License
-    CC0-1.0. Note that CC0-1.0 does not grant any trademark permissions.
-    
-    You're under no legal obligation to do so, but in the spirit of transparency and collaboration these policies are developed and shared with, you're encouraged to:
-    
-    Share your adapted policies under CC0-1.0 or other open terms
-    Make your adaptations transparent by using a public repo to show changes you've made
-    Let us know how you're using adapted policies
-    ...
-    ---
-    © 2021 GitHub, Inc.
+Site Policy on GitHub
+The universe of policies and procedures that govern the use of GitHub, open-sourced for your use and inspiration. We created this repository as a place for people to fork, contribute to, and provide feedback on our policies. While this is our official repo of open-sourced policies, it may not reflect the exact policies that are live on GitHub because this site is updated separately from the Help site.
+
+What can I do here?
+First, you can use and adapt our policies!
+We are proud to offer the policies in this repository under CC0-1.0. That means that if any of them are useful to you, even in part, you're welcome to use them, without restriction. Of course, keep in mind that we wrote these policies as they apply to GitHub, so you'll need to make sure the content applies to what you're using it for, and adapt it as appropriate. See the license section for use guidelines.
+
+Because we are providing these policies to our community, we believe it is only responsible to also provide the history and insight that a repository of commits, pull requests, and issues can offer. Over time, the repository's commits, pull requests, and issues will allow anyone wanting to use our policies to see the discussions and alterations that have gone into them.
+
+Second, you can contribute to making our policies even better.
+We host collaborative development on GitHub's site policies, procedures, and guidelines here. That means you’re welcome to provide feedback via a pull request or by opening an issue. When opening an issue, please look over the Contribution Guidelines. This will help us respond to your concern more quickly.
+
+That seems like great power! What about the great responsibility?
+That's easy: just be responsible. Follow our Code of Conduct, and help us maintain a respectful environment for all contributors.
+
+There are a few things you should not post in this repository:
+Please don't post legal complaints or ask for technical support. We may not respond to issues promptly. If you need help, contact Support and they'll get you an answer.
+Please avoid hypotheticals. We can't give you legal advice, which means we often can't tell you if a hypothetical situation would or wouldn't be a violation of our policies. We also can't tell you what you should or shouldn't do. We can tell you how we interpret our policies.
+Please don't give other users legal advice, to avoid confusion.
+How often will GitHub review these policies?
+We continually review and modify the policies in this repository. Our review and modification process allows for discussion about upcoming changes before they go into effect and lets our community rely on our policies. Of course, GitHub may alter our policies outside that schedule if necessary, such as when we have new product releases.
+
+What's the process?
+Policies will be open for discussion and feedback throughout the year. You can expect that someone from GitHub's legal department will see your feedback, but we might not respond immediately. If you need an immediate answer on a legal matter, contact Support.
+
+When we open a pull request, in most cases, we'll leave it open for 24 hours before the changes go into effect. Comments on and review of our pull requests are welcome, just like in any open source project. For material changes to our Privacy Statement or Terms of Service (including our Acceptable Use Policies), we'll post the updates 30 days before they go into effect, as stated in those docs. (We had previously applied a 30-day comment period for most docs in this repo but found that we tend to get feedback soon after we post the changes and were unnecessarily delaying ships.)
+
+For those who are following this repository, the posting of the updated policy will provide a notice of any modifications to the policy. Please note, links will not resolve in the rendering of the policies in this repository.
+
+License
+CC0-1.0. Note that CC0-1.0 does not grant any trademark permissions.
+
+You're under no legal obligation to do so, but in the spirit of transparency and collaboration these policies are developed and shared with, you're encouraged to:
+
+Share your adapted policies under CC0-1.0 or other open terms
+Make your adaptations transparent by using a public repo to show changes you've made
+Let us know how you're using adapted policies
+The official legal disclaimer part:
+The information in this repository is for informational purposes only and is not intended to convey or constitute legal advice. It is not intended as a solicitation, and your use of this information does not create an attorney-client relationship between you and GitHub. GitHub is not a law firm. (You know that, though, right?)
+These policies and procedures may not suit your organization's needs. Please consult a lawyer if you want to adopt these policies for your own uses.
     ```
 
   - [Docker Hub](https://hub.docker.com/)
@@ -1156,6 +1200,29 @@
     A new version of this license is available. You should use it for new works, and you may want to relicense existing works under it. No works are automatically put under the new license, however.
     ---
     Crummy is © 1996-2021 Leonard Richardson. Unless otherwise noted, all text licensed under a Creative Commons License.
+    ```
+  - [PostgreSQL](https://www.postgresql.org/about/licence/)
+
+    ```
+    PostgreSQL is released under the PostgreSQL License, a liberal Open Source license, similar to the BSD or MIT licenses.
+
+    PostgreSQL Database Management System
+    (also known as Postgres, formerly as Postgres95)
+
+    Portions Copyright © 1996-2026, The PostgreSQL Global Development Group
+
+    Portions Copyright © 1994, The Regents of the University of California
+
+    Permission to use, copy, modify, and distribute this software and its documentation for any purpose, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and this paragraph and the following two paragraphs appear in all copies.
+
+    IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+    THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
+    Will PostgreSQL ever be released under a different license?
+    The PostgreSQL Global Development Group remains committed to making PostgreSQL available as free and open source software in perpetuity. There are no plans to change the PostgreSQL License or release PostgreSQL under a different license.
+
+    If you would like to read more about this topic, then please take a look at the mailing list archives at one of the many discussions on this subject.
     ```
 
 ----

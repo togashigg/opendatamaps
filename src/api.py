@@ -80,8 +80,8 @@ class OpendataMapsApi:
 
     def get_summary(self):
         """
-        opendatamapsとlocalitycodeテーブルからデータ一覧(code,state_name,locality_name,kind,count(*))を取得する。
-        :return: list型、レコード(code,state_name,locality_name,kind,count(*))のリストを返却する。
+        opendatamapsとlocalitycodeテーブルからデータ一覧を取得する。
+        :return: list型、レコード{code,state_name,locality_name,{kind: count(*)}}のリストを返却する。
         """
         self.logger.debug('get_summary() start.')
         rc = None
@@ -104,12 +104,10 @@ class OpendataMapsApi:
         for rec in recs:
             if rec[0] != code:
                 rc.append({'code': rec[0], 'state_name': rec[2],
-                        'locality_name': rec[3], 'kinds': [rec[1]],
-                        'kind_count':[rec[4]]})
+                        'locality_name': rec[3], 'kinds': [{rec[1]:rec[4]}]})
                 code = rec[0]
             else:
-                rc[-1]['kinds'].append(rec[1])
-                rc[-1]['kind_count'].append(rec[4])
+                rc[-1]['kinds'].append({rec[1]: rec[4]})
         # self.logger.debug('rc=' + str(rc))
         self.logger.debug('get_summary() ended, len(rc)=' + str(len(rc)))
         return rc
