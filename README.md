@@ -59,7 +59,7 @@
 
   - [Ubuntu 24.04](https://ubuntu.com/)
   - [Python 3.12](https://www.python.org/)
-  - [requests-html](https://pypi.org/project/requests-html/)
+  - [requests](https://requests.readthedocs.io/en/latest/)
   - [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/)
   - [PostgreSQL](https://www.postgresql.org/)
 
@@ -881,12 +881,101 @@
 
 ## 10.使用サービスおよび使用ソフトウェアのライセンスおよびポリシー
 
-  - [Google Maps](https://mapsplatform.google.com/)
+  - [Google Maps](https://cloud.google.com/maps-platform/terms)
 
-    引用できる量ではないため、[Google Maps Platform Terms of Service](https://cloud.google.com/maps-platform/terms)を参照して下さい。
+    先頭の一部のみを引用しました。全体は、[Google Maps Platform Terms of Service](https://cloud.google.com/maps-platform/terms)を直接参照して下さい。
+```
+What’s in the Terms?
+
+This index is designed to help you navigate our Terms of Service ("Terms") for your use of Google Maps Platform. We hope this serves as a useful guide, but please ensure you read the Terms in full. 
+
+1. Accessing the Services
+
+This section outlines the requirements to use the Services, in compliance with the terms of the Agreement. 
+
+2. Payment Terms
+
+This section outlines the Customer’s payment obligations. 
+
+3. License 
+
+This section outlines the licensing terms for Google Maps Platform Services, focusing on the restrictions and requirements on how to use the Services. 
+
+4. Customer Obligations
+
+This section outlines Customer's obligations regarding the use of the Services, including ensuring compliance with the Agreement, protecting user data and privacy, and Google's right to terminate for copyright infringement. 
+
+5. Suspension
+
+This section outlines the conditions under which Google may suspend a Customer's use of the Services.
+
+6. Intellectual Property Rights; Feedback
+
+This section outlines the Intellectual Property Rights between Google and the Customer, in using the Services and when Feedback is provided by the Customer.
+
+7. Third Party Legal Notices and License Terms
+
+This section outlines the legal notices and license terms regarding third-party intellectual property rights and copyright. 
+
+8. Technical Support Services
+
+This section outlines Google’s obligation to provide Maps Technical Support Services to the Customer, subject to payment of applicable Fees. 
+
+9. Confidentiality
+
+This section outlines the confidentiality obligations and disclosure requirements for both Google and Customer. 
+
+10. Term and Termination
+
+This section outlines the term of the Agreement and the termination rights for both parties under the Agreement. 
+
+11. Publicity
+
+This section outlines the parties’ rights to use each other’s Brand Features. 
+
+12. Representations and Warranties
+
+This section outlines each party’s representations and warranties under this Agreement.
+
+13. Disclaimer
+
+This section describes Google’s disclaimer of warranties regarding its Services. 
+
+14. Indemnification
+
+This section outlines the Indemnification obligations of both of the parties. 
+
+15. Liability
+
+This section outlines the Liability limitations within the Agreement for both parties. 
+
+16. Advertising
+
+This section gives Customers the choice to display or not display advertisements. 
+
+17. US Federal Agency Users
+
+This section states that the Services were developed at private expense and are commercial computer software, as defined in the Federal Acquisition Regulations. 
+
+18. Miscellaneous
+
+This section outlines miscellaneous terms, such as notifications and governing law, that apply to the Agreement between the parties. 
+
+19. Reseller Orders
+
+This section outlines terms specific to when a Customer orders Services through a reseller. 
+
+20. Definitions
+
+This section defines the terms used in this Agreement.
+
+21. Regional Terms
+
+This section identifies the regional variations to these terms that are needed for Customers to use the Services in specific regions.
+```
 
   - [Render](https://render.com/acceptable-use)
-    ```
+```
 Render Acceptable Use Policy
 
 Last Modified: August 22, 2025
@@ -910,10 +999,10 @@ We reserve the right to investigate any suspected violation of this Acceptable U
 
 Reporting of Violations
 If you become aware of any violation of this Acceptable Use Policy, you are encouraged to report it to us promptly. Please follow our abuse reporting process by contacting abuse@render.com. We will review all reports and take appropriate action as necessary to protect the integrity and security of the Service.
-    ```
+```
 
   - [GitHub](https://github.com/github/site-policy/tree/main)
-    ```
+```
 Site Policy on GitHub
 The universe of policies and procedures that govern the use of GitHub, open-sourced for your use and inspiration. We created this repository as a place for people to fork, contribute to, and provide feedback on our policies. While this is our official repo of open-sourced policies, it may not reflect the exact policies that are live on GitHub because this site is updated separately from the Help site.
 
@@ -954,276 +1043,258 @@ Let us know how you're using adapted policies
 The official legal disclaimer part:
 The information in this repository is for informational purposes only and is not intended to convey or constitute legal advice. It is not intended as a solicitation, and your use of this information does not create an attorney-client relationship between you and GitHub. GitHub is not a law firm. (You know that, though, right?)
 These policies and procedures may not suit your organization's needs. Please consult a lawyer if you want to adopt these policies for your own uses.
-    ```
+```
 
   - [Docker Hub](https://hub.docker.com/)
-    ```
-    Docker Terms of Service
-    Effective as of: December 14, 2020
-    ...
-    16. Copyright Policy
-    16.1 Docker has established the following process to respond to notices of alleged infringement that comply with the United States' Digital Millennium Copyright Act ("DMCA notices").
-    
-    16.2 If you believe that your copyrighted work has been copied in a way that constitutes copyright infringement and is accessible via the Service, please notify Docker's copyright agent, as set forth in the Digital Millennium Copyright Act of 1998 (DMCA). For your complaint to be valid under the DMCA, you must provide the following information in writing:
-    
-    a. An electronic or physical signature of a person authorized to act on behalf of the copyright owner;
-    
-    b. Identification of the copyrighted work that you claim is being infringed;
-    
-    c. Identification of the material that is claimed to be infringing and where it is located on the Service;
-    
-    d. Information reasonably sufficient to permit Docker to contact you, such as your address, telephone number, and e-mail address;
-    
-    e. A statement that you have a good faith belief that use of the material in the manner complained of is not authorized by the copyright owner, its agent, or law; and
-    
-    f. A statement, made under penalty of perjury, that the above information is accurate, and that you are the copyright owner or are authorized to act on behalf of the owner.
-    
-    Docker's Designated Copyright Agent to receive notifications of claimed infringement can be reached as follows:
-    
-    Attention: Copyright Agent
-    Docker, Inc.
-    3790 El Camino Real #1052
-    Palo Alto CA 94306
-    
-    
-    Email: dmca@docker.com
-    
-    For clarity, only DMCA notices should go to the Docker Designated Copyright Agent. Any other feedback, comments, requests for technical support or other communications should be directed to Docker through support@docker.com.
-    ...
-    ---
-    © 2021 Docker Inc. All rights reserved
-    ```
 
-  - [Ubuntu 24.04](https://ubuntu.com/)
-    ```
-    Intellectual property rights policy
-    Latest update: We updated this policy on 15 July 2015.
-    
-    Welcome to Canonical’s IPRights Policy. This policy is published by Canonical Limited (Canonical, we, us and our) under the Creative Commons CC-BY-SA version 3.0 UK licence.
-    
-    Canonical owns and manages certain intellectual property rights in Ubuntu and other associated intellectual property (Canonical IP) and licences the use of these rights to enterprises, individuals and members of the Ubuntu community in accordance with this IPRights Policy.
-    
-    Your use of Canonical IP is subject to:
-    
-    ✔ Your acceptance of this IPRights Policy;
-    ✔ Your acknowledgement that Canonical IP is the exclusive property of Canonical and can only be used with Canonical’s permission (which can be revoked at any time); and
-    ✔ You taking all reasonable steps to ensure that Canonical IP is used in a manner that does not affect either the validity of such Canonical IP or Canonical’s ownership of Canonical IP in any way; and that you will transfer any goodwill you derive from them to Canonical, if requested.
-    
-    Ubuntu is a trusted open source platform. To maintain that trust we need to manage the use of Ubuntu and the components within it very carefully. This way, when people use Ubuntu, or anything bearing the Ubuntu brand, they can be assured that it will meet the standards they expect. Your continued use of Canonical IP implies your acceptance and acknowledgement of this IPRights Policy.
-    
-    1. Summary
-    
-    ✔ You can download, install and receive updates to Ubuntu for free.
-    ✔ You can modify Ubuntu for personal or internal commercial use.
-    ✔ You can redistribute Ubuntu, but only where there has been no modification to it.
-    ✔ You can use our copyright, patent and design materials in accordance with this IPRights Policy.
-    ✔ You can be confident and can trust in the consistency of the Ubuntu experience.
-    ✔ You can rely on the standard expected of Ubuntu.
-    ✔ Ubuntu is an aggregate work; this policy does not modify or reduce rights granted under licences which apply to specific works in Ubuntu.
-    
-    2. Relationship to other licences
-    
-    Ubuntu is an aggregate work of many works, each covered by their own licence(s). For the purposes of determining what you can do with specific works in Ubuntu, this policy should be read together with the licence(s) of the relevant packages. For the avoidance of doubt, where any other licence grants rights, this policy does not modify or reduce those rights under those licences.
-    
-    3. Your use of Ubuntu
-    
-    ✔ You can download, install and receive updates to Ubuntu for free.
-    ✔ Ubuntu is freely available to all users for personal, or in the case of organisations, internal use. It is provided for this use without warranty. All implied warranties are disclaimed to the fullest extent permitted at law.
-    ✔ You can modify Ubuntu for personal or internal use
-    ✔ You can make changes to Ubuntu for your own personal use or for your organisation’s own internal use.
-    ✔ You can redistribute Ubuntu, but only where there has been no modification to it.
-    ✔ You can redistribute Ubuntu in its unmodified form, complete with the installer images and packages provided by Canonical (this includes the publication or launch of virtual machine images).
-    ✔ Any redistribution of modified versions of Ubuntu must be approved, certified or provided by Canonical if you are going to associate it with the Trademarks. Otherwise you must remove and replace the Trademarks and will need to recompile the source code to create your own binaries. This does not affect your rights under any open source licence applicable to any of the components of Ubuntu. If you need us to approve, certify or provide modified versions for redistribution you will require a licence agreement from Canonical, for which you may be required to pay. For further information, please contact us (as set out below).
-    ✔ We do not recommend using modified versions of Ubuntu which are not modified in accordance with this IPRights Policy. Modified versions may be corrupted and users of such modified systems or images may find them to be inconsistent with the updates published by Canonical to its users. If they use the Trademarks, they are in contravention of this IPRights Policy. Canonical cannot guarantee the performance of such modified versions. Canonical’s updates will be consistent with every version of Ubuntu approved, certified or provided by Canonical.
-    
-    4. Your use of our trademarks
-    
-    Canonical’s Trademarks (registered in word and logo form) include:
-    
-    UBUNTU
-    KUBUNTU
-    EDUBUNTU
-    XUBUNTU
-    JUJU
-    LANDSCAPE
-    
-    ✔ You can use the Trademarks, in accordance with Canonical’s brand guidelines, with Canonical’s permission in writing. If you require a Trademark licence, please contact us (as set out below).
-    ✔ You will require Canonical’s permission to use: (i) any mark ending with the letters UBUNTU or BUNTU which is sufficiently similar to the Trademarks or any other confusingly similar mark, and (ii) any Trademark in a domain name or URL or for merchandising purposes.
-    ✔ You cannot use the Trademarks in software titles. If you are producing software for use with or on Ubuntu you may reference Ubuntu, but must avoid: (i) any implication of endorsement, or (ii) any attempt to unfairly or confusingly capitalise on the goodwill of Canonical or Ubuntu.
-    ✔ You can use the Trademarks in discussion, commentary, criticism or parody, provided that you do not imply endorsement by Canonical.
-    ✔ You can write articles, create websites, blogs or talk about Ubuntu, provided that it is clear that you are in no way speaking for or on behalf of Canonical and that you do not imply endorsement by Canonical.
-    
-    Canonical reserves the right to review all use of Canonical’s Trademarks and to object to any use that appears outside of this IPRights Policy.
-    
-    5. Your use of our copyright, patent and design materials
-    
-    ✔ You can only use Canonical’s copyright materials in accordance with the copyright licences therein and this IPRights Policy.
-    ✔ You cannot use Canonical’s patented materials without our permission.
-    
-    Copyright
-    The disk, CD, installer and system images, together with Ubuntu packages and binary files, are in many cases copyright of Canonical (which copyright may be distinct from the copyright in the individual components therein) and can only be used in accordance with the copyright licences therein and this IPRights Policy.
-    
-    Patents
-    Canonical has made a significant investment in the Open Invention Network, defending Linux, for the benefit of the open source ecosystem. Additionally, like many open source projects, Canonical also protects its interests from third parties by registering patents. You cannot use Canonical’s patented materials without our permission.
-    
-    Trade dress and look and feel
-    Canonical owns intellectual property rights in the trade dress and look and feel of Ubuntu (including the Unity interface), along with various themes and components that may include unregistered design rights, registered design rights and design patents, your use of Ubuntu is subject to these rights.
-    
-    6. Logo use guidelines
-    
-    Canonical’s logos are presented in multiple colours and it is important that their visual integrity be maintained. It is therefore preferable that the logos should only be used in their standard form, but if you should feel the need to alter them in any way, you should following the guidelines set out below.
-    
-    [Ubuntu logo guidelines](https://design.ubuntu.com/brand/ubuntu-logo?_ga=2.53297455.648916006.1663810047-660850984.1649218076)
-    [Canonical logo guidelines](https://design.ubuntu.com/brand/canonical-logo?_ga=2.250227201.648916006.1663810047-660850984.1649218076)
-    
-    7. Use of Canonical IP by the Ubuntu community
-    
-    Ubuntu is built by Canonical and the Ubuntu community. We share access rights owned by Canonical with the Ubuntu community for the purposes of discussion, development and advocacy. We recognise that most of the open source discussion and development areas are for non-commercial purposes and we therefore allow the use of Canonical IP in this context, as long as there is no commercial use and that the Canonical IP is used in accordance with this IPRights Policy.
-    
-    8. Contact us
-    
-    [Please contact us:](https://ubuntu.com/legal/terms-and-policies/contact-us)
-    
-    ✔ if you have any questions or would like further information on our IPRights Policy, Canonical or Canonical IP;
-    ✔ if you would like permission from Canonical to use Canonical IP;
-    ✔ if you require a licence agreement; or
-    ✔ to report a breach of our IPRights Policy.
-    
-    Please note that due to the volume of mail we receive, it may take up to a week to process your request.
-    
-    9. Changes
-    
-    We may make changes to this IPRights Policy from time to time. Please check this IPRights Policy from time to time to ensure that you are in compliance.
-    ---
-    © 2022 Canonical Ltd. Ubuntu and Canonical are registered trademarks of Canonical Ltd.
-    ```
+    先頭の一部のみを引用しました。全体は、[Docker Terms of Service](https://www.docker.com/legal/docker-terms-service/)を直接参照して下さい。
+```
+Docker Terms of Service
+Effective as of: December 14, 2020
+1. Your Agreement with Docker
+1.1 This website and all other related websites on which a link to these Terms of Service (the “Terms”) is displayed, and the Docker content and Docker services available on or through any of the foregoing (collectively, our “Service”) are provided to you by Docker, Inc., located at 3790 El Camino Real #1052, Palo Alto, CA 94306 USA (“Docker”). These Terms govern all access and use of the Service unless your access and use of Docker software is being made available to you under separate license terms.
 
-  - [Python 3.12](https://www.python.org/)
-    ```
-    Terms and conditions for accessing or otherwise using Python
-    Python software and documentation are licensed under the PSF License Agreement.
+1.2 All use of the Service is subject to acceptance of these Terms. By accessing or using the Service, or any content or services provided on the Service, you are agreeing to these Terms. If you are entering into these Terms on behalf of an entity, such as your employer or the company you work for, you represent that you have the legal authority to bind, and do hereby bind, that entity to these Terms. You may not use the Service if you are a person barred from using the Service under the laws of the United States or other countries, including the country in which you are resident or from which you use the Service, or international laws or treaties. You may not use the Service if you are or represent an entity that is listed on any U.S. Government Denied Party/Person List. You affirm that you are over the age of 13, as the Service is not intended for children under 13. IF YOU ARE 13 OR OLDER BUT UNDER THE AGE OF 18, OR THE LEGAL AGE OF MAJORITY WHERE YOU RESIDE IF THAT JURISDICTION HAS AN OLDER AGE OF MAJORITY, THEN YOU AGREE TO REVIEW THE TERMS WITH YOUR PARENT OR GUARDIAN TO MAKE SURE THAT BOTH YOU AND YOUR PARENT OR GUARDIAN UNDERSTAND AND AGREE TO THESE TERMS. YOU AGREE TO HAVE YOUR PARENT OR GUARDIAN REVIEW AND ACCEPT THESE TERMS ON YOUR BEHALF. IF YOU ARE A PARENT OR GUARDIAN AGREEING TO THE TERMS FOR THE BENEFIT OF A CHILD OVER 13, THEN YOU AGREE TO AND ACCEPT FULL RESPONSIBILITY FOR THAT CHILD’S USE OF THE SERVICE, INCLUDING ALL FINANCIAL CHARGES AND LEGAL LIABILITY THAT HE OR SHE MAY INCUR.
 
-    Starting with Python 3.8.6, examples, recipes, and other code in the documentation are dual licensed under the PSF License Agreement and the Zero-Clause BSD license.
+1.3 You agree that your use of the Service is not contingent on the delivery of any future functionality or features or dependent on any oral or written public comments made by Docker or any third party regarding future functionality or features.
+----
+© 2026 Docker Inc. All rights reserved | Terms of Service | Privacy | Legal
+```
 
-    Some software incorporated into Python is under different licenses. The licenses are listed with code falling under that license. See Licenses and Acknowledgements for Incorporated Software for an incomplete list of these licenses.
+  - [Ubuntu 24.04](https://canonical.com/legal/intellectual-property-policy)
+```
+15 July 2015
+----
+Intellectual property rights policy
+Welcome to Canonical's IPRights Policy. This policy is published by Canonical Limited (Canonical, we, us and our) under the Creative Commons CC-BY-SA version 3.0 UK licence.
 
-    PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2
-    1. This LICENSE AGREEMENT is between the Python Software Foundation ("PSF"), and
-       the Individual or Organization ("Licensee") accessing and otherwise using this
-       software ("Python") in source or binary form and its associated documentation.
+Canonical owns and manages certain intellectual property rights in Ubuntu and other associated intellectual property (Canonical IP) and licences the use of these rights to enterprises, individuals and members of the Ubuntu community in accordance with this IPRights Policy.
 
-    2. Subject to the terms and conditions of this License Agreement, PSF hereby
-       grants Licensee a nonexclusive, royalty-free, world-wide license to reproduce,
-       analyze, test, perform and/or display publicly, prepare derivative works,
-       distribute, and otherwise use Python alone or in any derivative
-       version, provided, however, that PSF's License Agreement and PSF's notice of
-       copyright, i.e., "Copyright © 2001-2023 Python Software Foundation; All Rights
-       Reserved" are retained in Python alone or in any derivative version
-       prepared by Licensee.
+Your use of Canonical IP is subject to:
 
-    3. In the event Licensee prepares a derivative work that is based on or
-       incorporates Python or any part thereof, and wants to make the
-       derivative work available to others as provided herein, then Licensee hereby
-       agrees to include in any such work a brief summary of the changes made to Python.
+・Your acceptance of this IPRights Policy;
+・Your acknowledgement that Canonical IP is the exclusive property of Canonical and can only be used with Canonical's permission (which can be revoked at any time); and
+・You taking all reasonable steps to ensure that Canonical IP is used in a manner that does not affect either the validity of such Canonical IP or Canonical's ownership of Canonical IP in any way; and that you will transfer any goodwill you derive from them to Canonical, if requested.
 
-    4. PSF is making Python available to Licensee on an "AS IS" basis.
-       PSF MAKES NO REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED.  BY WAY OF
-       EXAMPLE, BUT NOT LIMITATION, PSF MAKES NO AND DISCLAIMS ANY REPRESENTATION OR
-       WARRANTY OF MERCHANTABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE OR THAT THE
-       USE OF PYTHON WILL NOT INFRINGE ANY THIRD PARTY RIGHTS.
+Ubuntu is a trusted open source platform. To maintain that trust we need to manage the use of Ubuntu and the components within it very carefully. This way, when people use Ubuntu, or anything bearing the Ubuntu brand, they can be assured that it will meet the standards they expect. Your continued use of Canonical IP implies your acceptance and acknowledgement of this IPRights Policy.
 
-    5. PSF SHALL NOT BE LIABLE TO LICENSEE OR ANY OTHER USERS OF PYTHON
-       FOR ANY INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES OR LOSS AS A RESULT OF
-       MODIFYING, DISTRIBUTING, OR OTHERWISE USING PYTHON, OR ANY DERIVATIVE
-       THEREOF, EVEN IF ADVISED OF THE POSSIBILITY THEREOF.
+Older versions
+・[14 May 2013 ›](https://canonical.com/legal/intellectual-property-policy/2013-05-14)
 
-    6. This License Agreement will automatically terminate upon a material breach of
-       its terms and conditions.
+Registered office
+5 New Street Square, London EC4A 3TW
 
-    7. Nothing in this License Agreement shall be deemed to create any relationship
-       of agency, partnership, or joint venture between PSF and Licensee.  This License
-       Agreement does not grant permission to use PSF trademarks or trade name in a
-       trademark sense to endorse or promote products or services of Licensee, or any
-       third party.
+1. Summary
+・You can download, install and receive updates to Ubuntu for free.
+・You can modify Ubuntu for personal or internal commercial use.
+・You can redistribute Ubuntu, but only where there has been no modification to it.
+・You can use our copyright, patent and design materials in accordance with this IPRights Policy.
+・You can be confident and can trust in the consistency of the Ubuntu experience.
+・You can rely on the standard expected of Ubuntu.
+・Ubuntu is an aggregate work; this policy does not modify or reduce rights granted under licences which apply to specific works in Ubuntu.
 
-    8. By copying, installing or otherwise using Python, Licensee agrees
-       to be bound by the terms and conditions of this License Agreement.
-    ---
-    © Copyright 2001-2025, Python Software Foundation.
-    ```
+2. Relationship to other licences
+Ubuntu is an aggregate work of many works, each covered by their own licence(s). For the purposes of determining what you can do with specific works in Ubuntu, this policy should be read together with the licence(s) of the relevant packages. For the avoidance of doubt, where any other licence grants rights, this policy does not modify or reduce those rights under those licences.
 
-  - [requests-html](https://pypi.org/project/requests-html/)
-    ```
-    License: MIT License (MIT)
-    The MIT License (MIT)
-    
-    Copyright 2018 Kenneth Reitz
-    
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-    
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-    
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
-    ```
+3. Your use of Ubuntu
+・You can download, install and receive updates to Ubuntu for free.
+・Ubuntu is freely available to all users for personal, or in the case of organisations, internal use. It is provided for this use without warranty. All implied warranties are disclaimed to the fullest extent permitted at law.
+・You can modify Ubuntu for personal or internal use
+・You can make changes to Ubuntu for your own personal use or for your organisation's own internal use.
+・You can redistribute Ubuntu, but only where there has been no modification to it.
+・You can redistribute Ubuntu in its unmodified form, complete with the installer images and packages provided by Canonical (this includes the publication or launch of virtual machine images).
+・Any redistribution of modified versions of Ubuntu must be approved, certified or provided by Canonical if you are going to associate it with the Trademarks. Otherwise you must remove and replace the Trademarks and will need to recompile the source code to create your own binaries. This does not affect your rights under any open source licence applicable to any of the components of Ubuntu. If you need us to approve, certify or provide modified versions for redistribution you will require a licence agreement from Canonical, for which you may be required to pay. For further information, please contact us (as set out below).
+・We do not recommend using modified versions of Ubuntu which are not modified in accordance with this IPRights Policy. Modified versions may be corrupted and users of such modified systems or images may find them to be inconsistent with the updates published by Canonical to its users. If they use the Trademarks, they are in contravention of this IPRights Policy. Canonical cannot guarantee the performance of such modified versions. Canonical's updates will be consistent with every version of Ubuntu approved, certified or provided by Canonical.
 
-  - [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/)
-    ```
-    Attribution-ShareAlike 2.0 Generic (CC BY-SA 2.0)
-    This is a human-readable summary of (and not a substitute for) the license. Disclaimer.
-    You are free to:
-    Share — copy and redistribute the material in any medium or format
-    Adapt — remix, transform, and build upon the material
-    for any purpose, even commercially.
-    This license is acceptable for Free Cultural Works.
-    The licensor cannot revoke these freedoms as long as you follow the license terms.
-    Under the following terms:
-    Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
-    
-    ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
-    
-    No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
-    Notices:
-    You do not have to comply with the license for elements of the material in the public domain or where your use is permitted by an applicable exception or limitation.
-    No warranties are given. The license may not give you all of the permissions necessary for your intended use. For example, other rights such as publicity, privacy, or moral rights may limit how you use the material.
-    A new version of this license is available. You should use it for new works, and you may want to relicense existing works under it. No works are automatically put under the new license, however.
-    ---
-    Crummy is © 1996-2021 Leonard Richardson. Unless otherwise noted, all text licensed under a Creative Commons License.
-    ```
+4. Your use of our trademarks
+Canonical's Trademarks (registered in word and logo form) include:
+
+・UBUNTU
+・KUBUNTU
+・EDUBUNTU
+・XUBUNTU
+・JUJU
+・LANDSCAPE
+
+・You can use the Trademarks, in accordance with Canonical's brand guidelines, with Canonical's permission in writing. If you require a Trademark licence, please contact us (as set out below).
+
+・You will require Canonical's permission to use: (i) any mark ending with the letters UBUNTU or BUNTU which is sufficiently similar to the Trademarks or any other confusingly similar mark, and (ii) any Trademark in a domain name or URL or for merchandising purposes.
+・You cannot use the Trademarks in software titles. If you are producing software for use with or on Ubuntu you may reference Ubuntu, but must avoid: (i) any implication of endorsement, or (ii) any attempt to unfairly or confusingly capitalise on the goodwill of Canonical or Ubuntu.
+・You can use the Trademarks in discussion, commentary, criticism or parody, provided that you do not imply endorsement by Canonical.
+・You can write articles, create websites, blogs or talk about Ubuntu, provided that it is clear that you are in no way speaking for or on behalf of Canonical and that you do not imply endorsement by Canonical.
+
+Canonical reserves the right to review all use of Canonical's Trademarks and to object to any use that appears outside of this IPRights Policy.
+
+5. Your use of our copyright, patent and design materials
+・You can only use Canonical's copyright materials in accordance with the copyright licences therein and this IPRights Policy.
+・You cannot use Canonical's patented materials without our permission.
+
+Copyright
+The disk, CD, installer and system images, together with Ubuntu packages and binary files, are in many cases copyright of Canonical (which copyright may be distinct from the copyright in the individual components therein) and can only be used in accordance with the copyright licences therein and this IPRights Policy.
+
+Patents
+Canonical has made a significant investment in the Open Invention Network, defending Linux, for the benefit of the open source ecosystem. Additionally, like many open source projects, Canonical also protects its interests from third parties by registering patents. You cannot use Canonical's patented materials without our permission.
+
+Trade dress and look and feel
+Canonical owns intellectual property rights in the trade dress and look and feel of Ubuntu (including the Unity interface), along with various themes and components that may include unregistered design rights, registered design rights and design patents, your use of Ubuntu is subject to these rights.
+
+6. Logo use guidelines
+Canonical's logos are presented in multiple colours and it is important that their visual integrity be maintained. It is therefore preferable that the logos should only be used in their standard form, but if you should feel the need to alter them in any way, you should following the guidelines set out below.
+
+・[Ubuntu logo guidelines](https://design.ubuntu.com/brand/ubuntu-logo)
+・[Canonical logo guidelines](https://design.ubuntu.com/brand/canonical-logo)
+
+7. Use of Canonical IP by the Ubuntu community
+Ubuntu is built by Canonical and the Ubuntu community. We share access rights owned by Canonical with the Ubuntu community for the purposes of discussion, development and advocacy. We recognise that most of the open source discussion and development areas are for non-commercial purposes and we therefore allow the use of Canonical IP in this context, as long as there is no commercial use and that the Canonical IP is used in accordance with this IPRights Policy.
+
+8. Contact us
+[Please contact us:](https://canonical.com/legal/terms-and-policies/contact-us)
+
+・if you have any questions or would like further information on our IPRights Policy, Canonical or Canonical IP;
+・if you would like permission from Canonical to use Canonical IP;
+・if you require a licence agreement; or
+・to report a breach of our IPRights Policy.
+Please note that due to the volume of mail we receive, it may take up to a week to process your request.
+
+9. Changes
+We may make changes to this IPRights Policy from time to time. Please check this IPRights Policy from time to time to ensure that you are in compliance.
+----
+    © 2026 Canonical Ltd.
+```
+
+  - [Python 3.12](https://docs.python.org/ja/3.12/license.html)
+
+    「Terms and conditions for accessing or otherwise using Python」の一部のみを引用しました。全体は、[歴史とライセンス](https://docs.python.org/ja/3.12/license.html)を直接参照して下さい。
+```
+Python software and documentation are licensed under the Python Software Foundation License Version 2.
+
+Starting with Python 3.8.6, examples, recipes, and other code in the documentation are dual licensed under the PSF License Version 2 and the Zero-Clause BSD license.
+
+Some software incorporated into Python is under different licenses. The licenses are listed with code falling under that license. See Licenses and Acknowledgements for Incorporated Software for an incomplete list of these licenses.
+
+PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2
+1. This LICENSE AGREEMENT is between the Python Software Foundation ("PSF"), and
+   the Individual or Organization ("Licensee") accessing and otherwise using this
+   software ("Python") in source or binary form and its associated documentation.
+
+2. Subject to the terms and conditions of this License Agreement, PSF hereby
+   grants Licensee a nonexclusive, royalty-free, world-wide license to reproduce,
+   analyze, test, perform and/or display publicly, prepare derivative works,
+   distribute, and otherwise use Python alone or in any derivative
+   version, provided, however, that PSF's License Agreement and PSF's notice of
+   copyright, i.e., "Copyright © 2001-2023 Python Software Foundation; All Rights
+   Reserved" are retained in Python alone or in any derivative version
+   prepared by Licensee.
+
+3. In the event Licensee prepares a derivative work that is based on or
+   incorporates Python or any part thereof, and wants to make the
+   derivative work available to others as provided herein, then Licensee hereby
+   agrees to include in any such work a brief summary of the changes made to Python.
+
+4. PSF is making Python available to Licensee on an "AS IS" basis.
+   PSF MAKES NO REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED.  BY WAY OF
+   EXAMPLE, BUT NOT LIMITATION, PSF MAKES NO AND DISCLAIMS ANY REPRESENTATION OR
+   WARRANTY OF MERCHANTABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE OR THAT THE
+   USE OF PYTHON WILL NOT INFRINGE ANY THIRD PARTY RIGHTS.
+
+5. PSF SHALL NOT BE LIABLE TO LICENSEE OR ANY OTHER USERS OF PYTHON
+   FOR ANY INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES OR LOSS AS A RESULT OF
+   MODIFYING, DISTRIBUTING, OR OTHERWISE USING PYTHON, OR ANY DERIVATIVE
+   THEREOF, EVEN IF ADVISED OF THE POSSIBILITY THEREOF.
+
+6. This License Agreement will automatically terminate upon a material breach of
+   its terms and conditions.
+
+7. Nothing in this License Agreement shall be deemed to create any relationship
+   of agency, partnership, or joint venture between PSF and Licensee.  This License
+   Agreement does not grant permission to use PSF trademarks or trade name in a
+   trademark sense to endorse or promote products or services of Licensee, or any
+   third party.
+
+8. By copying, installing or otherwise using Python, Licensee agrees
+   to be bound by the terms and conditions of this License Agreement.
+---
+© Copyright 2001-2025, Python Software Foundation.
+```
+
+  - [requests](https://github.com/requests/requests-docs-jp/blob/master/LICENSE)
+```
+Copyright 2013 Kenneth Reitz
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+```
+
+  - [BeautifulSoup](https://github.com/live-clones/beautifulsoup/blob/master/LICENSE)
+
+```
+Beautiful Soup is made available under the MIT license:
+
+ Copyright (c) Leonard Richardson
+
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+Beautiful Soup incorporates code from the html5lib library, which is
+also made available under the MIT license. Copyright (c) James Graham
+and other contributors
+
+Beautiful Soup has an optional dependency on the soupsieve library,
+which is also made available under the MIT license. Copyright (c)
+Isaac Muse
+```
+
   - [PostgreSQL](https://www.postgresql.org/about/licence/)
 
-    ```
-    PostgreSQL is released under the PostgreSQL License, a liberal Open Source license, similar to the BSD or MIT licenses.
+```
+License 
+PostgreSQL is released under the PostgreSQL License, a liberal Open Source license, similar to the BSD or MIT licenses.
 
-    PostgreSQL Database Management System
-    (also known as Postgres, formerly as Postgres95)
+PostgreSQL Database Management System
+(also known as Postgres, formerly as Postgres95)
 
-    Portions Copyright © 1996-2026, The PostgreSQL Global Development Group
+Portions Copyright © 1996-2026, The PostgreSQL Global Development Group
 
-    Portions Copyright © 1994, The Regents of the University of California
+Portions Copyright © 1994, The Regents of the University of California
 
-    Permission to use, copy, modify, and distribute this software and its documentation for any purpose, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and this paragraph and the following two paragraphs appear in all copies.
+Permission to use, copy, modify, and distribute this software and its documentation for any purpose, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and this paragraph and the following two paragraphs appear in all copies.
 
-    IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-    THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
-    Will PostgreSQL ever be released under a different license?
-    The PostgreSQL Global Development Group remains committed to making PostgreSQL available as free and open source software in perpetuity. There are no plans to change the PostgreSQL License or release PostgreSQL under a different license.
+Will PostgreSQL ever be released under a different license?
+The PostgreSQL Global Development Group remains committed to making PostgreSQL available as free and open source software in perpetuity. There are no plans to change the PostgreSQL License or release PostgreSQL under a different license.
 
-    If you would like to read more about this topic, then please take a look at the mailing list archives at one of the many discussions on this subject.
-    ```
+If you would like to read more about this topic, then please take a look at the mailing list archives at one of the many discussions on this subject.
+```
 
 ----
 Copyright (C) N.Togashi 2026
+
