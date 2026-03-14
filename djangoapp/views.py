@@ -91,7 +91,7 @@ def facilitySummary(request):
             apiobj = None
             raise BadRequest('Error in Execution.')
         response = HttpResponse(json.dumps(recs, \
-                ensure_ascii=False).replace('}, {', '},\n{'))
+                ensure_ascii=False).replace(']}, {', ']},\n{'))
         response['content-type'] = 'application/json; charset=utf-8'
         return response
 
