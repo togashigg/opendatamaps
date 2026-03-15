@@ -3,6 +3,7 @@
 	Copyright (C) N.Togashi 2026
 ----- */
 	var DEBUG=true;
+	var SHOW_TRABEL_ROUTE=true;
 	if(DEBUG) console.log(nowToString()+' javascript start');
 	var apiLogs=[];
 	var apiLogsMax=20;
@@ -17,6 +18,7 @@
 	var directionsService=null;
 	var directionsRenderer=null;
 	var directionRouteNo=-1;
+	var infoWindow=null;
 	var buttonLabel='追尾中';
 	var myInitialCenter={lat:35.118590536070734, lng:138.91855992264092};	// 初期位置、三島市役所→どこにしようか？
 	var myInitialMode='center';	// center:近隣施設表示、code:市区町村単位の施設表示
@@ -728,6 +730,7 @@
 					}
 					if(directionRouteNo>=0) {
 						directionsRenderer.setMap(myMap);
+						infoWindow.open(myMap);
 					}
 				}
 				mapCenterPrev=new google.maps.LatLng(mapCenter.lat(), mapCenter.lng());
@@ -1039,7 +1042,7 @@
 				detail+='<tr><td>緯度</td><td>'+dataTable[nos[i]].lat+'</td></tr>\n';
 				detail+='<tr><td>経度</td><td>'+dataTable[nos[i]].lng+'</td></tr>\n';
 				if('error' in dataTable[nos[i]] && dataTable[nos[i]].error != null) {
-					detail+='<tr bgcolor="red"><td>msg</td><td>'
+					detail+='<tr bgcolor="#FF88FF"><td>msg</td><td>'
 						+dataTable[nos[i]].error+'</td></tr>\n';
 				}
 				detail+='</table>\n';
@@ -1073,17 +1076,21 @@
 	}
 	function showTrabelRoute(no) {
 		if(DEBUG) console.log(nowToString()+' showTrabelRoute('+no+') start');
-		console.log('now not support!');
-		return false;
+		if(! SHOW_TRABEL_ROUTE) {
+			console.log('now SHOW_TRABEL_ROUTE is not true!');
+			return false;
+		}
 
 		// stopTraceCurrentPosition();
 		if(directionsService==null) {
 			directionsService=new google.maps.DirectionsService();
 			directionsRenderer=new google.maps.DirectionsRenderer();
+			infoWindow=new google.maps.InfoWindow();
 		}
 		if(directionRouteNo>=0) {
 			directionsRenderer.setMap(null);
 			if(directionRouteNo==no) {
+				infoWindow.close();
 				directionRouteNo=-1;
 				no=-1;
 			}
@@ -1102,6 +1109,14 @@
 					// ルート検索の結果を地図上に描画
 					directionsRenderer.setDirections(result);
 					directionsRenderer.setMap(myMap);
+					let route=result.routes[0].legs[0];
+					let routeInfo=(no+1)+' '+dataTable[no].label+'<br>'
+								+'<strong>ルート情報</strong><br>'
+								+'距離: '+route.distance.text+'<br>'
+								+'時間: '+route.duration.text;
+					infoWindow.setContent(routeInfo);
+					infoWindow.setPosition(route.end_location);
+					infoWindow.open(myMap);
 				}
 			});
 			directionRouteNo=no;
