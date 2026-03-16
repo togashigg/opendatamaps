@@ -113,9 +113,9 @@ class OpendataMapsDb:
             # opendatamapsテーブルを作成する
             sql = '''CREATE TABLE opendatamaps (
                       locality_code CHAR(6) NOT NULL,
-                      kind     VARCHAR(60) NOT NULL,
+                      kind     VARCHAR(64) NOT NULL,
                       dataset  VARCHAR(128) NOT NULL,
-                      id       VARCHAR(32) NOT NULL,
+                      id       VARCHAR(64) NOT NULL,
                       label    VARCHAR(512) NOT NULL,
                       lat      FLOAT NOT NULL,
                       lng      FLOAT NOT NULL,
