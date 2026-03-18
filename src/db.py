@@ -935,7 +935,7 @@ if __name__ == '__main__':
         p.add_argument('-e', '--delete', type=str, nargs='*', default=None, \
                 help='opendatamapsテーブルのレコードを削除する。\n' \
                      'DELETE: 削除対象を「都道府県名[/市区町村名]」で指定する。')
-        p.add_argument('-l', '--load', type=str, nargs='?', default=None, \
+        p.add_argument('-l', '--load', type=str, nargs='+', default=None, \
                 help='テーブルにデータをロードする。\n' \
                      'LOAD: データをロードするテーブル名を指定する。')
         p.add_argument('-f', '--files', type=str, nargs='*', \
