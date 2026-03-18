@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # crawler.py: オープンデータを取得して共通形式でキャッシュする
-# Copyright (C) N.Togashi 2025
+# Copyright (C) N.Togashi 2025-2026
 
 import os
 import sys

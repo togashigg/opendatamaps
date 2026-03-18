@@ -1,6 +1,6 @@
 /* -----
 	opendatamaps.js: オープンデータMaps API用サンプルJavaScript（オープンデータ on Google Maps）。
-	Copyright (C) N.Togashi 2026
+	Copyright (C) N.Togashi 2025-2026
 ----- */
 	var DEBUG=true;
 	var SHOW_TRABEL_ROUTE=true;

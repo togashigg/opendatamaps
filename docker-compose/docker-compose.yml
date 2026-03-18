@@ -31,9 +31,8 @@ services:
     image: opendatamaps
     networks:
       - compose-net
-    ports:
-      - "8080:8080"
     volumes:
+      # - ./opendatamaps/crawler.json:/app/src/crawler.json:ro
       - ./opendatamaps/download:/app/download
       - ./opendatamaps/cache:/app/cache
       - ./opendatamaps/djangoapp_log:/app/djangoapp/log

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # db.py: オープンデータDBの処理クラス
-# Copyright (C) N.Togashi 2023
+# Copyright (C) N.Togashi 2025-2026
 # Required environmental variables:
 #   POSTGRESQL_HOST
 #   POSTGRESQL_PORT
@@ -510,6 +510,66 @@ class OpendataMapsDb:
         self.logger.debug('drop_tables() ended.')
         return True
 
+    def delete_records(self, keys):
+        """
+        opendatamapsテーブルのレコードを削除する。
+        :param keys: list型、都道府県名[/市区町村名]
+        :return: boolean型、True=正常終了、False=異常終了
+        """
+        self.logger.debug('delete_records() start, key=' + str(keys))
+        # 削除実行
+        rc = True
+        deleted = False
+        for key in keys:
+            self.logger.debug('key=' + str(key))
+            key_parse = key.split('/')
+            if len(key_parse) > 2:
+                msg = '削除するレコードの指定に誤りがあります。' + key
+                self.logger.error(msg)
+                raise Exception(msg)
+            # 都道府県・市区町村コードを取得する
+            sql = "SELECT * FROM localitycode WHERE state_name='" \
+                + key_parse[0] + "' AND locality_name='"
+            if len(key_parse) > 1:
+                sql += key_parse[1]
+            sql += "';"
+            # SQL実行
+            with self.conn.cursor() as cur:
+                self.logger.debug('sql=' + sql)
+                cur.execute(sql)
+                rows = cur.fetchall()
+                cur.close()
+                self.logger.debug('rows=' + str(rows))
+                if len(rows) != 1:
+                    msg = '削除対象の都道府県名または市区町村名に誤りがあります。' + key
+                    self.logger.error(msg)
+                    raise Exception(msg)
+            lcd = rows[0][0]
+            with self.conn.cursor() as cur:
+                sql = "DELETE FROM opendatamaps WHERE "
+                if len(key_parse) == 1:
+                    sql += "SUBSTR(locality_code,1,2)='" + lcd[0:2] + "'"
+                else:
+                    sql += "locality_code='" + lcd + "'"
+                # SQL実行
+                row_count = 0
+                self.logger.debug('sql=' + sql)
+                cur.execute(sql)
+                row_count = cur.rowcount
+                deleted = True
+                cur.close()
+
+            if deleted:
+                self.conn.commit()
+                deleted = False
+
+            print('  ' + key + ': ' + str(row_count) + 'レコードが削除されました。')
+
+        if deleted:
+            self.conn.commit()
+        self.logger.debug('delete_records() ended, rc=' + str(rc))
+        return rc
+
     def get_opendatamaps_kinds(self, codes):
         """
         opendatamapsテーブルの種別(kind)一覧を取得する。
@@ -542,7 +602,7 @@ class OpendataMapsDb:
             self.logger.debug('select len(recs)=' + str(len(recs)))
             # self.logger.debug('select recs=' + str(recs))
             cur.close()
-        # JSON形式に嫌韓する
+        # JSON形式に変換する
         rc = {'kinds': [rec[0] for rec in recs]}
         self.logger.debug('get_opendatamaps_kinds() ended, rc=' + str(rc))
         return rc
@@ -567,7 +627,7 @@ class OpendataMapsDb:
             self.logger.debug('select len(recs)=' + str(len(recs)))
             # self.logger.debug('select recs=' + str(recs))
             cur.close()
-        # JSON形式に嫌韓する
+        # JSON形式に変換する
         rc = []
         code = ''
         for rec in recs:
@@ -630,7 +690,7 @@ class OpendataMapsDb:
             self.logger.debug('select len(recs)=' + str(len(recs)))
             # self.logger.debug('select recs=' + str(recs))
             cur.close()
-        # JSON形式に嫌韓する
+        # JSON形式に変換する
         rc = [{'locality_code': rec[0],
                'kind': rec[1],
                'dataset': rec[2],
@@ -691,7 +751,7 @@ class OpendataMapsDb:
             self.logger.debug('select len(recs)=' + str(len(recs)))
             # self.logger.debug('select recs=' + str(recs))
             cur.close()
-        # JSON形式に嫌韓する
+        # JSON形式に変換する
         rc = [{'locality_code': rec[0],
                'kind': rec[1],
                'dataset': rec[2],
@@ -767,7 +827,7 @@ class OpendataMapsDb:
             self.logger.debug('select len(recs)=' + str(len(recs)))
             # self.logger.debug('select recs=' + str(recs))
             cur.close()
-        # JSON形式に嫌韓する
+        # JSON形式に変換する
         rc = [{'code': rec[0],
                'state_name': rec[1],
                'locality_name': rec[2]
@@ -816,7 +876,7 @@ class OpendataMapsDb:
             self.logger.debug('select len(recs)=' + str(len(recs)))
             # self.logger.debug('select recs=' + str(recs))
             cur.close()
-        # JSON形式に嫌韓する
+        # JSON形式に変換する
         rc = [{'code': rec[0],
                'state_name': rec[1],
                'locality_name': rec[2]
@@ -864,19 +924,27 @@ if __name__ == '__main__':
     try:
         # パラメタチェック
         import argparse
-        p = argparse.ArgumentParser()
-        p.add_argument('-c', '--create', action='store_true', help='テーブルを定義する。')
-        p.add_argument('-d', '--drop', action='store_true', help='テーブルを削除する。')
-        p.add_argument('-l', '--load', action='store_true', \
-                help='テーブルにデータをロードする。')
+        p = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, \
+            description='    テーブル名にはlocalitycode、opendatamapsが指定できる。')
+        p.add_argument('-c', '--create', type=str, nargs='*', default=None, \
+                help='テーブルを定義する。\n' \
+                     'CREATE: 定義するテーブル名を指定する。複数指定可能、省略可能。')
+        p.add_argument('-d', '--drop', type=str, nargs='*', default=None, \
+                help='テーブルを削除する。\n' \
+                     'DROP: 削除するテーブル名を指定する。複数指定可能、省略可能。')
+        p.add_argument('-e', '--delete', type=str, nargs='*', default=None, \
+                help='opendatamapsテーブルのレコードを削除する。\n' \
+                     'DELETE: 削除対象を「都道府県名[/市区町村名]」で指定する。')
+        p.add_argument('-l', '--load', type=str, nargs='?', default=None, \
+                help='テーブルにデータをロードする。\n' \
+                     'LOAD: データをロードするテーブル名を指定する。')
         p.add_argument('-f', '--files', type=str, nargs='*', \
                 help='opendatamapsテーブルにデータをロードする場合、\n' \
-                     'ロードするディレクトリまたはファイルのパスを指定する。\n' \
+                     'FILES: ロードするディレクトリまたはファイルのパスを指定する。\n' \
                      '省略時はキャッシュディレクトリ内の全ファイルが対象。')
-        p.add_argument('-t', '--test', action='store_true', help='テーブルを検索する。')
-        p.add_argument('tables', nargs='*', default=[], \
-                help='処理対象テーブル名（localitycode、opendatamaps）を指定する。' \
-                     '複数指定可能。')
+        p.add_argument('-t', '--test', type=str, nargs='*', default=None, \
+                help='テーブルを検索する。\n' \
+                     'TEST: 検索するテーブル名を指定する。複数指定可能、省略可能。')
         args = p.parse_args(sys.argv[1:])
         # 開始
         msg = 'db.py start.'
@@ -886,21 +954,24 @@ if __name__ == '__main__':
         db = OpendataMapsDb()
         db.connect()
         # 処理開始
-        if args.drop:
-            db.drop_tables(args.tables)
+        if type(args.drop) is list:
+            db.drop_tables(args.drop)
             msg = 'テーブルを削除しました。'
             logger.info(msg)
             print(msg, file=sys.stderr)
-        if args.create:
-            db.create_tables(args.tables)
-            msg = 'テーブルを定義しました。' + str(args.tables)
+        if type(args.create) is list:
+            db.create_tables(args.create)
+            msg = 'テーブルを定義しました。' + str(args.create)
             logger.info(msg)
             print(msg, file=sys.stderr)
-        if args.load:
+        if type(args.load) is list:
             # データロード
-            db.load_tables(args.tables, args.files)
-        if args.test:
-            if args.tables == [] or 'localitycode' in args.tables:
+            db.load_tables(args.load, args.files)
+        if type(args.delete) is list:
+            # opendatamapsテーブルのレコード削除
+            db.delete_records(args.delete)
+        if type(args.test) is list:
+            if args.test == [] or 'localitycode' in args.test:
                 # localitycodeテーブルテスト
                 recs = db.get_localitycode_by_code('22206%')
                 print('get_localitycode_by_code(22206%) recs=' + str(recs))
@@ -916,7 +987,7 @@ if __name__ == '__main__':
                 print('get_localitycode_by_name(None,三島市) recs=' + str(recs))
                 recs = db.get_localitycode_by_name(None, None, limit=2)
                 print('get_localitycode_by_name(None,None,limit=2) recs=' + str(recs))
-            if args.tables == [] or 'opendatamaps' in args.tables:
+            if args.test == [] or 'opendatamaps' in args.test:
                 # opendatamapsテーブルテスト
                 res = db.get_opendatamaps_kinds(None)
                 print('opendatamaps_kinds() res=' + str(res))
