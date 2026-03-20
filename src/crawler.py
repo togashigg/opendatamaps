@@ -44,6 +44,8 @@ class Crawler:
     cache_dir = None
     locality_dict = {}
     __data_name_dict = {}
+    __requests_start_time = None
+    __requests_interval_seconds = 5
     __requests_retry_max = 3
     __requests_retry_seconds = 5
     __request_headers = {}
@@ -321,8 +323,16 @@ class Crawler:
                 content = msg
                 logger.debug('url_get() ended_3.')
                 return content
+            # 連続でrequestsしないように間隔を空ける
+            delta = self.__requests_interval_seconds
+            if self.__requests_start_time is not None:
+                delta = (datetime.datetime.now() - self.__requests_start_time).seconds
+            sleep_seconds = self.__requests_interval_seconds - delta
+            # logger.debug('sleep_seconds=' + str(sleep_seconds))
+            if sleep_seconds > 0:
+                time.sleep(sleep_seconds)
+            self.__requests_start_time = datetime.datetime.now()
             # HTTP GET
-            time.sleep(1)
             for try_i in range(self.__requests_retry_max):
                 try_ok = False
                 try:
