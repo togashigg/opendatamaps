@@ -99,10 +99,8 @@ result_msg="$result_msg test5:$test5"
 # echo "$result_msg"
 
 if [ "`which mail`" != "" ]; then
-    echo "error code = $result_code\ndetails: $result_msg\ncheck: opendatamaps_onrender_com_check.log on GCP." \
-    | mail -s "ERROR in opendatamaps servide!" \
-           -a "From: togashigg@gmail.com" \
-           togashigg@gmail.com
+    echo -e "error code = $result_code\ndetails: $result_msg\ncheck: opendatamaps_onrender_com_check.log on GCP." \
+    | mail -s "ERROR in opendatamaps service on Render!" togashigg@gmail.com
 fi
 
 echo "$(date '+%Y/%m/%d %H:%M:%S') opendatamaps_onrender_com_check.sh ended, result=$result_code"
