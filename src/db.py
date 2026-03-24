@@ -187,16 +187,13 @@ class OpendataMapsDb:
         if 'opendatamaps' in tables:
             if files is None or files == []:
                 files = [os.path.join(self.cache_dir, f) \
-                        for f in sorted(os.listdir(self.cache_dir), reverse=True)]
+                        for f in sorted(os.listdir(self.cache_dir)) \
+                        if f[0] != '.']
             # 再帰的にロードする
             msg = 'opendatamapsテーブルにデータをロードします。' 
             self.logger.info(msg)
             print(msg, file=sys.stderr)
             self.load_opendatamaps(files)
-            """ ToDo: 削除予定
-            # ディレクトリ単位（ディレクトリ２階層）
-            self.load_opendatamaps_in_dir(tables)
-            """
             msg = 'opendatamapsテーブルにデータをロードしました。' 
             self.logger.info(msg)
             print(msg, file=sys.stderr)
@@ -258,7 +255,8 @@ class OpendataMapsDb:
                 self.logger.debug(msg)
                 print(msg, file=sys.stderr)
                 files_in_dir = [os.path.join(file, f) \
-                        for f in sorted(os.listdir(file), reverse=True)]
+                        for f in sorted(os.listdir(file), reverse=True) \
+                        if f[0] != '.']
                 # 下階層を処理する
                 self.load_opendatamaps(files_in_dir)
             else:
@@ -281,42 +279,6 @@ class OpendataMapsDb:
         # 復帰
         self.logger.debug('load_opendatamaps() ended.')
         return True
-
-    """ ToDo: 削除予定
-    def load_opendatamaps_dir(self, dir):
-        self.logger.debug('load_opendatamaps_dir() start, dir=' + str(dir))
-        # 実行
-        if not os.path.isdir(dir):
-            msg = 'dir is not directory, dir=' + str(dir)
-            self.logger.debug(msg)
-            print(msg, file=sys.stderr)
-            return False
-        for file in sorted(os.listdir(dir)):
-            if file[0] == '.':
-                continue
-            # １ファイルを登録する
-            msg = 'loading file=' + file
-            self.logger.debug(msg)
-            print('  '+msg+'：', msg = 'dir is not directory, dir=' + str(dir)
-            self.logger.debug(msg)
-            print(msg, file=sys.stderr)file=sys.stderr, end='')
-            jfile = os.path.join(dir, file)
-            uniq_key_error = False
-            try:
-                with self.conn.cursor() as cur:
-                    rc = self.insert_opendatamaps_file(cur, jfile)
-            except psycopg2.errors.UniqueViolation as e:
-                uniq_key_error = True
-
-            # ユニークキーエラーが発生していれば１件づつ登録する
-            if uniq_key_error:
-                with self.conn.cursor() as cur:
-                    rc = self.insert_opendatamaps_file(cur, jfile, commit1=True)
-
-        # 復帰
-        self.logger.debug('load_opendatamaps_dir() ended.')
-        return True
-    """
 
     def insert_opendatamaps_file(self, cur, file, commit1=False):
         """
@@ -446,77 +408,6 @@ class OpendataMapsDb:
         # 復帰
         self.logger.debug('insert_record() ended, rc=' + str(rc))
         return True
-
-    """ ToDo: 削除予定
-    def load_opendatamaps_in_dir(self, dirs):
-        self.logger.debug('load_opendatamaps_in_dir() start.')
-        # 実行
-        msg = 'opendatamapsテーブルにデータをロードします。'
-        self.logger.info(msg)
-        print(msg, file=sys.stderr)
-        # ディレクトリを辿る
-        dir_list = []
-        for dir in dirs:
-            if dir == 'localitycode' or dir == 'opendatamaps':
-                continue
-            dir_list.append(dir.split('/'))
-        for dir1 in sorted(os.listdir(self.cache_dir)):
-            if dir1[0] == '.':
-                continue
-            self.logger.debug('dir1=' + dir1)
-            dir1_list = dir1.split('_')
-            if len(dir1_list) != 2:
-                continue
-            dir1_exec = False
-            if dir_list == []:
-                dir1_exec = True
-            else:
-                for dir in dir_list:
-                    if dir1_list[1] == dir[0]:
-                        dir1_exec = True
-                        break
-            if not dir1_exec:
-                continue
-            dir1_path = os.path.join(self.cache_dir, dir1)
-            if not os.path.isdir(dir1_path):
-                continue
-            for dir2 in sorted(os.listdir(os.path.join(dir1_path))):
-                if dir2[0] == '.':
-                    continue
-                self.logger.debug('dir2=' + dir2)
-                dir2_list = dir2.split('_')
-                ''' ToDo: 削除？
-                if len(dir2_list) != 2:
-                    continue
-                '''
-                dir2_exec = False
-                if dir_list == []:
-                    dir2_exec = True
-                else:
-                    for dir in dir_list:
-                        if dir[0] == dir1_list[1]:
-                            if len(dir) == 1:
-                                dir2_exec = True
-                                break
-                            elif dir[1] == dir2_list[1]:
-                                dir2_exec = True
-                                break
-                if not dir2_exec:
-                    continue
-                dir2_path = os.path.join(dir1_path, dir2)
-                if not os.path.isdir(dir2_path):
-                    continue
-                # ロード範囲のデータを削除する
-                # ToDo: self.delete_opendatamaps_dir(dir2_path)
-                print('dir=' + dir1 + '/' + dir2, file=sys.stderr)
-                self.load_opendatamaps_dir(dir2_path)
-
-        msg = 'opendatamapsテーブルにデータをロードしました。'
-        self.logger.info(msg)
-        print(msg, file=sys.stderr)
-        self.logger.debug('load_opendatamaps_in_dir() ended.')
-        return True
-    """
 
     def drop_tables(self, tables):
         self.logger.debug('drop_tables() start.')
