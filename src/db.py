@@ -101,6 +101,29 @@ class OpendataMapsDb:
             cur.execute(sql)
             cur.close()
             self.logger.debug('TABLE(localitycode) created.')
+
+        if True:
+            # インデックスを作成する
+            with self.conn.cursor() as cur:
+                sql = '''CREATE INDEX localitycode_index1 ON localitycode (
+                          state_name
+                      );
+                      '''
+                # SQL実行
+                cur.execute(sql)
+                cur.close()
+                self.logger.debug('INDEX(localitycode_index1) created.')
+
+            with self.conn.cursor() as cur:
+                sql = '''CREATE INDEX localitycode_index2 ON localitycode (
+                          locality_name
+                      );
+                      '''
+                # SQL実行
+                cur.execute(sql)
+                cur.close()
+                self.logger.debug('INDEX(localitycode_index2) created.')
+
         self.conn.commit()
         self.logger.debug('commited.')
         self.logger.debug('create_localitycode() ended.')
@@ -128,17 +151,29 @@ class OpendataMapsDb:
             cur.execute(sql)
             cur.close()
             self.logger.debug('TABLE(opendatamaps) created.')
+
         if True:
+            # インデックスを作成する
             with self.conn.cursor() as cur:
-                # インデックスを作成する
                 sql = '''CREATE INDEX opendatamaps_index1 ON opendatamaps (
-                          kind
+                          lat, lng, kind
                       );
                       '''
                 # SQL実行
                 cur.execute(sql)
                 cur.close()
                 self.logger.debug('INDEX(opendatamaps_index1) created.')
+
+            with self.conn.cursor() as cur:
+                sql = '''CREATE INDEX opendatamaps_index2 ON opendatamaps (
+                          locality_code, kind
+                      );
+                      '''
+                # SQL実行
+                cur.execute(sql) 
+                cur.close()
+                self.logger.debug('INDEX(opendatamaps_index2) created.')
+
         self.conn.commit()
         self.logger.debug('commited.')
         self.logger.debug('create_opendatamaps() ended.')
