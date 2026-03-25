@@ -1102,16 +1102,16 @@ class Crawler:
           or len(jpackage['result']['organization']) < 1):
             locality_name = self.state
         else:
-            if 'groups' in jpackage['result'] \
-            and len(jpackage['result']['groups']) > 0:
-                i_group = 0
+            if 'groups' in jpackage['result']:
+                gi = 0
                 if len(jpackage['result']['groups']) > 1:
                     if jpackage['result']['groups'][0]['id'] == 1:
-                        i_group = 1
-                if 'trailing_name' in jpackage['result']['groups'][i_group]:
-                    locality_name = jpackage['result']['groups'][i_group]['trailing_name']
-                    group_names = jpackage['result']['groups'][i_group]['name'].split('/')
-                    if len(group_names) > 1 and locality_name == group_names[1]:
+                        gi = 1
+                if 'trailing_name' in jpackage['result']['groups'][gi]:
+                    locality_name = jpackage['result']['groups'][gi]['trailing_name']
+                    group_names = jpackage['result']['groups'][gi]['name'].split('/')
+                    if len(group_names) > 1 and group_names[0] != self.state \
+                    and locality_name == group_names[1]:
                         locality_name = group_names[0]
             if locality_name == '' \
             and 'areas' in jpackage['result']:
