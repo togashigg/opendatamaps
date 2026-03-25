@@ -10,7 +10,7 @@
   * [5.Web_APIの構文](#5Web_APIの構文)
   * [6.対象：市区町村情報](#6対象市区町村情報)
   * [7.対象：施設情報](#7対象施設情報)
-  * [8.Renderでの構築手順（※作成者メモ）](#8Renderでの構築手順作成者メモ)
+  * [8.Renderでの構築手順](#8Renderでの構築手順)
   * [9.Dockerコンテナで運用する](#9Dockerコンテナで運用する)
   * [10.使用サービスおよび使用ソフトウェアのライセンスおよびポリシー](#10使用サービスおよび使用ソフトウェアのライセンスおよびポリシー)
 
@@ -653,7 +653,9 @@
 
       </details>
 
-## 8.Renderでの構築手順（※作成者メモ）
+## 8.Renderでの構築手順
+
+　Renderで運用する場合、PostgreSQLによるDBサーバを別途用意する必要があります。
 
 ### 8.1 Renderにユーザ登録する
 
@@ -743,9 +745,9 @@
   デフォルトで連携されている。GitHubのリポジトリが更新されるとビルドされる。
 
 
-## 9.Dockerコンテナで運用する（作者メモ）
+## 9.Dockerコンテナで運用する
 
-　動作環境の前提条件は以下の通りです。
+　動作環境の前提条件は以下の通りです（作成者の環境です）。
     - OS: ubuntu 24.04
     - Docker version 20.10
     - docker-compose version 1.29
@@ -778,6 +780,7 @@
      $ cd docker
      $ cp -pr ~/github/opendatamaps/docker-compose/* ./
      $ mkdir db/data/18
+     $ cp -p ~/github/opendatamaps/download/都道府県コード及び市区町村コード_20240101.csv opendatamaps/download/
      ```
 
   5. SSL通信用オレオレ証明書を作成する。※できれば正式な証明書を使用したい！
@@ -848,8 +851,8 @@
      ```
      $ cd
      $ cd docker/opendatamaps/
-     $ docker exec -t docker_opendatamaps_1 python3 src/crowler.py 静岡県 | tee cmd_log/crowler_静岡県.stdout
-     $ docker exec -t docker_opendatamaps_1 python3 src/crowler.py 東京都 | tee cmd_log/crowler_東京都.stdout
+     $ docker exec -t docker_opendatamaps_1 python3 src/crawler.py 静岡県 | tee cmd_log/crawler_静岡県.stdout
+     $ docker exec -t docker_opendatamaps_1 python3 src/crawler.py 東京都 | tee cmd_log/crawler_東京都.stdout
      ```
 
 ### 9.3 オープンデータを自前データベースに登録する
