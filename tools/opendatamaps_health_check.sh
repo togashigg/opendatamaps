@@ -20,7 +20,7 @@ readonly is_false=false
 WGET_OPT="wget -qO - --no-check-certificate"
 
 # random delay at cron
-if [ "$USER" == "root" ]; then
+if [ "$LOGNAME" == "root" ]; then
     sleep_time=`expr $RANDOM % 64`
     sleep $sleep_time
     echo "$(date '+%Y/%m/%d %H:%M:%S') sleep ended, ${sleep_time}s"
