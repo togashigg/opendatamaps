@@ -12,6 +12,7 @@ if [ "$1" != "" ]; then
         HOST="$HOST/"
     fi
 fi
+echo "HOST=$HOST"
 result_code=0
 result_msg="MSG:"
 readonly is_true=true
