@@ -713,7 +713,7 @@
 			moveCenter=true;
 		}
 		if(moveCenter) {
-			if(myParam.mode == 'center') {
+			// ToDo: 削除予定 if(myParam.mode == 'center') {
 				if(mapCenterPrev10==null) {
 					getAddress=true;
 					rereadData=true;
@@ -729,7 +729,7 @@
 				mapCenterPrev10=new google.maps.LatLng(
 						Math.floor(mapCenter.lat()*1000)/1000,
 						Math.floor(mapCenter.lng()*1000)/1000);
-			}
+			// ToDo: 削除予定 }
 			if(getAddress) {
 				let codeName=getCenterAddress(mapCenter);
 				centerLocalityCode=codeName[0];
