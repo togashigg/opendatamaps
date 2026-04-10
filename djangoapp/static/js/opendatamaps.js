@@ -9,9 +9,10 @@
 	var apiLogsMax=20;
 	var ESCAPE_RED='\u001b[31m';
 	var ESCAPE_RESET='\u001b[0m';
+	var urlApiLocalitycodeQuery='api/localitycode/query?code=';
 	var urlApiFacilitySummary='api/facility/summary';
 	var urlApiFacilityQueryByCenter='api/facility/query/center?';
-    var urlApiFacilityQueryByLocality='api/facility/query/locality?';
+	var urlApiFacilityQueryByLocality='api/facility/query/locality?';
 	var urlApiFacilitykinds='api/facility/kinds?';
 	var googleApiLatLonToAddr='https://mreversegeocoder.gsi.go.jp/reverse-geocoder/LonLatToAddress?lat={lat}&lon={lon}';
 	var myMap=null;
@@ -89,12 +90,12 @@
 		return false;
 	}
 	function apiLogsAppend(log) {
-		if(DEBUG) console.log(nowToString()+' apiLogsAppend() start');
+		// if(DEBUG) console.log(nowToString()+' apiLogsAppend() start');
 		if(apiLogs.length>=apiLogsMax) {
 			apiLogs.shift();
 		}
 		apiLogs.push(log);
-		if(DEBUG) console.log(nowToString()+' apiLogsAppend() ended');
+		// if(DEBUG) console.log(nowToString()+' apiLogsAppend() ended');
     }
 	// パラメタチェック
 	function checkParameters() {
@@ -650,90 +651,7 @@
 			mapCenter=new google.maps.LatLng(position.coords.latitude-0.0, position.coords.longitude-0.0);
 			if(DEBUG) console.log(nowToString()+' watchPosition, mapCenter='+mapCenter);
 			if(mapCenter!=null) {
-				myMap.setCenter(mapCenter);
-				// 現在地マーカー表示
-				if(myMarker==null) {
-					if(DEBUG) console.log('現在地 表示:'+mapCenter);
-					myText = document.createElement('div');
-					myText.textContent = '現在地';
-					myPin = new google.maps.marker.PinElement({
-						glyph: '現',   /* 現在地 */
-						scale: 1.3,
-						glyphColor: "white",
-						background: "#0000F0",
-						borderColor: "#0000FF",
-					}, font_size=7);
-					myMarker=new google.maps.marker.AdvancedMarkerElement({
-						position: mapCenter,
-						map: myMap,
-						zIndex: 0,
-						title: '現在地',
-						content: myPin.element,
-						// element: myText,
-						// draggable: true,
-					});
-					dispInfo(myMarker, '現在地');
-				} else {
-					if(DEBUG) console.log('現在地 移動:'+mapCenter);
-					myMarker.position = mapCenter;
-					myMarker.zIndex=0;
-				}
-				let moveCenter=false;
-				let getAddress=false;
-				let rereadData=false;
-				if(mapCenterPrev==null) {
-					if(DEBUG) console.log(nowToString()+' センター設定：'+mapCenter);
-					moveCenter=true;
-				} else if(mapCenter.lat()!=mapCenterPrev.lat() || mapCenter.lng()!=mapCenterPrev.lng()) {
-					if(DEBUG) console.log(nowToString()+' センター移動：'+mapCenter.lat()+':'+mapCenter.lng()+'←'+mapCenterPrev.lat()+':'+mapCenterPrev.lng());
-					moveCenter=true;
-				} else if(delMarkers) {
-					moveCenter=true;
-				}
-				if(moveCenter) {
-					if(myParam.mode == 'center') {
-						if(mapCenterPrev10==null) {
-							getAddress=true;
-							rereadData=true;
-						} else 
-						if(Math.floor(mapCenter.lat()*1000)/1000!=mapCenterPrev10.lat()
-						|| Math.floor(mapCenter.lng()*1000)/1000!=mapCenterPrev10.lng()) {
-							// 約10m移動した：
-							// 近隣の施設を再取得する
-							// 中心の住所を取得する
-							getAddress=true;
-							rereadData=true;
-						}
-						mapCenterPrev10=new google.maps.LatLng(
-								Math.floor(mapCenter.lat()*1000)/1000,
-								Math.floor(mapCenter.lng()*1000)/1000);
-					}
-					if(getAddress) {
-						let codeName=getCenterAddress(mapCenter);
-						centerLocalityCode=codeName[0];
-						centerLocalityName=codeName[1];
-						let centerAddress=document.getElementById("centerAddress");
-						if(centerAddress!=null) {
-							centerAddress.innerHTML=centerLocalityName;
-						}
-					}
-				}
-				if(moveCenter) {
-					if(rereadData) {
-						readData();
-					}
-					// 表更新
-					showTable('no');
-					// マーカー再表示
-					if(delMarkers) {
-						showMarkers();
-					}
-					if(directionRouteNo>=0) {
-						directionsRenderer.setMap(myMap);
-						infoWindow.open(myMap);
-					}
-				}
-				mapCenterPrev=new google.maps.LatLng(mapCenter.lat(), mapCenter.lng());
+				setMapCenter(mapCenter);
 			}
 			if(DEBUG) console.log(nowToString()+' watchPosition() ended');
 		}, function() {
@@ -750,6 +668,96 @@
 			tag.value=buttonLabel;
 		}
 		if(DEBUG) console.log(nowToString()+' startTraceCurrentPosition() ended');
+	}
+	function setMapCenter(center) {
+		if(DEBUG) console.log(nowToString()+' setMapCenter() start');
+		mapCenter=center;
+		myMap.setCenter(mapCenter);
+		// 現在地マーカー表示
+		if(myMarker==null) {
+			if(DEBUG) console.log('現在地 表示:'+mapCenter);
+			myText = document.createElement('div');
+			myText.textContent = '現在地';
+			myPin = new google.maps.marker.PinElement({
+				glyph: '現',   /* 現在地 */
+				scale: 1.3,
+				glyphColor: "white",
+				background: "#0000F0",
+				borderColor: "#0000FF",
+			}, font_size=7);
+			myMarker=new google.maps.marker.AdvancedMarkerElement({
+				position: mapCenter,
+				map: myMap,
+				zIndex: 0,
+				title: '現在地',
+				content: myPin.element,
+				// element: myText,
+				// draggable: true,
+			});
+			dispInfo(myMarker, '現在地');
+		} else {
+			if(DEBUG) console.log('現在地 移動:'+mapCenter);
+			myMarker.position = mapCenter;
+			myMarker.zIndex=0;
+		}
+		let moveCenter=false;
+		let getAddress=false;
+		let rereadData=false;
+		if(mapCenterPrev==null) {
+			if(DEBUG) console.log(nowToString()+' センター設定：'+mapCenter);
+			moveCenter=true;
+		} else if(mapCenter.lat()!=mapCenterPrev.lat() || mapCenter.lng()!=mapCenterPrev.lng()) {
+			if(DEBUG) console.log(nowToString()+' センター移動：'+mapCenter.lat()+':'+mapCenter.lng()+'←'+mapCenterPrev.lat()+':'+mapCenterPrev.lng());
+			moveCenter=true;
+		} else if(delMarkers) {
+			moveCenter=true;
+		}
+		if(moveCenter) {
+			if(myParam.mode == 'center') {
+				if(mapCenterPrev10==null) {
+					getAddress=true;
+					rereadData=true;
+				} else 
+				if(Math.floor(mapCenter.lat()*1000)/1000!=mapCenterPrev10.lat()
+				|| Math.floor(mapCenter.lng()*1000)/1000!=mapCenterPrev10.lng()) {
+					// 約10m移動した：
+					// 近隣の施設を再取得する
+					// 中心の住所を取得する
+					getAddress=true;
+					rereadData=true;
+				}
+				mapCenterPrev10=new google.maps.LatLng(
+						Math.floor(mapCenter.lat()*1000)/1000,
+						Math.floor(mapCenter.lng()*1000)/1000);
+			}
+			if(getAddress) {
+				let codeName=getCenterAddress(mapCenter);
+				centerLocalityCode=codeName[0];
+				centerLocalityName=codeName[1];
+				let centerAddress=document.getElementById("centerAddress");
+				if(centerAddress!=null) {
+					centerAddress.innerHTML=centerLocalityName;
+				}
+			}
+		}
+		if(moveCenter) {
+			if(rereadData) {
+				readData();
+			}
+			// 表更新
+			showTable('no');
+			// マーカー再表示
+			if(delMarkers) {
+				showMarkers();
+			}
+			if(directionRouteNo>=0) {
+				directionsRenderer.setMap(myMap);
+				infoWindow.open(myMap);
+			}
+		}
+		mapCenterPrev=new google.maps.LatLng(mapCenter.lat(), mapCenter.lng());
+		if(DEBUG) console.log(nowToString()+' setMapCenter() ended');
+		return false;
 	}
 	function httpGetToJson(url) {
 		if (DEBUG) console.log(nowToString()+' httpGetToJson() start, url='+url);
@@ -787,7 +795,10 @@
 				console.log(ESCAPE_RED+nowToString()+' ERROR:市区町村コードが見付からない。code='+codeName[0]+ESCAPE_RESET);
 				return ['', ''];
 			}
-			codeName[1]=myParam.locality_dict[codeName[0]].name+rjson.results.lv01Nm;
+			// if(DEBUG) console.log(myParam.locality_dict[codeName[0]]);
+			codeName[1]=''+myParam.locality_dict[codeName[0]]['state_name']
+						+myParam.locality_dict[codeName[0]]['locality_name']
+						+rjson.results.lv01Nm;
 		}
 		if (DEBUG) console.log(nowToString()+' getCenterAddress() ended, codeName=['+codeName+']');
 		return codeName;
@@ -795,14 +806,21 @@
 	function codeFromLocalityDict(code) {
 		let rc=code;
 		if(!(code in myParam.locality_dict)) {
-			Object.keys(myParam.locality_dict).some(function(key, index) {
+			if(Object.keys(myParam.locality_dict).some(function(key, index) {
 				if(key.substring(0, code.length)==code) {
 					rc=key;
 					return true;
 				}
 				return false;
-			});
+			}) < 1) {
+				// localitycodeテーブルからcodeを検索する
+				let url=urlApiLocalitycodeQuery + code;
+				let locality_info=httpGetToJson(url);
+				myParam.locality_dict[locality_info[0].code]=locality_info[0];
+				rc=locality_info[0].code;
+			}
 		}
+		if(DEBUG) console.log(nowToString()+' codeFromLocalityDict() ended, '+code+'->'+rc);
 		return rc;
 	}
 	function toggleTraceButton() {
@@ -1136,6 +1154,10 @@
 		var divTag=document.getElementById("popupSettings");
 		divTag.style.display="none";
 		if(DEBUG) console.log(nowToString()+' closeSettings() ended');
+		return false;
+	}
+	function setCenterToCurrent() {
+		setMapCenter(myMap.getCenter());
 		return false;
 	}
 	function distanceLatlng(lat, lng) {
