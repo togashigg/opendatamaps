@@ -125,7 +125,8 @@ def facilityQueryByCenter(request):
             apiobj = None
             raise BadRequest('Invalid request: Invalid value in '
 						'"lat","lng","distance" parameter. Or error in execution.')
-        response = HttpResponse(json.dumps(recs, ensure_ascii=False).replace('], [', '],\n['))
+        response = HttpResponse(json.dumps(recs, ensure_ascii=False).replace( \
+                    '}, {"locality_code":', '},\n{"locality_code":'))
         response['content-type'] = 'application/json; charset=utf-8'
         logger.debug('facilityQueryByCenter() ended.')
         return response
@@ -155,7 +156,8 @@ def facilityQueryByLocality(request):
             logger.exception(e)
             apiobj = None
             raise BadRequest('Invalid request: Error in Execution.')
-        response = HttpResponse(json.dumps(recs, ensure_ascii=False).replace('], [', '],\n['))
+        response = HttpResponse(json.dumps(recs, ensure_ascii=False).replace( \
+                    '}, {"locality_code":', '},\n{"locality_code":'))
         response['content-type'] = 'application/json; charset=utf-8'
         logger.debug('facilityQueryByLocality() ended.')
         return response

@@ -261,7 +261,7 @@
 				+'onChange="selectLocality(this.options[this.selectedIndex].value);">\n';
 		htmlTags+='<option value="-" '+selected+'>(未選択)</option>\n';
 		let state_name='';
-		Object.keys(myParam.locality_dict).forEach(function(code) {
+		Object.keys(myParam.locality_dict).sort().forEach(function(code) {
 			if(myParam.locality_dict[code].state_name!=state_name) {
 				if(state_name!='') {
 					htmlTags+='</optgroup>\n';
