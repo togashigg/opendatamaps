@@ -1,0 +1,9 @@
+/var/log/opendatamaps_health_check.log {
+    daily           # 日次でローテーション
+    rotate 7        # 7世代分保存
+    compress        # 古いログを圧縮
+    missingok       # ログファイルがなくてもエラーにしない
+    notifempty      # ログが空ならローテーションしない
+    create 0640 root adm # 新しいログの権限
+}
+

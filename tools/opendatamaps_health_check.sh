@@ -37,8 +37,8 @@ if "${is_true}"; then
         test1="NG"
         echo request=$request
         echo rc=$rc
-        echo res=$res
-        echo RES_OK=$RES_OK
+        echo -e "res=$res"
+        echo -e "RES_OK=$RES_OK"
         result_code=`expr $result_code + 1`
     fi
     result_msg="$result_msg test1:$test1"
@@ -56,8 +56,8 @@ if "${is_true}"; then
         test2="NG"
         echo request=$request
         echo rc=$rc
-        echo res=$res
-        echo RES_OK=$RES_OK
+        echo -e "res=$res"
+        echo -e "RES_OK=$RES_OK"
         result_code=`expr $result_code + 1`
     fi
     result_msg="$result_msg test2:$test2"
@@ -68,17 +68,17 @@ fi
 if "${is_true}"; then
     test3="OK"
     request="${HOST}api/facility/summary"
-    RES_OK="too big!"
+    RES_OK="too big!!"
     RES_OK1='{"code": "222062", "state_name": "静岡県", "locality_name": "三島市", "kinds": [{"AED設置箇所": 96}, {"医療機関": 133}, {"飲食店・販売店": 233}, {"介護サービス事業所": 116}, {"観光施設・場所": 40}, {"健康": 14}, {"公園・花壇": 278}, {"公共施設": 1042}, {"公衆トイレ": 48}, {"公衆無線LAN": 34}, {"子育て施設": 70}, {"指定緊急避難場所": 75}, {"消防水利施設": 1602}, {"投票所": 31}, {"避難所": 24}, {"文化財": 96}, {"薬局": 44}]}'
     res=`$WGET_OPT "$request"`
     rc=$?
-    res1=`echo $res | grep -oP '\{"code"\: "222062",( [^ ]+){4} "kinds"\: \[[^\]]*\]\}'`
+    res1=`echo -e "$res" | grep -oP '\{"code"\: "222062",( [^ ]+){4} "kinds"\: \[[^\]]*\]\}'`
     if [ "$rc" != "0" -o "$res1" != "$RES_OK1" ]; then
         test3="NG"
         echo request=$request
         echo rc=$rc
-        echo res1=$res1
-        echo RES_OK1=$RES_OK1
+        echo -e "res1=$res1"
+        echo -e "RES_OK1=$RES_OK1"
         result_code=`expr $result_code + 1`
     fi
     result_msg="$result_msg test3:$test3"
@@ -89,15 +89,17 @@ fi
 if "${is_true}"; then
     test4="OK"
     request="${HOST}api/facility/query/center?lat=35.126334&lng=138.9107634&distance=100&kind=公衆無線LAN"
-    RES_OK='[{"locality_code": "222062", "kind": "公衆無線LAN", "dataset": "三島市　公共施設Wi-Fi設置場所", "id": "msm_wifi_10", "label": "三島市総合観光案内所", "lat": 35.125624, "lng": 138.911269, "info": "[{\"id\": \"msm_wifi_10\"}, {\"http://www.w3.org/2000/01/rdf-schema#label\": \"三島市総合観光案内所\"}, {\"URL\": \"http://www.city.mishima.shizuoka.jp/\"}]", "error": null, "distance": 87}, {"locality_code": "222062", "kind": "公衆無線LAN", "dataset": "三島市　公共施設Wi-Fi設置場所", "id": "msm_wifi_16", "label": "三島駅南口（駅前広場）", "lat": 35.125731, "lng": 138.911418, "info": "[{\"id\": \"msm_wifi_16\"}, {\"http://www.w3.org/2000/01/rdf-schema#label\": \"三島駅南口（駅前広場）\"}, {\"URL\": \"http://izupass.jp/location/detail/303\"}]", "error": null, "distance": 89}]'
+    RES_OK=('[{"locality_code": "222062", "kind": "公衆無線LAN", "dataset": "三島市　公共施設Wi-Fi設置場所", "id": "msm_wifi_10", "label": "三島市総合観光案内所", "lat": 35.125624, "lng": 138.911269, "info": "[{\"id\": \"msm_wifi_10\"}, {\"http://www.w3.org/2000/01/rdf-schema#label\": \"三島市総合観光案内所\"}, {\"URL\": \"http://www.city.mishima.shizuoka.jp/\"}]", "error": null, "distance": 87},' '{"locality_code": "222062", "kind": "公衆無線LAN", "dataset": "三島市　公共施設Wi-Fi設置場所", "id": "msm_wifi_16", "label": "三島駅南口（駅前広場）", "lat": 35.125731, "lng": 138.911418, "info": "[{\"id\": \"msm_wifi_16\"}, {\"http://www.w3.org/2000/01/rdf-schema#label\": \"三島駅南口（駅前広場）\"}, {\"URL\": \"http://izupass.jp/location/detail/303\"}]", "error": null, "distance": 89}]')
     res=`$WGET_OPT "$request"`
+    IFS=$'\n'; resa=($res); unset IFS
     rc=$?
-    if [ "$rc" != "0" -o "$res" != "$RES_OK" ]; then
+    if [[ "$rc" != "0" || "${#resa[@]}" != "${#RES_OK[@]}" \
+       || "${resa[0]}" != "${RES_OK[0]}" || "${resa[1]}" != "${RES_OK[1]}" ]]; then
         test4="NG"
         echo request=$request
         echo rc=$rc
-        echo res=$res
-        echo correct=$RES_OK
+        echo -e "res=$res"
+        echo -e "RES_OK=${RES_OK[@]}"
         result_code=`expr $result_code + 1`
     fi
     result_msg="$result_msg test4:$test4"
@@ -115,8 +117,8 @@ if "${is_true}"; then
         test5="NG"
         echo request=$request
         echo rc=$rc
-        echo res=$res
-        echo RES_OK=$RES_OK
+        echo -e "res=$res"
+        echo -e "RES_OK=$RES_OK"
         result_code=`expr $result_code + 1`
     fi
     result_msg="$result_msg test5:$test5"
