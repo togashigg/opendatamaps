@@ -1128,7 +1128,7 @@
 					directionsRenderer.setDirections(result);
 					directionsRenderer.setMap(myMap);
 					let route=result.routes[0].legs[0];
-					let routeInfo=(no+1)+' '+dataTable[no].label+'<br>'
+					let routeInfo=dataTable[no].no+' '+dataTable[no].label+'<br>'
 								+'<strong>ルート情報</strong><br>'
 								+'距離: '+route.distance.text+'<br>'
 								+'時間: '+route.duration.text;
