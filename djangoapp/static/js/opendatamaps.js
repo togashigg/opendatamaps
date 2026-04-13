@@ -53,8 +53,10 @@
 		// mapsライブラリを読み込む
 		// const { Map } = await google.maps.importLibrary("maps");
 		// マップ表示
+		mapCenter=new google.maps.LatLng(myInitialCenter.lat, myInitialCenter.lng);
+		// center: { lat: myInitialCenter.lat, lng: myInitialCenter.lng },
 		myMap = new google.maps.Map(document.getElementById("gmap"), {
-			center: { lat: myInitialCenter.lat, lng: myInitialCenter.lng },
+			center: mapCenter,
 			mapId: "DEMO_MAP_ID",
 			zoom: 15,
 			zoomControl: true,
@@ -170,7 +172,7 @@
 				myParam.locality='-';
 			}
 		}
-		if(DEBUG) console.log('myParam='+JSON.stringify(myParam));
+		// if(DEBUG) console.log('myParam='+JSON.stringify(myParam));
 		if(DEBUG) console.log(nowToString()+' checkParameters() ended');
 		return myParam;
 	}
@@ -624,7 +626,7 @@
 			}
 			data.push(rec);
 		}
-		if(DEBUG) console.log('data='+JSON.stringify(data));
+		if(DEBUG) console.log('data='+JSON.stringify(data).substr(0,256));
 		if(DEBUG) console.log(nowToString()+' dataFromJson() ended, data.length='+data.length);
 		return data;
 	}
@@ -657,6 +659,7 @@
 		}, function() {
 			if(DEBUG) console.log(nowToString()+' start ※現在地が取得できません。');
 			document.getElementById("message").innerHTML='※現在地が取得できません。';
+			setMapCenter(mapCenter);
 		}, position_options);
 		google.maps.event.addListener(myMap, "center_changed", function() {
 			if(DEBUG) console.log(nowToString()+' center_changed.');
@@ -781,7 +784,8 @@
 		apiLogsAppend('RESPONSE '+request.status);
 		apiLogsAppend(request.responseText);
 		request=null;
-		if (DEBUG) console.log(nowToString()+' httpGetToJson() ended, result='+JSON.stringify(result));
+		if (DEBUG) console.log(nowToString()+' httpGetToJson() ended, result='
+			+JSON.stringify(result).substr(0,256));
 		return result;
 	}
 	function getCenterAddress(center) {
