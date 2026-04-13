@@ -1,8 +1,13 @@
 #!/bin/bash
 # docker_build.sh: build docker image.
-# Copyright (C) N.Togashi 2023
+# Copyright (C) N.Togashi 2023-2026
 
-echo "`date '+%Y/%m/%d %H:%M:%S'` docker_build.sh start."
+ARCH="`uname -m`"
+
+echo "`date '+%Y/%m/%d %H:%M:%S'` docker_build.sh start." > ./docker_build.log
+echo "CPU architechture=$ARCH" >> ./docker_build.log
+cat ./docker_build.log
+echo "..."
 # clear build directory
 if [ -d ./build ]; then
     rm -rf ./build
@@ -10,6 +15,9 @@ fi
 # make build directory
 mkdir ./build
 cp -p ./Dockerfile ./Procfile ./manage.py ./requirements.txt ./runtime.txt ./build/
+if [ "$ARCH" == "i386" -o "$ARCH" == "i686" ]; then
+    sed "s#python:#i386/python:#g" Dockerfile > ./build/Dockerfile
+fi
 # cache directory
 mkdir ./build/cache
 cp -p ./cache/.dummy ./build/cache/
@@ -33,10 +41,11 @@ touch ./build/log/opendatadb.log
 mkdir ./build/src
 cp -pr ./src/*.py ./src/*.json ./build/src/
 # build
-(cd ./build; docker build -t opendatamaps:latest .) > ./docker_build.log
+(cd ./build; docker build -t opendatamaps:latest .) >> ./docker_build.log 2>&1
 rc=$?
+echo "docker-build ended, rc=$rc" >> ./docker_build.log
 # end
+echo "`date '+%Y/%m/%d %H:%M:%S'` docker_build.sh ended." >> ./docker_build.log
 tail ./docker_build.log
-echo "`date '+%Y/%m/%d %H:%M:%S'` docker_build.sh ended, rc=$rc"
 exit $rc
 
