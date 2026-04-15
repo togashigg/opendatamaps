@@ -3,6 +3,8 @@
 # Usage: opendatamaps_health_check.sh [ホスト[公開名/]]
 #          ホスト例：https://opendatamaps.onrender.com/
 #          公開名例：opendatamaps
+# in /etc/crontab
+#   0,12,24,36,48  *  * * *   root    /bin/bash -l /etc/cron.d/opendatamaps_health_check.sh 2>> /var/log/opendatamaps_health_check.log 1>&2
 
 echo "$(date '+%Y/%m/%d %H:%M:%S') opendatamaps_health_check.sh start."
 HOST="https://opendatamaps.onrender.com/"

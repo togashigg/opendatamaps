@@ -1,3 +1,5 @@
+# Usage:
+#   $ sudo cp ${HOME}/github/opendatamaps/tools/opendatamaps_health_check.logrotate /etc/logrotate.d/opendatamaps_health_check.log
 /var/log/opendatamaps_health_check.log {
     daily
     rotate 7
