@@ -1,0 +1,28 @@
+version: "3"
+
+networks:
+  compose-net:
+    driver: bridge
+
+services:
+
+  db:
+    # image: postgres:18.1
+    image: db
+    build:
+      context: ./db/build
+      dockerfile: Dockerfile
+    networks:
+      - compose-net
+    environment:
+      - TZ=Asia/Tokyo
+      - PGTZ=Asia/Tokyo
+      - POSTGRES_DB=$POSTGRESQL_DBNAME
+      - POSTGRES_USER=$POSTGRESQL_USER
+      - POSTGRES_PASSWORD=$POSTGRESQL_PASS
+      - POSTGRES_INITDB_ARGS="--encoding=UTF8"
+      # V<18 - PGDATA=./db/data
+    volumes:
+      # V<18 - ./db/data:/var/lib/postgresql/data
+      - ./db/data/18:/var/lib/postgresql/18/docker
+
