@@ -41,10 +41,31 @@ echo "# docker-compose -f docker-compose.yml.db up -d" >> $DB_LOG
 eval $PRINT_LOG
 docker-compose -f docker-compose.yml.db up -d >> $DB_LOG 2>&1
 echo "docker-compose -f docker-compose.yml.db up -d ended, rc=$?" >> $DB_LOG
+sleep 5	# wait for safety
 
-echo "# docker exec docker_db_1 pg_dump -U \$POSTGRESQL_USER \$POSTGRESQL_DBNAME" >> $DB_LOG
+echo "# print database information." >> $DB_LOG
 eval $PRINT_LOG
-(docker exec docker_db_1 pg_dump -U $POSTGRESQL_USER $POSTGRESQL_DBNAME 2>> $DB_LOG; echo "pg_dump rc=$?" >> $DB_LOG) | gzip > $DB_BACKUP
+docker exec -i docker_db_1 psql -qV $POSTGRESQL_DBNAME $POSTGRESQL_USER >> $DB_LOG
+docker exec -i docker_db_1 psql -q \
+	-c "\\d localitycode" $POSTGRESQL_DBNAME $POSTGRESQL_USER >> $DB_LOG
+docker exec -i docker_db_1 psql -q \
+	-c "SELECT COUNT(*) AS "レコード数" FROM localitycode;" \
+	$POSTGRESQL_DBNAME $POSTGRESQL_USER >> $DB_LOG
+docker exec -i docker_db_1 psql -q \
+	-c "\\d opendatamaps" $POSTGRESQL_DBNAME $POSTGRESQL_USER >> $DB_LOG
+docker exec -i docker_db_1 psql -q \
+        -c "SELECT COUNT(*) AS "レコード数" FROM opendatamaps;" \
+        $POSTGRESQL_DBNAME $POSTGRESQL_USER >> $DB_LOG
+docker exec -i docker_db_1 psql -q \
+	-c "SELECT MAX(l.state_name) AS "都道府県名",COUNT(*) AS "レコード数" \
+		FROM opendatamaps o JOIN localitycode l ON o.locality_code = l.code \
+		GROUP BY l.state_name ORDER BY l.state_name;" \
+	$POSTGRESQL_DBNAME $POSTGRESQL_USER >> $DB_LOG
+
+echo "# docker exec -i docker_db_1 pg_dump -U \$POSTGRESQL_USER \$POSTGRESQL_DBNAME" >> $DB_LOG
+eval $PRINT_LOG
+(docker exec -i docker_db_1 pg_dump -U $POSTGRESQL_USER $POSTGRESQL_DBNAME \
+	2>> $DB_LOG; echo "pg_dump rc=$?" >> $DB_LOG) | gzip > $DB_BACKUP
 rc=`tail -1 $DB_LOG | cut -d "=" -f 2`
 
 echo "# docker-compose down" >> $DB_LOG
