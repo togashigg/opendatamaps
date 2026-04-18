@@ -121,15 +121,20 @@ backup_rows=(`grep -n "^ レコード数" $DB_BACKUP_LOG | cut -d ':' -f 1`)
 restore_rows=(`grep -n "^ レコード数" $DB_LOG | cut -d ':' -f 1`)
 tables=("localitycode" "opendatamaps")
 for i in 0 1; do
-    backup_count=`tail -n +$((${rows[$i]} + 2)) $DB_BACKUP_LOG | head -1`
-    restore_count=`tail -n +$((${rows[$i]} + 2)) $DB_LOG | head -1`
+    backup_count=`tail -n +$((${backup_rows[$i]} + 2)) $DB_BACKUP_LOG | head -1`
+    restore_count=`tail -n +$((${restore_rows[$i]} + 2)) $DB_LOG | head -1`
     if [ "$backup_count" != "$restore_count" ]; then
         echo "ERROR: バックアップログのレコード数と一致しません。${tables[$i]}" >> $DB_LOG
         echo "       ($backup_count != $restore_count)" >> $DB_LOG
         rc=21
     fi
+    echo "  ${tables[$i]}: $backup_count = $restore_count" >> $DB_LOG
 done
 echo "check OK" >> $DB_LOG
+
+if [ "$rc" == "0" ]; then
+    mv "$DB_BACKUP" "${DB_BACKUP}.OK"
+fi
 
 echo "$(date '+%Y/%m/%d %H:%M:%S') db_backup.sh ended, rc=$rc" >> $DB_LOG
 tail -n +$LOG_L $DB_LOG
