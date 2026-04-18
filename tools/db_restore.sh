@@ -2,6 +2,7 @@
 # db_restore.sh DB内全テーブルをリストアする。
 # Usage: db_restore.sh [バックアップファイルパス]
 #   Docker運用ディレクトリで実行すること。
+#   バックアップファイルおよびバックアップログをdbディレクトリ下に配置すること。
 #   以下の環境変数を定義すること。
 #   ・POSTGRESQL_USER
 #   ・POSTGRESQL_DBNAME
@@ -12,6 +13,7 @@
 #   4. リストアを実行する
 #   5. バックアップ・リストア専用DBサービスを停止する
 #   6. 通常サービスを起動する
+#   7. バックアップ情報とリストア情報をチェックする
 
 DOCKER_COMPOSE_DIR="."
 DATETIME="$(date '+%Y%m%d%H%M%S')"
@@ -23,8 +25,22 @@ RESTART_FLAG="1"
 
 DB_BACKUP="$1"
 if [ "$1" == "" ]; then
-    backup_file=`(cd $DB_DIR; ls db_backup_*.gz) | tail -n 1`
+    if [ `(cd $DB_DIR; ls db_backup_*.gz) | wc -l` -lt 1 ]; then
+        echo "ERROR: backup file not fount."
+        exit 11
+    fi
+    backup_file=`(cd $DB_DIR; ls -tr db_backup_*.gz) | tail -n 1`
+    backup_log="${backup_file%.*}.log"
+    if [ ! -f "$DB_DIR/$backup_log" ]; then
+        echo "ERROR: backup log not found, log=$DB_DIR/$backup_log"
+        exit 12
+    fi
     DB_BACKUP="$DB_DIR/$backup_file"
+fi
+DB_BACKUP_LOG="${DB_BACKUP%.*}.log"
+if [ ! -f "$DB_BACKUP_LOG" ]; then
+    echo "ERROR: backup log not found, log=$DB_BACKUP_LOG"
+    exit 12
 fi
 
 echo "$(date '+%Y/%m/%d %H:%M:%S') db_restore.sh start." > $DB_LOG
@@ -97,6 +113,23 @@ if [ "$RESTART_FLAG" == "1" ]; then
     docker-compose up -d >> $DB_LOG 2>&1
     echo "docker-compose up -d ended, rc=$?" >> $DB_LOG
 fi
+
+# check
+echo "# check" >> $DB_LOG
+eval $PRINT_LOG
+backup_rows=(`grep -n "^ レコード数" $DB_BACKUP_LOG | cut -d ':' -f 1`)
+restore_rows=(`grep -n "^ レコード数" $DB_LOG | cut -d ':' -f 1`)
+tables=("localitycode" "opendatamaps")
+for i in 0 1; do
+    backup_count=`tail -n +$((${rows[$i]} + 2)) $DB_BACKUP_LOG | head -1`
+    restore_count=`tail -n +$((${rows[$i]} + 2)) $DB_LOG | head -1`
+    if [ "$backup_count" != "$restore_count" ]; then
+        echo "ERROR: バックアップログのレコード数と一致しません。${tables[$i]}" >> $DB_LOG
+        echo "       ($backup_count != $restore_count)" >> $DB_LOG
+        rc=21
+    fi
+done
+echo "check OK" >> $DB_LOG
 
 echo "$(date '+%Y/%m/%d %H:%M:%S') db_backup.sh ended, rc=$rc" >> $DB_LOG
 tail -n +$LOG_L $DB_LOG
