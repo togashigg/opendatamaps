@@ -1102,7 +1102,7 @@ class Crawler:
           or len(jpackage['result']['organization']) < 1):
             locality_name = self.state
         else:
-            if 'groups' in jpackage['result']:
+            if 'groups' in jpackage['result'] and len(jpackage['result']['groups']) > 0:
                 gi = 0
                 if len(jpackage['result']['groups']) > 1:
                     if jpackage['result']['groups'][0]['id'] == 1:
@@ -1157,7 +1157,10 @@ class Crawler:
         if os.path.exists(packages_path):
             with open(packages_path, 'r') as fh:
                 jpackages = json.loads(fh.read())
-
+            if 'package_search' in site[site['webapi']]:
+                pkg_list = [k for k in jpackages['result']['facets']['name'].keys()]
+            else:
+                pkg_list = jpackages['result']
         elif 'package_list_limit' in site[site['webapi']] \
           and site[site['webapi']]['package_list_limit'] > 0:
             # package_list and loop
@@ -2027,7 +2030,12 @@ class Crawler:
         logger = logging.getLogger(__name__)
         logger.info('table_from_csv() start.')
         # 実行
-        table = [v for v in csv.reader(content.replace('\r\n','\n').replace('\r','\n').split('\n'))]
+        # table = [v for v in csv.reader(content.replace('\r\n','\n').replace('\r','\n').split('\n'))]
+        table = []
+        for rec in csv.reader(content.replace('\r\n','\n').replace('\r','\n').split('\n')):
+            if all(x == '' for x in rec):
+                break
+            table.append(rec)
         # 復帰
         logger.info('table_from_csv() ended, rc=' + str(len(table)) \
                 + ' table[:5]=' + str(table[:5]))
