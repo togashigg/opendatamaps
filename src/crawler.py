@@ -1905,6 +1905,7 @@ class Crawler:
             "header": -1
         }
         map_msg = ''
+        map_ng = []
         title_rows = [list(row) for row in table[:min(HEADER_ROWS , len(table))]]
         for i_row in range(len(title_rows)):
             for i_col in range(len(title_rows[i_row])):
@@ -1977,15 +1978,21 @@ class Crawler:
                 # 必須項目が揃っている
                 break
             # 必須項目なし
+            map_ng.append(copy.deepcopy(map_info))
             # raise Exception('必須項目なし')
         # 最終確認
-        if (map_info['lat'] < 0 or map_info['lng'] < 0) \
-        and map_info['address'] < 0 \
+        if ((map_info['lat'] < 0 or map_info['lng'] < 0) \
+        and map_info['address'] < 0) \
         or map_info['name'] == [-1]:
             # 必須項目なし
-            map_msg = str({k:v for k,v in map_info.items() \
+            if len(map_ng) == 0:
+                map_ng.append(map_info)
+            ok_c = [sum([map_ng[i][k] not in [-1, [-1]] for k in map_ng[i].keys()]) \
+                        for i in range(len(map_ng))]
+            ok_max = ok_c.index(max(ok_c))
+            map_msg = '['+str(ok_max)+']='+str({k:v for k,v in map_ng[ok_max].items() \
                            if k in ['id','name','lat','lng','address']})
-            logger.info('必須項目なし, '+str(map_info))
+            logger.info('必須項目なし, ['+str(ok_max)+']='+str(map_ng[ok_max]))
             map_info = {}
         else:
             logger.debug('headers=' + str(title_rows[map_info['header']-1]))
