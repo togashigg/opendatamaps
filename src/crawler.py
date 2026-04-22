@@ -168,6 +168,7 @@ class Crawler:
                 packageids = pids
             map_list_name = {}
             map_list_path = os.path.join(self.packages_dir, '.map_list')
+            package_download_failure_count = 0
             for pno, packageid in enumerate(packageids):
                 if not isinstance(packageid, str):
                     packageid = str(packageid)
@@ -177,9 +178,19 @@ class Crawler:
                 map_list = []
                 package_info = self.get_package_info(site_info, packageid)
                 if package_info is None:
-                    msg = 'パッケージの取得に失敗しました。'
+                    package_download_failure_count += 1
+                    msg = 'パッケージの取得に失敗しました。' + str((package_download_failure_count))
                     print(msg, file=sys.stderr)
                     logger.debug(msg)
+                    if 'package_download_failure' in site_info[site_info['webapi']]:
+                        if site_info[site_info['webapi']]['package_download_failure'][0] == 'stop' \
+                        and package_download_failure_count \
+                            >= site_info[site_info['webapi']]['package_download_failure'][1]:
+                            msg = '失敗回数が上限に達しました。package_download_failure=' \
+                                    + str(site_info[site_info['webapi']]['package_download_failure'])
+                            print(msg, file=sys.stderr)
+                            logger.error(msg)
+                            break
                     continue
                 msg = self.select_package_info(site_info, packageid, package_info)
                 if msg is not None:
@@ -1905,7 +1916,7 @@ class Crawler:
             "header": -1
         }
         map_msg = ''
-        map_ng = []
+        map_hit = []
         title_rows = [list(row) for row in table[:min(HEADER_ROWS , len(table))]]
         for i_row in range(len(title_rows)):
             for i_col in range(len(title_rows[i_row])):
@@ -1971,28 +1982,34 @@ class Crawler:
             # used_index.extend(map_info['name'])
             map_info['info'] = [i for i in range(len(title_rows[map_info['header']-1])) \
                     if i not in used_index]
-            logger.debug('map_info=' + str(map_info))
+            # logger.debug('map_info=' + str(map_info))
             if ((map_info['lat'] >= 0 and map_info['lng'] >= 0) \
               or map_info['address'] >= 0) \
             and map_info['name'] != [-1]:
                 # 必須項目が揃っている
                 break
             # 必須項目なし
-            map_ng.append(copy.deepcopy(map_info))
+            map_hit.append(copy.deepcopy(map_info))
             # raise Exception('必須項目なし')
         # 最終確認
         if ((map_info['lat'] < 0 or map_info['lng'] < 0) \
         and map_info['address'] < 0) \
         or map_info['name'] == [-1]:
             # 必須項目なし
-            if len(map_ng) == 0:
-                map_ng.append(map_info)
-            ok_c = [sum([map_ng[i][k] not in [-1, [-1]] for k in map_ng[i].keys()]) \
-                        for i in range(len(map_ng))]
-            ok_max = ok_c.index(max(ok_c))
-            map_msg = '['+str(ok_max)+']='+str({k:v for k,v in map_ng[ok_max].items() \
-                           if k in ['id','name','lat','lng','address']})
-            logger.info('必須項目なし, ['+str(ok_max)+']='+str(map_ng[ok_max]))
+            map_hit.append(map_info)
+            hit_c = [sum([map_hit[i][k] not in [-1, [-1]] \
+                        for k in map_hit[i].keys() \
+                            if k in ['id','name','lat','lng','address']]) \
+                        for i in range(len(map_hit))]
+            hit_c_max = max(hit_c)
+            hit_i = hit_c.index(hit_c_max)
+            if hit_c_max >= 2:
+                map_msg = '[' + map_info['kind'] + ']' \
+                        + str(hit_i) + '[' + str(hit_c_max) + ']=' \
+                        + str({k:v for k,v in map_hit[hit_i].items() \
+                            if k in ['id','name','lat','lng','address']})
+                map_msg += '\n\t[' + str(hit_i) + ']=' + str(title_rows[hit_i])
+            logger.info('必須項目なし, ['+str(hit_i)+']='+str(map_hit[hit_i]))
             map_info = {}
         else:
             logger.debug('headers=' + str(title_rows[map_info['header']-1]))
