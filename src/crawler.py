@@ -190,8 +190,10 @@ class Crawler:
                                     + str(site_info[site_info['webapi']]['package_download_failure'])
                             print(msg, file=sys.stderr)
                             logger.error(msg)
+                            rc = 1
                             break
                     continue
+                package_download_failure_count = 0
                 msg = self.select_package_info(site_info, packageid, package_info)
                 if msg is not None:
                     print(msg, file=sys.stderr)
@@ -2298,7 +2300,7 @@ if __name__ == '__main__':
         args = p.parse_args(sys.argv[1:])
         names = args.names
         # 開始
-        msg = 'crawler.py start.'
+        msg = datetime.datetime.now().strftime('%Y/%m/%d-%H:%M:%S') + ' crawler.py start.'
         logger.info(msg)
         print(msg, file=sys.stderr)
         # 取得開始
@@ -2321,7 +2323,8 @@ if __name__ == '__main__':
         cobj = None
 
     # 終了
-    msg = 'crawler.py ended, rc=' + str(rc)
+    msg = datetime.datetime.now().strftime('%Y/%m/%d-%H:%M:%S') \
+        + ' crawler.py ended, rc=' + str(rc)
     logger.info(msg)
     print(msg, file=sys.stderr)
 
