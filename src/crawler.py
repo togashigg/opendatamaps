@@ -579,8 +579,13 @@ class Crawler:
             no += 1
             id_value = ('000' + str(no))[-4:]
             if info['id'] >= 0:
-                if data[i][info['id']] != '':
-                    id_value = data[i][info['id']]
+                if len(data[i]) > info['id']:
+                    if data[i][info['id']] != '':
+                        id_value = data[i][info['id']]
+                    else:
+                        error += 'id値空。'
+                else:
+                    error += 'id値未設定。'
             else:
                 error += 'id未設定。'
             loc_name = self.state + self.name
