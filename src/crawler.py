@@ -249,6 +249,9 @@ class Crawler:
                         map_list.append(resource['_map_'])
                     # 表形式をマップデータ(JSON形式)に変換する
                     map_data = self.table_to_mapdata(resource)
+                    if len(map_data) == 0:
+                        print('マップデータが0件。', file=sys.stderr)
+                        continue
                     # マップデータをキャッシュに保存する
                     self.save_to_cache(map_data, package_title+'_'+str(rno), \
                             dir=packageid)
@@ -508,7 +511,7 @@ class Crawler:
         """
         二次元配列データ（行、列）をJSON形式データに変換する。
         :param resource: dict型、マップ情報と二次元配列データを含むリソース情報
-        :return: str型、JSON形式データ
+        :return: list型、JSON形式データの配列
         """
         logger = logging.getLogger(__name__)
         logger.info('table_to_mapdata() start.')
@@ -565,7 +568,7 @@ class Crawler:
                         name += str(data[i][n])
                 else:
                     name += str(n)
-            if name == '' or name == '○' or name == '◎':
+            if name == '' or name == '○' or name == '◎' or name == 'null':
                 continue
             info_items = []
             for j in info['info']:
@@ -580,7 +583,7 @@ class Crawler:
             id_value = ('000' + str(no))[-4:]
             if info['id'] >= 0:
                 if len(data[i]) > info['id']:
-                    if data[i][info['id']] != '':
+                    if data[i][info['id']] != '' and data[i][info['id']] != 'null':
                         id_value = data[i][info['id']]
                     else:
                         error += 'id値空。'
@@ -593,8 +596,11 @@ class Crawler:
                 loc_name = self.name
             address = ''
             if info['address'] >= 0 and len(data[i]) > info['address']:
-                address = data[i][info['address']]
+                if data[i][info['address']] != 'null':
+                    address = data[i][info['address']]
             (lat, lng, msg) = self.lat_lng_from_data(data[i], info, address)
+            if (type(lat) != float or type(lng) != float) and address == '':
+                continue
             data_value = {
                     "id": id_value,
                     "locality_code": self.code,
@@ -939,19 +945,20 @@ class Crawler:
         #         + ', lng=' + str(lng) + ', msg=' + msg)
         return (lat, lng, msg)
 
-    def string_to_float(self, v_str):
+    def string_to_float(self, p_str):
         """
         文字列形式の緯度・経度を浮動小数点に変換する
-        :param v_str: str型、文字列形式の緯度または経度
+        :param p_str: str型、文字列形式の緯度または経度
         :return: 浮動小数点形式の緯度または経度。ただし、文字列形式の値が空文字の場合は空文字を返却する
         """
         msg = ''
         msg_correct = ''
         v_float = ''
         try:
-            if v_str is None:
+            if p_str is None:
                 raise Exception('msg:値なし。')
-            if v_str == '' or v_str == ' ' or v_str == '　' or v_str == '-' or v_str == '－':
+            v_str = p_str.strip()
+            if v_str == '' or v_str == '　' or v_str == '-' or v_str == '－' or v_str == 'null':
                 raise Exception('msg:値が空。')
             v_str = v_str.replace(' ', '').replace(',', '')
             match = FLOAT_FORMAT_RE.search(v_str)
