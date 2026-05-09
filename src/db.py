@@ -139,7 +139,7 @@ class OpendataMapsDb:
                       kind     VARCHAR(64) NOT NULL,
                       dataset  VARCHAR(128) NOT NULL,
                       id       VARCHAR(64) NOT NULL,
-                      label    VARCHAR(512) NOT NULL,
+                      label    VARCHAR(2048) NOT NULL,
                       lat      FLOAT NOT NULL,
                       lng      FLOAT NOT NULL,
                       info     TEXT,
