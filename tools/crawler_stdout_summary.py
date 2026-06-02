@@ -28,7 +28,7 @@ def summarize(h_in):
 
     # 入力ファイルをチェックする
     first_line = h_in.readline()
-    if re.match(r'crawler.py start.', first_line) is None:
+    if re.search(r'crawler.py start.', first_line) is None:
         print('ERROR:crawler.pyの標準出力ではないようです！', file=sys.stderr)
         exit(1)
 
