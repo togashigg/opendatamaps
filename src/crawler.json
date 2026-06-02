@@ -90,7 +90,8 @@
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
 				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:014257_*&sort=&rows=0"
-			}
+			},
+			"crawling_monthly_days": [1]
 		},
 		"青森県": {
 			"code": "020001",
@@ -99,7 +100,8 @@
 				"api_url": "https://opendata.pref.aomori.lg.jp/api/",
 				"package_list": "package_list?limit=0&offset=0",
 				"package_download_failure": ["stop", 5]
-			}
+			},
+			"crawling_monthly_days": [1,2,3,4,5,6,7,8,9,10,11,12]
 		},
 		"宮城県": {
 			"code": "040002",
@@ -110,7 +112,8 @@
 				"http_request_headers": {
 					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.7559.132 Safari/537.36"
 				}
-			}
+			},
+			"crawling_monthly_days": [1]
 		},
 		"秋田県": {
 			"code": "050008",
@@ -118,7 +121,8 @@
 			"CKAN": {
 				"api_url": "https://ckan.pref.akita.lg.jp/api/3/action/",
 				"package_list": "package_list"
-			}
+			},
+			"crawling_monthly_days": [2]
 		},
 		"栃木県": {
 			"code": "090000",
@@ -126,7 +130,8 @@
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
 				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:09*&sort=&rows=0"
-			}
+			},
+			"crawling_monthly_days": [2]
 		},
 		"埼玉県": {
 			"code": "110001",
@@ -135,7 +140,8 @@
 				"api_url": "https://opendata.pref.saitama.lg.jp/ckan_api/",
 				"package_list_limit": 100,
 				"package_list": "package_list"
-			}
+			},
+			"crawling_monthly_days": [3]
         },
 		"千葉県船橋市": {
 			"code": "122041",
@@ -143,7 +149,8 @@
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
 				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:122041_*&sort=&rows=0"
-			}
+			},
+			"crawling_monthly_days": [3]
 		},
 		"東京都": {
 			"code": "130001",
@@ -151,7 +158,8 @@
 			"CKAN": {
 				"api_url": "https://catalog.data.metro.tokyo.lg.jp/api/3/action/",
 				"package_list": "package_list?limit=0"
-			}
+			},
+			"crawling_monthly_days": [4]
 		},
 		"神奈川県": {
 			"skip": true,
@@ -160,7 +168,8 @@
 			"CKAN": {
 				"api_url": "https://catalog.opendata.pref.kanagawa.jp/api/3/action/",
 				"package_list": "package_list?limit=0"
-			}
+			},
+			"crawling_monthly_days": [5]
 		},
 		"神奈川県横浜市": {
 			"code": "141003",
@@ -168,7 +177,8 @@
 			"CKAN": {
 				"api_url": "https://data.city.yokohama.lg.jp/api/3/action/",
 				"package_list": "package_list?limit=0"
-			}
+			},
+			"crawling_monthly_days": [5]
 		},
 		"富山県": {
 			"code": "160008",
@@ -176,7 +186,8 @@
 			"CKAN": {
 				"api_url": "https://opendata.pref.toyama.jp/api/3/action/",
 				"package_list": "package_list?limit=0"
-			}
+			},
+			"crawling_monthly_days": [5]
 		},
 		"石川県": {
 			"code": "170003",
@@ -184,7 +195,8 @@
 			"CKAN": {
 				"api_url": "https://ckan.opendata.pref.ishikawa.lg.jp/api/3/action/",
 				"package_list": "package_list?limit=0"
-			}
+			},
+			"crawling_monthly_days": [6]
 		},
 		"岐阜県": {
 			"code": "210005",
@@ -192,7 +204,8 @@
 			"CKAN": {
 				"api_url": "https://gifu-opendata.pref.gifu.lg.jp/api/3/action/",
 				"package_list": "package_list?limit=0"
-			}
+			},
+			"crawling_monthly_days": [6]
 		},
 		"静岡県": {
 			"code": "220001",
@@ -204,7 +217,8 @@
 			"CKAN": {
 				"api_url": "https://ckan.pref.shizuoka.jp/api/3/action/",
 				"package_list": "package_list?limit=0"
-			}
+			},
+			"crawling_monthly_days": [7]
 		},
 		"三重県": {
 			"code": "240001",
@@ -212,7 +226,8 @@
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
 				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:24*&sort=&rows=0"
-			}
+			},
+			"crawling_monthly_days": [7]
 		},
 		"京都府": {
 			"code": "260002",
@@ -220,7 +235,8 @@
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
 				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:26*&sort=&rows=0"
-			}
+			},
+			"crawling_monthly_days": [8]
 		},
 		"大阪府": {
 			"code": "270008",
@@ -228,7 +244,8 @@
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
 				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:27*&sort=&rows=0"
-			}
+			},
+			"crawling_monthly_days": [8]
 		},
 		"和歌山県": {
 			"code": "300004",
@@ -236,7 +253,8 @@
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
 				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:30*&sort=&rows=0"
-			}
+			},
+			"crawling_monthly_days": [9]
 		},
 		"島根県": {
 			"code": "320005",
@@ -247,7 +265,8 @@
 				"http_request_headers": {
 					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.7559.132 Safari/537.36"
 				}
-			}
+			},
+			"crawling_monthly_days": [9]
 		},
 		"岡山県": {
 			"code": "330001",
@@ -258,7 +277,8 @@
 				"http_request_headers": {
 					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.7559.132 Safari/537.36"
 				}
-			}
+			},
+			"crawling_monthly_days": [10]
 		},
 		"山口県": {
 			"code": "350001",
@@ -266,7 +286,8 @@
 			"CKAN": {
 				"api_url": "https://yamaguchi-opendata.jp/ckan/api/3/action/",
 				"package_list": "package_list?limit=0"
-            }
+            },
+			"crawling_monthly_days": [10]
         },
 		"徳島県": {
 			"code": "360007",
@@ -274,7 +295,8 @@
 			"シラサギ": {
 				"api_url": "https://opendata.pref.tokushima.lg.jp/api/",
 				"package_list": "package_list?limit=0"
-			}
+			},
+			"crawling_monthly_days": [11]
 		},
 		"愛媛県": {
 			"code": "380008",
@@ -282,7 +304,8 @@
 			"シラサギ": {
 				"api_url": "https://www.pref.ehime.jp/opendata-catalog/api/",
 				"package_list": "package_list?limit=0&offset=0"
-			}
+			},
+			"crawling_monthly_days": [11]
 		},
 		"福岡県": {
 			"code": "400009",
@@ -290,7 +313,8 @@
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
 				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:40*&sort=&rows=0"
-			}
+			},
+			"crawling_monthly_days": [12]
 		},
 		"佐賀県": {
 			"code": "410004",
@@ -298,7 +322,8 @@
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
 				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:41*&sort=&rows=0"
-			}
+			},
+			"crawling_monthly_days": [12]
 		},
 		"長崎県": {
 			"code": "420000",
@@ -306,7 +331,8 @@
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
 				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:42*&sort=&rows=0"
-			}
+			},
+			"crawling_monthly_days": [13]
 		},
 		"熊本県": {
 			"code": "430005",
@@ -314,7 +340,8 @@
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
 				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:43*&sort=&rows=0"
-			}
+			},
+			"crawling_monthly_days": [13]
 		},
 		"大分県": {
 			"code": "440001",
@@ -322,7 +349,8 @@
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
 				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:44*&sort=&rows=0"
-			}
+			},
+			"crawling_monthly_days": [14]
 		},
 		"宮崎県": {
 			"code": "450006",
@@ -330,7 +358,8 @@
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
 				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:45*&sort=&rows=0"
-			}
+			},
+			"crawling_monthly_days": [14]
 		},
 		"鹿児島県": {
 			"code": "460001",
@@ -338,7 +367,8 @@
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
 				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:46*&sort=&rows=0"
-			}
+			},
+			"crawling_monthly_days": [15]
 		},
 		"沖縄県": {
 			"code": "470007",
@@ -346,7 +376,8 @@
 			"CKAN": {
 				"api_url": "https://data.bodik.jp/api/3/action/",
 				"package_search": "package_search?facet.limit=-1&facet.field=[%22name%22]&fq=name:47*&sort=&rows=0"
-			}
+			},
+			"crawling_monthly_days": [15]
 		}
 	},
 	"linkeddata": {

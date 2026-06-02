@@ -126,7 +126,7 @@ class Crawler:
     def crawler_main(self, names):
         """
         クローラーのメイン処理
-        :param names: list型、サイト名文字列のリスト
+        :param names: list型、自治体名文字列のリスト
         :return: int型、復帰値、0=正常終了、他=異常終了
         :raise: Exception型、メッセージ文字列
         """
@@ -259,7 +259,7 @@ class Crawler:
 
                 map_list_name[packageid] = map_list
 
-            # マップ情報をサイト単位に保存する
+            # マップ情報を自治体（サイト）単位に保存する
             with open(map_list_path, 'w') as hfm:
                 hfm.write(json.dumps(map_list_name, \
                         ensure_ascii=False).replace('[], "', '[],\n"').replace( \
@@ -270,7 +270,7 @@ class Crawler:
 
     def get_opendata_sites(self):
         """
-        crawler.jsonの有効なサイト情報を取得する。
+        crawler.jsonの有効な自治体（サイト）情報を取得する。
         """
         logger = logging.getLogger(__name__)
         logger.info('get_opendata_sites() start.')
@@ -286,14 +286,30 @@ class Crawler:
 
     def get_names(self):
         """
-        サイト名一覧を取得する。
-        :return: リスト型、文字列のサイト名リスト
+        自治体名一覧を取得する。
+        :return: リスト型、文字列の自治体名リスト
         """
         logger = logging.getLogger(__name__)
         logger.info('get_names() start.')
         # 復帰
         logger.info('get_names() ended, rc=' + str(self.site_names))
         return self.site_names
+
+    def get_target_names(self, today):
+        """
+        指定日に実行対象の自治体名一覧を取得する。
+        :param today: datetime型、実行日
+        :return: リスト型、文字列の自治体名リスト
+        """
+        logger = logging.getLogger(__name__)
+        logger.info('get_target_names() start, today=' + str(today))
+        # 実行
+        names = [k for k,v in self.OPENDATA_SITES.items() \
+                    if today.day in v['crawling_monthly_days'] \
+                    and ('skip' not in v or not v['skip'])]
+        # 復帰
+        logger.info('get_target_names() ended, rc=' + str(names))
+        return names
 
     def url_get(self, url, file, cache=True, dir=None):
         """
@@ -1025,7 +1041,7 @@ class Crawler:
             raise Exception(msg)
         for key, value in self.OPENDATA_SITES.items():
             if key != name:
-                # 対象外サイト
+                # 対象外自治体
                 continue
             site_info = value
             site_info['name'] = key
@@ -1046,8 +1062,8 @@ class Crawler:
 
     def get_packageids_in_site(self, site_info):
         """
-        サイトのパッケージID一覧を取得する。
-        :param names: dict型、サイト定義
+        自治体（サイト）のパッケージID一覧を取得する。
+        :param names: dict型、自治体（サイト）定義
         :return: dict型、パッケージIDリスト
         :raise: Exception型、メッセージ
         """
@@ -1056,7 +1072,7 @@ class Crawler:
         # 実行
         if site_info is None or not isinstance(site_info, dict) \
         or 'name' not in site_info:
-            raise Exception('指定されたサイト定義が誤りです。')
+            raise Exception('指定された自治体（サイト）定義が誤りです。')
         # パッケージリストを取得する
         self.packages_dir = os.path.join(self.download_dir, \
                 MY_CONFIG['dir_name'].format(code=site_info['code'],
@@ -1073,7 +1089,7 @@ class Crawler:
     def cache_initialize(self, site_info):
         """
         キャッシュを初期化する。
-        :param site_info: dict型、サイト情報
+        :param site_info: dict型、自治体（サイト）情報
         :return: int型、復帰コード、0=正常終了、他=異常終了
         """
         logger = logging.getLogger(__name__)
@@ -1259,7 +1275,7 @@ class Crawler:
         # 実行
         if site_info is None or not isinstance(site_info, dict) \
         or 'name' not in site_info:
-            raise Exception('指定されたサイト定義が誤りです。')
+            raise Exception('指定された自治体（サイト）定義が誤りです。')
         if packageid is None or not isinstance(packageid, str) \
         or packageid == '':
             raise Exception('指定されたパッケージIDが誤りです。')
@@ -1301,7 +1317,7 @@ class Crawler:
     def select_package_info(self, site_info, packageid, jpackage):
         """
         パッケージの内容を確認して選定する。
-        :param site_info: dict型、サイト情報
+        :param site_info: dict型、自治体（サイト）情報
         :param packageid: str型、パッケージID
         :param jpackage: dict型、JSON型パッケージ情報
         :return: str型、選定結果のメッセージ、None=正常、他=除外した理由
@@ -2306,24 +2322,32 @@ if __name__ == '__main__':
         import argparse
         p = argparse.ArgumentParser()
         p.add_argument('-l', '--site_list', action='store_true',
-                help='定義されているサイト（自治体名）を出力する。')
+                help='定義されている自治体（サイト）名を出力する。')
+        p.add_argument('-m', '--monthly', action='store_true',
+                help='当日実行対象の自治体（サイト）のみを対象とする。')
         p.add_argument('names', nargs='*', type=str,
-                help='自治体名[/パッケージID[/...]]を指定する。省略した場合は全自治体を対象とする。')
+                help='自治体名[/パッケージID[/...]]を指定する。'
+                     '省略した場合は全自治体を対象とする。')
         args = p.parse_args(sys.argv[1:])
         names = args.names
         # 開始
-        msg = datetime.datetime.now().strftime('%Y/%m/%d-%H:%M:%S') + ' crawler.py start.'
+        today = datetime.datetime.now()
+        msg = today.strftime('%Y/%m/%d-%H:%M:%S') + ' crawler.py start.'
         logger.info(msg)
         print(msg, file=sys.stderr)
         # 取得開始
         cobj = Crawler()
         names_all = cobj.get_names()
+        names = names_all
+        if args.monthly:
+            # ToDo: 特定日を指定したい場合: datetime.datetime.strptime('2026-06-01', '%Y-%m-%d')
+            names = cobj.get_target_names(today)
         if args.site_list:
-            print('定義済自治体名：' + str(names_all), file=sys.stderr)
+            print('定義済自治体名：' + str(names), file=sys.stderr)
         else:
-            if len(names) == 0:
-                # 全サイトを処理する
-                names = names_all
+            if len(args.names) > 0:
+                # 対象自治体（サイト）を処理する
+                names = args.names
             rc = cobj.crawler_main(names)
 
     except Exception as e:
