@@ -82,6 +82,9 @@
 			"経度", "東経", "lng", "LNG", "Lng", "long", "LONG", "Long",
 			"経度（東経）", "経度(東経)", "投票所_経度", "軽度"
 		]
+	},
+	"default": {
+		"crawling_request_interval": 5
 	}, 
 	"local_gov": {
 		"北海道上砂川町": {
@@ -142,7 +145,7 @@
 				"package_list": "package_list"
 			},
 			"crawling_monthly_days": [3]
-        },
+		},
 		"千葉県船橋市": {
 			"code": "122041",
 			"webapi": "CKAN",
@@ -159,6 +162,7 @@
 				"api_url": "https://catalog.data.metro.tokyo.lg.jp/api/3/action/",
 				"package_list": "package_list?limit=0"
 			},
+			"crawling_request_interval": 2,
 			"crawling_monthly_days": [4]
 		},
 		"神奈川県": {

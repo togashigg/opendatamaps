@@ -45,14 +45,14 @@ class Crawler:
     locality_dict = {}
     __data_name_dict = {}
     __requests_start_time = None
-    __requests_interval_seconds = 5
+    __requests_interval_seconds = 5 # defined in settings_json
     __requests_retry_max = 3
     __requests_retry_seconds = 5
     __request_headers = {}
     __proxies = {}
     __geocode_url = 'https://maps.googleapis.com/maps/api/geocode/json' \
                     '?address={address}&language=ja&components=country:JP&key={key}'
-    __google_maps_api_key = 'AIzaSyBZa9fI3N-L1OHnkiaGQODmOcPRP-HaWlA'
+    __google_maps_api_key = None
     __geocode_cache = None
     __geocode_cache_file = '.geocode_cache_{}.json'
     __geocode_cache_path = None
@@ -95,6 +95,8 @@ class Crawler:
         self.LINKEDDATA_DOWNLOAD_CONTENT = ''
         for v in self.settings_json['linkeddata']['content_header']:
             self.LINKEDDATA_DOWNLOAD_CONTENT += v
+        self.__requests_interval_seconds \
+                = self.settings_json['default']['crawling_request_interval']
         # download_dirの確認
         self.download_dir = os.path.join(self.BASE_DIR, MY_CONFIG['download_dir'])
         if not os.path.exists(self.download_dir):
@@ -108,6 +110,8 @@ class Crawler:
         # ファイルパスの設定
         self.LOCALITY_CODE_PATH = os.path.join(self.APP_DIR,
                 MY_CONFIG['download_dir'], self.LOCALITY_CODE_FILE)
+        # 環境変数の取得
+        self.__google_maps_api_key = os.environ['GOOGLE_MAPS_API_KEY']
         logger.info('__init__() ended.')
         # 復帰
         return
@@ -149,6 +153,10 @@ class Crawler:
             site_info = self.get_site_info(name)
             print('サイト=' + site_info['code'], site_info['name'] \
                     + '：' + site_info[site_info['webapi']]['api_url'], file=sys.stderr)
+            self.__requests_interval_seconds \
+                    = self.settings_json['default']['crawling_request_interval']
+            if 'crawling_request_interval' in site_info:
+                self.__requests_interval_seconds = site_info['crawling_request_interval']
             self.__request_headers = {}
             if 'http_request_headers' in site_info[site_info['webapi']]:
                 for k, v in site_info[site_info['webapi']]['http_request_headers'].items():
@@ -1323,7 +1331,7 @@ class Crawler:
         :return: str型、選定結果のメッセージ、None=正常、他=除外した理由
         """
         logger = logging.getLogger(__name__)
-        logger.info('get_package_info() start, packageid=' + str(packageid))
+        logger.info('select_package_info() start, packageid=' + str(packageid))
         # 実行
         msg = None
         if packageid is None or not isinstance(packageid, str) \
@@ -2343,7 +2351,10 @@ if __name__ == '__main__':
             # ToDo: 特定日を指定したい場合: datetime.datetime.strptime('2026-06-01', '%Y-%m-%d')
             names = cobj.get_target_names(today)
         if args.site_list:
-            print('定義済自治体名：' + str(names), file=sys.stderr)
+            if args.monthly:
+                print('実行対象自治体名：' + str(names), file=sys.stderr)
+            else:
+                print('定義済自治体名：' + str(names), file=sys.stderr)
         else:
             if len(args.names) > 0:
                 # 対象自治体（サイト）を処理する
