@@ -198,7 +198,8 @@ class Crawler:
                                     + str(site_info[site_info['webapi']]['package_download_failure'])
                             print(msg, file=sys.stderr)
                             logger.error(msg)
-                            rc = 1
+                            # ToDo: rc = 1
+                            rc = 0     # ToDo: 青森県での中断を回避するため
                             break
                     continue
                 package_download_failure_count = 0
