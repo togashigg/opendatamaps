@@ -1,5 +1,5 @@
-# オープンデータ施設情報取得API
-<DIV STYLE="width: 100%; text-align: right;">2026年○月○○日 ○○の日 公開</DIV>
+# オープンデータ位置情報取得サービス
+<DIV STYLE="width: 100%; text-align: right;">2026年07月03日 v0.1.0 公開</DIV>
 
 ## 目次
 
@@ -7,11 +7,11 @@
   * [2.収集済のオープンデータ](#2収集済のオープンデータ)
   * [3.施設種別](#3施設種別)
   * [4.機能](#4機能)
-  * [5.Web_APIの構文](#5Web_APIの構文)
+  * [5.WebAPIの構文](#5WebAPIの構文)
   * [6.対象：市区町村情報](#6対象市区町村情報)
   * [7.対象：施設情報](#7対象施設情報)
-  * [8.Renderでの構築手順](#8Renderでの構築手順)
-  * [9.Dockerコンテナで運用する](#9Dockerコンテナで運用する)
+  * [8.Dockerコンテナで運用する](#8Dockerコンテナで運用する)
+  * [9.Renderでの構築手順](#9Renderでの構築手順)
   * [10.使用サービスおよび使用ソフトウェアのライセンスおよびポリシー](#10使用サービスおよび使用ソフトウェアのライセンスおよびポリシー)
 
 ## 1.概要
@@ -19,22 +19,22 @@
 　近年オープンデータが各都道府県および市区町村により公開されていることは、多くの方がご存じのことと思います。
   また、オープンデータの中には地理上の座標や住所を含む情報があり、これらの情報は地図上に表示することが可能です。
   これらのオープンデータの中で個人的に最も重宝している情報は公衆トイレの情報です。その理由は街中を歩くことが多いためです。
-  また、市区町村単位で情報が公開されているため、市区町村の境界近くでは欲しい情報を得るのがめんどうなことがあります。
-  こんな状況を解決するために、各市区町村にまたがった情報を一括して取得できるようにできないかと考えました。
+  ただし残念なのは、市区町村単位で情報が公開されていることが多く、市区町村の境界近くでは欲しい情報を得るのがめんどうなことです。
+  こんな状況を解決するために、市区町村にまたがった情報を一括して取得できるようにできないかと考えました。
 
-　結論として、各市区町村が公開しているオープンデータの中でも座標や住所を公開している情報に着目してデータベース化することと、
-現在地から近い施設（半径何メートル以内？）を抽出するWebAPIを提供することで解決できるのではないかと考えました。
+　実現方法としては、各市区町村が公開しているオープンデータの中から座標や住所を公開している情報に着目してデータベース化することと、現在地から近い施設（半径何メートル以内）を取得できるWebAPIを提供することを考えました。
+  本来ならば、オープンデータの公開方法が、全国にまたがった情報取得を可能にして頂きたいところです（既に存在していたらごめんなさい）。
 
-　スマホが復旧した現在では、Webブラウザを使用することで現在地が簡単に取得でき、周囲の施設を検索してGoogle Maps等で簡単に表示できます。
-  その際、特定の施設等の固定的な座標から、周囲の施設を検索することもできます。
+　スマホが復旧した現在では現在地が簡単に取得できるため、周囲の施設が取得できればGoogle Maps等で簡単に表示できます。
+  また、現在地だけでなく特定施設等の固定的な座標から、周囲の施設を取得することもできます。
 
-　また、オープンデータは、[e-Gov](https://data.e-gov.go.jp/)や[e-Stat](https://www.e-stat.go.jp/)が決めた分野（カテゴリ）に分類されて公開されています。
+　オープンデータは、[e-Gov](https://data.e-gov.go.jp/)や[e-Stat](https://www.e-stat.go.jp/)が決めた分野（カテゴリ）に分類されて公開されています。
 分野とは、 国土・気象、人口・世帯、労働・賃金、農林水産業、鉱工業、商業・サービス業、企業・家計・経済、住宅・土地・建設、エネルギー・水、運輸・観光、情報通信・科学技術、教育・文化・スポーツ・生活、行財政、司法・安全・環境、社会保障・衛生、国際、等が定義されています。
 例えば、利用者目線の「公衆トイレ」の情報は「教育・文化・スポーツ・生活」分野に含まれているようです。
 この分野は、地図上に表示するラベルとしては使いづらいため、独自の手法で種別を設定するようにしました。
 種別の詳細については、後述の「施設種別」を参照してください。施設種別の考慮不足により、抽出対象から漏れてしまったデータがあるかもしれません。また、データ内の項目名の表記ゆれにより対象外になってしまったものもあると思います。気が付いたら改善したいと思います。
 
-　実際に取得したオープンデータをGoogleマップ上に表示するサンプルを作成しましたので、以下のリンクから確認してみて下さい。※作業中で停止していたらごめんなさい。 m(\_.\_)m
+　実際に収集したオープンデータをGoogleマップ上に表示するサンプルアプリ（ブラウザアプリ）を作成しましたので、以下のリンクから確認してみて下さい。※作業中等で停止していたらごめんなさい。 m(\_.\_)m
 
   - <A HREF="https://opendatamaps.onrender.com/" TARGET="_blank" REL="noopener">オープンデータ on Google Maps</A>
 
@@ -42,15 +42,19 @@
   <IMG SRC="djangoapp/static/sample_screen_h.png" ALT="サンプル画面_横" TITLE="サンプル画面_横">
   <IMG SRC="djangoapp/static/sample_screen_v.png" ALT="サンプル画面_縦" TITLE="サンプル画面_縦">
 
-　実際に見てみると多くの施設情報が公開されていると感じます。
+　※[追尾]機能は徒歩で移動中にお使い下さい。車や電車等の高速移動中に使用すると大量の通信が発生します。
 
-　後述のWebAPIの例を参考にして楽しんで頂ければ幸いです。また、サンプルでは、実際に使用したAPIのログを確認できますので、一助になれば幸いです。
+　実際に見てみると多くの施設情報が公開されていると感じます（重複も多いようですが）。
 
-　まだまだ不完全な部分が多いですが、ぼちぼち改善していきたいと考えています。
+　後述のWebAPIの例を参考にして楽しんで頂ければ幸いです。また、サンプルアプリでは、実際に使用したAPIのログを確認できますので、一助になれば幸いです。
+
+　まだまだ不完全な部分が多いですが、考え方を参考にして頂ければ幸いです。プログラムはぼちぼち改善していきたいと考えています。
 
 　公開に際しては以下のサービスを使用させて頂きました。感謝致します。
+基本的には無料の範囲で使用しているため、お試しの範囲でご利用下さい。料金が発生した場合は停止することもあります。
 
-  - [Google Maps](https://mapsplatform.google.com/)
+  - [Google Maps Platform](https://mapsplatform.google.com/)
+  - [Google Cloud](https://cloud.google.com/)
   - [Render](https://render.com/)
   - [GitHub](https://github.com/)
   - [Docker Hub](https://hub.docker.com/)
@@ -67,22 +71,22 @@
 
 ## 2.収集済のオープンデータ
 
-　オープンデータは、都道府県および市区町村単位で公開されていますが、各市区町村のオープンデータを調査するには、
-大変な労力が必要と考えています。そのため、市区町村のデータを含めて都道府県が公開しているオープンデータを対象とすることにしました。
-　収集方法は、APIとして[CKAN](https://data.e-gov.go.jp/data/api_guide)または[シラサギ](https://www.ss-proj.org/)をサポートしているところのみを対象としました。
+　オープンデータは、都道府県および市区町村単位で公開されていますが、各市区町村のオープンデータを調査するには、大変な労力が必要なようです。そのため、市区町村のデータを含めて都道府県が公開しているオープンデータを対象とすることにしました。
+　収集対象は、WebAPIとして[CKAN](https://data.e-gov.go.jp/data/api_guide)または[シラサギ](https://www.ss-proj.org/)をサポートしているところのみとしました。
 
-　更に、データ中に存在する項目の名称や書き方によっては対象外になることもあります。
+　更に、だいぶ強引な方法で収集しているため、データセット名やデータ中に存在する項目の名称や書き方によっては収集対象外になることもあります。
 
-　また、小さく始めるために、最初に静岡県を対象として開発し、次いで東京都へと適用しました。
-随時、他の道府県への適用を進めています。
+　また、小さく始めるために、最初に静岡県を対象として開発し、次いで東京都へと適用し、３０県まで対応しました。随時、他の道県への適用を進めたいと考えています。
+
+　オープンデータの再収集は、毎月１日から都道府県毎に開始して、月末頃にデータベースに反映する予定です。
 
 　以下の表は、「デジタル庁」が公開している「[オープンデータ取組済自治体資料](https://www.digital.go.jp/resources/data_local_governments)」を参考にして、
 現在までに収集済の都道府県を以下の表にまとめました。一部は、都道府県単位では収集できなかったため、市区町村単位に収集したところもあります。
-  |団体コード |団体名 |☆取得 |☆API |サイトのURL1 |サイトのURL2 |サイトのURL3 |初回登録日 |更新日 |☆備考 |
+  |団体コード |団体名 |☆収集 |☆API |サイトのURL1 |サイトのURL2 |サイトのURL3 |初回登録日 |更新日 |☆備考 |
   |---------|------|-----|-----|------------|------------|------------|---------|------|---- |
   |010006 |北海道   |−   |−   |<A HREF="http://www.pref.hokkaido.lg.jp/ss/jsk/opendata/opendata.htm" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://www.harp.lg.jp/opendata/" TARGET="_blank" REL="noopener">サイト2</A> | | | |     |
   |014257 |北海道<BR>上砂川町 |○    |[CKAN](https://data.bodik.jp/api/3/action/package_search?facet.limit=-1&facet.field=["name"]&fq=name:014257_*&sort=&rows=0) |<A HREF="https://odcs.bodik.jp/014257/" TARGET="_blank" REL="noopener">サイト1</A> |     |     | | |name:014257_*を抽出 |
-  |020001 |青森県   |○   |[シラサギ](https://opendata.pref.aomori.lg.jp/api/package_list?limit=0&offset=0) |<A HREF="https://opendata.pref.aomori.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2019/3/11 |取得は約100件／日 |
+  |020001 |青森県   |○   |[シラサギ](https://opendata.pref.aomori.lg.jp/api/package_list?limit=0&offset=0) |<A HREF="https://opendata.pref.aomori.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2019/3/11 |収集は約100件／日 |
   |030007 |岩手県   |−   |−   |<A HREF="https://www.pref.iwate.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2024/2/6 |     |
   |040002 |宮城県   |○   |[CKAN](https://miyagi.dataeye.jp/ckan_api/package_list?limit=9999) |<A HREF="http://www.pref.miyagi.jp/site/opendata-miyagi/" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://miyagi.dataeye.jp/" TARGET="_blank" REL="noopener">サイト2</A> | | |2022/11/7 |     |
   |050008 |秋田県   |○   |[CKAN](https://ckan.pref.akita.lg.jp/api/3/action/package_list) |<A HREF="https://www.pref.akita.lg.jp/pages/archive/32419" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://opendata.pref.akita.lg.jp/" TARGET="_blank" REL="noopener">サイト2</A> | | |2024/9/27 |     |
@@ -172,7 +176,7 @@
 
 ## 4.機能
 
-　以下の機能をWeb APIとして提供します。
+　以下の機能をWebAPIとして提供します。
   - 市区町村情報一覧取得
   - 施設種別取得
   - 施設情報取得
@@ -180,7 +184,7 @@
 
 　機能の詳細は、次章以降で説明します。
 
-## 5.Web_APIの構文
+## 5.WebAPIの構文
 
   ```
   https://{ホスト名}/{公開名/}api/{対象}/{機能名}[{手法名}][?パラメタ名=パラメタ値[&パラメタ名=パラメタ値...]]
@@ -189,38 +193,38 @@
   - 公開名：サーバ上で機能を特定するための名称（パス）を指定します。
   - 対象：localitycode（市区町村コード）またはfacility（施設）を指定します。
   - 機能名：対象毎に以下の機能名を指定します。
-    |対象         |機能名  |機能             |機能概要                            |
-    |------------|-------|-----------------|----------------------------------|
-    |localitycode|query  |市区町村情報一覧取得|市区町村情報一覧を取得する             |
+    |対象         |機能名 |機能                |機能概要                          |
+    |------------|--------|--------------------|----------------------------------|
+    |localitycode|query   |市区町村情報一覧取得|市区町村情報一覧を取得する        |
 
-    |対象         |機能名  |機能             |機能概要                            |
-    |------------|-------|-----------------|----------------------------------|
-    |facility    |kinds  |施設種別取得       |施設種別を取得する                    |
-    |            |summary|施設情報取得       |市区町村毎および施設種別毎の情報を取得する|
-    |            |query  |施設検索          |条件に該当する施設検索を行い取得する     |
+    |対象         |機能名 |機能             |機能概要                            |
+    |------------|--------|-----------------|----------------------------------|
+    |facility    |kinds   |施設種別取得       |施設種別を取得する                    |
+    |            |summary |施設情報取得       |市区町村毎および施設種別毎の情報を取得する|
+    |            |query   |施設検索          |条件に該当する施設検索を行い取得する     |
   - 手法名：施設検索を行う場合に以下の検索手法を指定します。
     |対象     |機能名 |手法名       |手法              |手法概要                           |
-    |--------|------|------------|------------------|---------------------------------|
-    |facility|query |center      |中心座標からの距離指定|中心座標から指定距離以内の施設を検索する|
-    |        |      |localitycode|市区町村コード指定   |市区町村コードにより施設を検索する     |
+    |---------|-------|-------------|------------------|---------------------------------|
+    |facility |query  |center       |中心座標からの距離指定|中心座標から指定距離以内の施設を検索する|
+    |         |       |localitycode |市区町村コード指定   |市区町村コードにより施設を検索する     |
   - パラメタ名=パラメタ値：施設検索を行う場合に以下の検索条件を指定します。
     |対象         |機能名 |手法名|指定|パラメタ名     |パラメタ値                        |
-    |------------|------|-----|----|--------------|--------------------------------|
-    |localitycode|query |ー   |    |code          |市区町村コードを指定する             |
-    |            |      |     |    |state_name    |都道府県名を指定する                |
-    |            |      |     |    |locality_name |市区町村名を指定する                |
-    |            |      |     |    |limit         |取得する件数の上限を指定する         |
+    |-------------|------|-----|----|--------------|--------------------------------|
+    |localitycode |query |ー   |    |code          |市区町村コードを指定する             |
+    |             |      |     |    |state_name    |都道府県名を指定する                |
+    |             |      |     |    |locality_name |市区町村名を指定する                |
+    |             |      |     |    |limit         |取得する件数の上限を指定する         |
 
-    |対象      |機能名  |手法名       |指定|パラメタ名 |パラメタ値                         |
+    |対象     |機能名  |手法名     |指定|パラメタ名 |パラメタ値                         |
     |---------|-------|------------|----|----------|---------------------------------|
     |facility |kinds  |ー          |    |code      |取得対象の市区町村コードを指定する（複数指定可能）|
-    |         |summary|ー          |    |なし       |指定できるパラメタは無し                     |
+    |         |summary|ー          |    |なし      |指定できるパラメタは無し                     |
     |         |query  |center      |必須|lat       |中心座標の緯度を指定する                      |
     |         |       |            |必須|lng       |中心座標の経度を指定する                      |
     |         |       |            |必須|distance  |中心座標からの距離を指定する（単位はメートル）    |
     |         |       |            |    |kind      |取得する施設種別を指定する（複数指定可能）      |
     |         |       |            |    |limit     |取得する件数の上限を指定する                  |
-    |         |       |localitycode|必須|code       |市区町村コードを指定する（複数指定可能）        |
+    |         |       |localitycode|必須|code      |市区町村コードを指定する（複数指定可能）        |
     |         |       |            |    |kind      |取得する施設種別を指定する（複数指定可能）      |
     |         |       |            |    |limit     |取得する件数の上限を指定する                  |
 
@@ -232,7 +236,7 @@
 
 ### 6.1 機能：市区町村情報一覧取得
 
-　Web APIの構文
+　WebAPIの構文
 
   ```
   https://{ホスト名}/{公開名/}api/localitycode/query
@@ -373,7 +377,7 @@
 
 ### 7.1 機能：施設種別取得
 
-　Web APIの構文
+　WebAPIの構文
 
   ```
   https://{ホスト名}/{公開名/}api/facility/kinds
@@ -426,7 +430,7 @@
 
 ### 7.2 機能：施設情報取得
 
-　Web APIの構文
+　WebAPIの構文
 
   ```
   https://{ホスト名}/{公開名/}api/facility/summary
@@ -481,7 +485,7 @@
 
 ### 7.3 機能：施設検索（中心）
 
-　Web APIの構文
+　WebAPIの構文
 
   ```
   https://{ホスト名}/{公開名/}api/facility/query/center
@@ -580,7 +584,7 @@
 
 ### 7.4 機能：施設検索（市区町村）
 
-　Web APIの構文
+　WebAPIの構文
 
   ```
   https://{ホスト名}/{公開名/}api/facility/query/locality
@@ -655,23 +659,221 @@
 
       </details>
 
-## 8.Renderでの構築手順
 
-　Renderで運用する場合、PostgreSQLによるDBサーバを別途用意する必要があります。
+## 8.Dockerコンテナで運用する
 
-### 8.1 Renderにユーザ登録する
+　動作環境の前提条件は以下の通りです（作成者の環境です）。
+    - OS: ubuntu 24.04
+    - Docker version 20.10
+    - docker-compose version 1.29
+
+　環境構築にはそれ程時間も手間も掛かりませんが、オープンデータを取得するにはクローリングと自前データベースへの登録を行うため数時間から数日掛かります。
+
+### 8.1 構築手順
+
+  1. GitHubから本リポジトリを取得する。
+     ```
+     $ mkdir github
+     $ cd github
+     $ git clone --depth 1 https://github.com/togashigg/opendatamaps.git
+     ```
+
+  2. リポジトリのディレクトリに移動する。
+     ```
+     $ cd opendatamaps
+     ```
+
+  3. Dockerイメージをビルドする。
+     ```
+     $ ./docker_build.sh
+     ```
+
+  4. docker運用環境および永続化領域用ディレクトリを作成する。
+     ```
+     $ cd
+     $ mkdir docker
+     $ cd docker
+     $ cp -pr ~/github/opendatamaps/docker-compose/* ./
+     $ mkdir db/data/18
+     $ cp -p ~/github/opendatamaps/download/都道府県コード及び市区町村コード_20240101.csv opendatamaps/download/
+     ```
+
+  5. SSL通信用オレオレ証明書を作成する。※できれば正式な証明書を使用したい！
+     ```
+     $ cd nginx/openssl
+     $ openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -aes-256-cbc -out server.key
+       ※＜PEM pass phrase＞を入力します。
+     $ openssl req -new -key server.key -out server.csr
+       ※＜PEM pass phrase＞、＜Country Name＞、＜State or Province Name＞、＜Locality Name＞、＜Common Name＞、＜Email Address＞等を入力します。
+     $ openssl x509 -req -in server.csr -signkey server.key -days 400 -out server.crt
+       ※＜PEM pass phrase＞を入力します。
+     $ echo "＜パスワード＞" > passwd
+       ※＜PEM pass phrase＞を入力します。
+     $ chmod 644 *
+     ```
+
+  6. 環境変数を定義する。
+
+    環境変数は、「.bashrc」ファイルの最後に定義します。ファイル更新後に「bash」を再起動して下さい。
+    「POSTGRESQL_XXXX」は、使用するデータベースを定義します。以下の定義では同時に起動するDockerコンテナ(db)を使用します。
+    また、「GOOGLE_MAPS_API_KEY」は、Google Maps APIのアクセスキーを定義します。各自が取得したアクセスキーを指定して下さい。
+     ```
+     $ cd
+     $ vi .bashrc
+     ＜ファイルの最後に移動する＞
+     export POSTGRESQL_HOST=db
+     export POSTGRESQL_PORT=＜PostgreSQLのポート番号＞    ※簡易な例：5432
+     export POSTGRESQL_DBNAME=＜PostgreSQLのDB名＞        ※簡易な例：postgres
+     export POSTGRESQL_USER=＜PostgreSQLのユーザ名＞      ※簡易な例：postgres
+     export POSTGRESQL_PASS=＜PostgreSQLのパスワード＞    ※簡易な例：なし
+     export GOOGLE_MAPS_API_KEY=＜Google Maps APIのアクセスキー＞
+       ※各値は各自の環境に合わせて設定して下さい。
+     ＜ファイルを保存する＞
+     :wq
+     ＜「bash」を終了する＞
+     $ exit
+     ＜「bash」を再起動する＞
+     ＜環境変数を確認する＞
+     $ env | grep -e POSTGRESQL -e GOOGLE_MAPS
+     ```
+
+  6. Dockerコンテナを起動する。
+     ```
+     $ cd
+     $ cd docker
+     $ docker-compose up -d
+     $ docker-compose ps
+       ※コンテナが起動されていることを確認します。
+     ```
+
+  7. データベースを初期化する。
+     ```
+     $ cd opendatamaps/
+     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -c localitycode opendatamaps | tee cmd_log/db.stdout
+     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -l localitycode | tee -a cmd_log/db.stdout
+     ```
+
+### 8.2 オープンデータを収集する
+
+  1. 再収集の場合は、既存データを削除する。
+     ```
+     $ cd
+     $ cd docker/opendatamaps/
+     $ sudo rm -rf cache/[0-9]* cmd_log/crawler.* download/[0-9]*
+     ```
+
+  2. オープンデータを収集する。
+     ```
+     $ cd
+     $ cd docker/opendatamaps/
+    【都道府県単位で収集する場合】
+     $ docker exec -t docker_opendatamaps_1 python3 src/crawler.py 静岡県 | tee -a cmd_log/crawler.stdout
+     $ docker exec -t docker_opendatamaps_1 python3 src/crawler.py 東京都 | tee -a cmd_log/crawler.stdout
+       …
+       ※１つの都道府県単位では、実行に数時間から１日程度の時間が掛かります。
+       ※青森県では、１日に実行できるWebAPIの回数が100回程度に制限されているようなので、24時間間隔で10回程度のリトライが必要です。
+    【一括で収集する場合】
+     $ docker exec -t docker_opendatamaps_1 python3 src/crawler.py | tee -a cmd_log/crawler.stdout
+      ※一括での実行には数日の時間が掛かります。
+     $ docker exec -t docker_opendatamaps_1 python3 src/crawler.py 青森県 | tee -a cmd_log/crawler.stdout
+      ※青森県では、１日に実行できるWebAPIの回数が100回程度に制限されているようなので、24時間間隔で10回程度のリトライが必要です。
+     ```
+
+  3. 収集データの一覧を作成して確認する。
+     ```
+     $ cd
+     $ cd docker/opendatamaps/cmd_log/
+     $ python3 ~/github/opendatamaps/tools/crawler_stdout_summary.py crawler.stdout > crawler_summary.csv
+     ```
+
+### 8.3 オープンデータをデータベースに登録する
+
+　本作業を実施中の間、サービスが停止することを注意して下さい。
+
+  1. 再登録の場合は、既存データを削除（再作成）する。
+     ```
+     $ cd
+     $ docker/opendatamaps/
+     $ rm cmd_log/db_load.*
+     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -d opendatamaps | tee -a cmd_log/db.stdout
+     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -c opendatamaps | tee -a cmd_log/db.stdout
+     ```
+
+  2. オープンデータを登録する。
+     ```
+     $ cd
+     $ cd docker/opendatamaps/
+    【都道府県単位で登録する場合】
+     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -l opendatamaps -f cache/220001_静岡県 | tee -a cmd_log/db_load.stdout
+     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -l opendatamaps -f cache/130001_東京都 | tee -a cmd_log/db_load.stdout
+    【一括で登録する場合】
+     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -l opendatamaps | tee -a cmd_log/db_load.stdout
+     ```
+
+### 8.4 ブラウザでDockerコンテナのURLを開く
+
+  1. ブラウザで以下のURLを開く。
+     ```
+     https://＜サーバ＞/opendatamaps
+
+      ※＜サーバ＞には環境を構築したサーバのドメイン名またはIPアドレスを指定してください。
+     ```
+### 8.5 オープンデータを再収集してデータベースに再登録する：最新化
+
+　オープンデータを再収集する処理は、本サービスと並行に実行することが可能です。しかし、データベースに再登録する処理は、本サービスを一旦停止しなければなりません。
+
+　２つのDocker環境を用意したり、サービス系と収集系の２サーバを用意することでサービスの停止時間を短縮することが可能ですが、ここでの説明は割愛させて頂きます（実際はバックアップリストアで運用しています）。
+
+  1. オープンデータを再収集する。 
+
+    「8.2 オープンデータを収集する」を参照して再収集する。
+
+  2. でオープンデータを再登録する。
+
+    「8.3 オープンデータをデータベースに登録する」を参照して再登録する。
+
+
+## 9.Renderでの構築手順
+
+　Renderで構築する理由は、ドメイン名を利用したAPサーバを運用することです。
+
+　Renderで運用する場合、PostgreSQLによるDBサーバを別途用意する必要があります。DBサーバは「9.Dockerコンテナで運用する」手順で構築してください。
+
+### 9.1 GitHubのリポジトリを複写する
+
+  1. 本リポジトリをGitHubからダウンロードする
+     ```
+     $ mkdir github
+     $ cd gitgub/
+     $ git clone --depth 1 https://github.com/togashigg/opendatamaps.git
+     ````
+
+  2. 新規リポジトリをGitHubに登録する
+     ```
+     $ gh repo create ＜新規リポジトリ名＞ --private
+     $ cd opendatamaps/
+     $ rm -rf .git
+     $ git init
+     $ git add .
+     $ git commit -m 'clone'
+     $ git remote add origin https://github.com/＜あなたのユーザ名＞/＜新規リポジトリ名＞.git
+     $ git branch -M main
+     $ git push -u origin main
+     ```
+
+### 9.2 Renderにユーザ登録する
 
   1. Renderのユーザでない場合は、以下のURLを開いて新規登録を行う。
 
      https://render.com/
 
-### 8.2 Renderにログインする
+### 9.3 Renderにログインする
 
   1. Renderの以下のURLを開いてログインする。
 
      https://render.com/
 
-### 8.3 新規のアプリを作成する
+### 9.4 新規のアプリを作成する
 
   1. RenderにログインしてDashboardのサービス一覧画面で\[New +\] - \[Web Service\]を選択する。
 
@@ -742,147 +944,19 @@
 
      ※ただし、サービス開始までには更に5分程度かかる。
 
-### 8.4 GitHubとの連携を設定する
+### 9.5 GitHubとの連携を設定する
 
   デフォルトで連携されている。GitHubのリポジトリが更新されるとビルドされる。
 
 
-## 9.Dockerコンテナで運用する
-
-　動作環境の前提条件は以下の通りです（作成者の環境です）。
-    - OS: ubuntu 24.04
-    - Docker version 20.10
-    - docker-compose version 1.29
-
-　環境構築にはそれ程時間も手間も掛かりませんが、オープンデータを取得するにはクローリングと自前データベースへの登録を行うため数時間掛かります。
-
-### 9.1 構築手順
-
-  1. GitHubからプロジェクトを取得する。
-     ```
-     $ mkdir github
-     $ cd github
-     $ git clone --depth 1 https://github.com/togashigg/opendatamaps.git
-     ```
-
-  2. プロジェクトのディレクトリに移動する。
-     ```
-     $ cd opendatamaps
-     ```
-
-  3. Dockerイメージをビルドする。
-     ```
-     $ ./docker_build.sh
-     ```
-
-  4. docker運用環境および永続化領域用ディレクトリを作成する。
-     ```
-     $ cd
-     $ mkdir docker
-     $ cd docker
-     $ cp -pr ~/github/opendatamaps/docker-compose/* ./
-     $ mkdir db/data/18
-     $ cp -p ~/github/opendatamaps/download/都道府県コード及び市区町村コード_20240101.csv opendatamaps/download/
-     ```
-
-  5. SSL通信用オレオレ証明書を作成する。※できれば正式な証明書を使用したい！
-     ```
-     $ cd nginx/openssl
-     $ openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -aes-256-cbc -out server.key
-       ※＜PEM pass phrase＞を入力します。
-     $ openssl req -new -key server.key -out server.csr
-       ※＜PEM pass phrase＞、＜Country Name＞、＜State or Province Name＞、＜Locality Name＞、＜Common Name＞、＜Email Address＞等を入力します。
-     $ openssl x509 -req -in server.csr -signkey server.key -days 400 -out server.crt
-       ※＜PEM pass phrase＞を入力します。
-     $ echo "＜パスワード＞" > passwd
-       ※＜PEM pass phrase＞を入力します。
-     $ chmod 644 *
-     ```
-
-  6. 環境変数を定義する。
-
-    環境変数は、「.bashrc」ファイルの最後に定義します。ファイル更新後に「bash」を再起動して下さい。
-    「POSTGRESQL_XXXX」は、使用するデータベースを定義します。以下の定義では同時に起動するDockerコンテナ(db)を使用します。
-    また、「GOOGLE_MAPS_API_KEY」は、Google Maps APIのアクセスキーを定義します。各自が取得したアクセスキーを指定して下さい。
-     ```
-     $ cd
-     $ vi .bashrc
-     ＜ファイルの最後に移動する＞
-     export POSTGRESQL_HOST=db
-     export POSTGRESQL_PORT=＜PostgreSQLのポート番号＞
-     export POSTGRESQL_DBNAME=＜PostgreSQLのDB名＞
-     export POSTGRESQL_USER=＜PostgreSQLのユーザ名＞
-     export POSTGRESQL_PASS=＜PostgreSQLのパスワード＞
-     export GOOGLE_MAPS_API_KEY=＜Google CludeのAPIキー＞
-       ※各値は各自の環境に合わせて設定して下さい。
-     ＜ファイルを保存する＞
-     :wq
-     ＜「bash」を終了する＞
-     # exit
-     ＜「bash」を再起動する＞
-     ＜環境変数を確認する＞
-     # env | grep -e POSTGRESQL -e GOOGLE_MAPS
-     ```
-
-  6. Dockerコンテナを起動する。
-     ```
-     $ cd
-     $ cd docker
-     $ docker-compose up -d
-     $ docker-compose ps
-       ※コンテナが起動されていることを確認します。
-     ```
-
-  7. データベースを初期化する。
-     ```
-     $ cd opendatamaps/
-     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -c localitycode opendatamaps | tee cmd_log/db_create.stdout
-     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -l localitycode | tee -a cmd_log/db_create.stdout
-     ```
-
-  8. ブラウザでDockerコンテナのURLを開く。
-     ```
-     https://＜サーバ＞/opendatamaps
-     
-      ※＜サーバ＞には環境を構築したサーバのドメイン名またはIPアドレスを指定してください。
-     ```
-
-### 9.2 オープンデータを取得する
-
-  1. オープンデータを取得する。
-     ```
-     $ cd
-     $ cd docker/opendatamaps/
-     $ docker exec -t docker_opendatamaps_1 python3 src/crawler.py 静岡県 | tee cmd_log/crawler_静岡県.stdout
-     $ docker exec -t docker_opendatamaps_1 python3 src/crawler.py 東京都 | tee cmd_log/crawler_東京都.stdout
-     ```
-
-### 9.3 オープンデータを自前データベースに登録する
-
-  1. オープンデータを登録する。
-     ```
-     $ cd
-     $ cd docker/opendatamaps/
-     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -l opendatamaps -f cache/220001_静岡県 | tee cmd_log/db_load_静岡県.stdout
-     $ docker exec -t docker_opendatamaps_1 python3 src/db.py -l opendatamaps -f cache/130001_東京都 | tee cmd_log/db_load_東京都.stdout
-     ```
-
-### 9.4 ブラウザでDockerコンテナのURLを開く
-
-  1. ブラウザで以下のURLを開く。
-     ```
-     https://＜サーバ＞/opendatamaps
-
-      ※＜サーバ＞には環境を構築したサーバのドメイン名またはIPアドレスを指定してください。
-     ```
-
-
 ## 10.使用サービスおよび使用ソフトウェアのライセンスおよびポリシー
 
-  - [Google Maps](https://cloud.google.com/maps-platform/terms)
+  - [Google Maps Platform](https://cloud.google.com/maps-platform/terms)
 
     先頭の一部のみを引用しました。全体は、[Google Maps Platform Terms of Service](https://cloud.google.com/maps-platform/terms)を直接参照して下さい。
 ```
+Google Maps Platform Terms of Service
+
 What’s in the Terms?
 
 This index is designed to help you navigate our Terms of Service ("Terms") for your use of Google Maps Platform. We hope this serves as a useful guide, but please ensure you read the Terms in full. 
@@ -970,6 +1044,31 @@ This section defines the terms used in this Agreement.
 21. Regional Terms
 
 This section identifies the regional variations to these terms that are needed for Customers to use the Services in specific regions.
+
+（以下省略）
+```
+
+  - [Google Cloud](https://cloud.google.com/terms/)
+
+    先頭の一部のみを引用しました。全体は、[]Google Cloud Terms of Service(https://cloud.google.com/terms/)を直接参照して下さい。
+```
+Google Cloud Terms of Service
+
+New to Google Cloud? A quick overview of Google Cloud’s online contracting can be found here.
+
+For translations of this Agreement into other languages, please click on the appropriate link: Bahasa Indonesia, Deutsch, Español (Latinoamérica), Français, Italiano, Nederlands, Português, 한국어, 日本語
+
+If you are accessing the Services as a customer of an unaffiliated Google Cloud reseller, these terms will apply to you in relation to your use of the Services (subject to the "Resold Customers" section of the applicable Service Specific Terms). Notwithstanding the applicability of these terms, if you fall under one of the exempt categories described at https://cloud.google.com/terms/direct-tos-exemptions for the applicable Services, these terms do not apply to you, unless you and Google agree otherwise in writing. If you become exempt from these terms after the Effective Date, this will not affect any liability arising between the parties prior to the date that you become exempt.
+
+If you signed an offline variant of this Agreement for use of the Google Cloud Platform Services, Google Workspace Services, SecOps Services, Looker (original) Services, or Cloud Identity Services under the same Google Cloud Platform Services, Google Workspace, SecOps Services, Looker (original) Services, or Cloud Identity Services Account, the terms below do not apply to you, and your offline terms govern your use of the applicable Services.
+
+These terms do not apply to use of Starter Tier resources. The Starter Tier Additional Terms of Service govern use of all resources in your Starter Tier project.
+
+These Google Cloud Terms of Service (together, the "Agreement") are entered into by Google and the entity or person agreeing to these terms ("Customer") and govern Customer's access to and use of the Services. "Google" has the meaning given at https://cloud.google.com/terms/google-entity.
+
+This Agreement is effective when Customer clicks to accept or otherwise agrees to it (the "Effective Date"). If you are accepting on behalf of Customer, you represent and warrant that (i) you have full legal authority to bind Customer to this Agreement; (ii) you have read and understand this Agreement; and (iii) you agree, on behalf of Customer, to this Agreement.
+
+（以下省略）
 ```
 
   - [Render](https://render.com/acceptable-use)
