@@ -16,10 +16,11 @@
 	var urlApiFacilitykinds='api/facility/kinds?';
 	var googleApiLatLonToAddr='https://mreversegeocoder.gsi.go.jp/reverse-geocoder/LonLatToAddress?lat={lat}&lon={lon}';
 	var myMap=null;
+	var markerInfoWindow=null;
 	var directionsService=null;
 	var directionsRenderer=null;
 	var directionRouteNo=-1;
-	var infoWindow=null;
+	var travelInfoWindow=null;
 	var buttonLabel='追尾中';
 	var myInitialCenter={lat:35.118590536070734, lng:138.91855992264092};	// 初期位置、三島市役所→どこにしようか？
 	var myInitialMode='center';	// center:近隣施設表示、code:市区町村単位の施設表示
@@ -64,6 +65,7 @@
 			streetViewControl: false,
 			fullscreenControl: false,
 		});
+		markerInfoWindow=new google.maps.InfoWindow();
 		startTraceCurrentPosition();
 		resizeWindows();
 		if(DEBUG) console.log(nowToString()+' initMap() ended');
@@ -755,7 +757,7 @@
 			}
 			if(directionRouteNo>=0) {
 				directionsRenderer.setMap(myMap);
-				infoWindow.open(myMap);
+				travelInfoWindow.open(myMap);
 			}
 		}
 		mapCenterPrev=new google.maps.LatLng(mapCenter.lat(), mapCenter.lng());
@@ -853,7 +855,9 @@
 		if(DEBUG) console.log(nowToString()+' dispInfo() start, '+':'+name);
 		google.maps.event.addListener(marker, 'click',
 			function(event) {
-				new google.maps.InfoWindow({content:name}).open(marker.map, marker);
+				markerInfoWindow.close();
+				markerInfoWindow.setContent(marker.title);
+				markerInfoWindow.open({map: marker.map, anchor: marker});
 			}
 		);
 		if(DEBUG) console.log(nowToString()+' dispInfo() ended, '+':'+name);
@@ -902,7 +906,7 @@
 	function showTable(toTop) {
 		if(DEBUG) console.log(nowToString()+' showTable() start');
 		if(directionRouteNo>=0) {
-			showTrabelRoute(directionRouteNo);
+			showTravelRoute(directionRouteNo);
 			directionRouteNo=-1;
 		}
 		var markTable=document.getElementById("markTableV");
@@ -994,7 +998,7 @@
 				continue;
 			}
 			tableTags+='<tr>'
-						+'<td><input type="button" value="'+dataTable[no].no+'" onClick="showTrabelRoute('+no+');"></td>';
+						+'<td><input type="button" value="'+dataTable[no].no+'" onClick="showTravelRoute('+no+');"></td>';
 			if(showKind) {
 				tableTags+='<td>'+dataTable[no].kind+'</td>';
 			}
@@ -1096,8 +1100,8 @@
 		myMap.setCenter(mapCenter);
 		if(DEBUG) console.log(nowToString()+' markToCenter('+no+') ended');
 	}
-	function showTrabelRoute(no) {
-		if(DEBUG) console.log(nowToString()+' showTrabelRoute('+no+') start');
+	function showTravelRoute(no) {
+		if(DEBUG) console.log(nowToString()+' showTravelRoute('+no+') start');
 		if(! SHOW_TRABEL_ROUTE) {
 			console.log('now SHOW_TRABEL_ROUTE is not true!');
 			return false;
@@ -1107,12 +1111,12 @@
 		if(directionsService==null) {
 			directionsService=new google.maps.DirectionsService();
 			directionsRenderer=new google.maps.DirectionsRenderer();
-			infoWindow=new google.maps.InfoWindow();
+			travelInfoWindow=new google.maps.InfoWindow();
 		}
 		if(directionRouteNo>=0) {
 			directionsRenderer.setMap(null);
 			if(directionRouteNo==no) {
-				infoWindow.close();
+				travelInfoWindow.close();
 				directionRouteNo=-1;
 				no=-1;
 			}
@@ -1136,14 +1140,14 @@
 								+'<strong>ルート情報</strong><br>'
 								+'距離: '+route.distance.text+'<br>'
 								+'時間: '+route.duration.text;
-					infoWindow.setContent(routeInfo);
-					infoWindow.setPosition(route.end_location);
-					infoWindow.open(myMap);
+					travelInfoWindow.setContent(routeInfo);
+					travelInfoWindow.setPosition(route.end_location);
+					travelInfoWindow.open(myMap);
 				}
 			});
 			directionRouteNo=no;
 		}
-		if(DEBUG) console.log(nowToString()+' showTrabelRoute('+no+') ended');
+		if(DEBUG) console.log(nowToString()+' showTravelRoute('+no+') ended');
 	}
 	function showSettings() {
 		if(DEBUG) console.log(nowToString()+' showSettings() start');
