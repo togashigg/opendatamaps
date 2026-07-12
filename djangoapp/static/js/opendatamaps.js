@@ -61,6 +61,7 @@
 			mapId: "DEMO_MAP_ID",
 			zoom: 15,
 			zoomControl: true,
+			scaleControl: true,
 			cameraControl: false,
 			streetViewControl: false,
 			fullscreenControl: false,
