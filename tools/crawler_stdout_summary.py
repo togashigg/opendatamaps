@@ -137,7 +137,30 @@ def print_summary(summary, csv_out):
         #       + str(len(config['local_gov'].keys())) \
         #       + ', len(total["states"])=' \
         #       + str(len(total["states"])), file=sys.stderr)
-        total['states_check'] = len(config['local_gov'].keys()) == len(total['states'])
+        local_gov_define = [v for v in config['local_gov'].keys()]
+        local_gov_target = [v for v in config['local_gov'].keys() \
+                            if 'skip' not in config['local_gov'][v] \
+                            or not config['local_gov'][v]['skip']]
+        states = []
+        for name in local_gov_target:
+            if name == '京都府':
+                states.append(name)
+                continue
+            append = False
+            for dv in '都道府県':
+                name_array = name.split(dv)
+                if len(name_array) == 2 and name_array[1] != '':
+                    if name_array[0] + dv not in states:
+                        states.append(name_array[0] + dv)
+                    append = True
+            if not append:
+                states.append(name)
+        total['states_check'] = str(len(local_gov_target) == len(total['states'])) \
+                              + '(d:' + str(len(local_gov_define)) \
+                              + ',t:' + str(len(local_gov_target)) \
+                              + ',c:' + str(len(total['states'])) \
+                              + ',s:' + str(len(states)) \
+                              + ')'
     # 全体の集計結果を出力する
     csv_out.writerow(['# 総計 自治体数='+str(len(total['states'])), total['datasets'], \
                      str(total['states_check']), total['resources']])
