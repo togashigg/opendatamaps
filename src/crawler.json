@@ -89,6 +89,15 @@
 		"crawling_request_interval": 5
 	}, 
 	"local_gov": {
+		"北海道": {
+			"code": "010006",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://www.harp.lg.jp/opendata/api/",
+				"package_list": "package_list"
+			},
+			"crawling_monthly_days": [1]
+		},
 		"北海道札幌市": {
 			"code": "011002",
 			"webapi": "CKAN",
