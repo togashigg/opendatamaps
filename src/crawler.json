@@ -58,6 +58,7 @@
 			"名称（例）"
 		],
 		"name_item_list_2": {
+			"AED設置箇所": ["AED設置施設の名称"],
 			"医療機関": ["正式名称（医療法届出正式名称）"],
 			"観光施設・場所": ["場所"],
 			"公衆無線LAN": ["提供エリア名"],
@@ -72,21 +73,31 @@
 		"address_item_list": [
 			"住所", "所在地", "所在地_連結表記", "施設_所在地",
 			"事業所所在地", "主たる事務所所在地", "所在地1", "所 在 地",
-			"住所１", "USER_住所", "address", "adress"
+			"住所１", "USER_住所", "address", "adress",
+			"AED設置施設の住所"
 		],
 		"lat_item_list": [
 			"緯度", "北緯", "lat", "LAT", "Lat", "投票所_緯度", "緝度",
-			"緯度（北緯）", "緯度(北緯)"
+			"緯度（北緯）", "緯度(北緯)", "AEDを設置している建物の緯度（10進法）"
 		],
 		"lng_item_list": [
 			"経度", "東経", "lng", "LNG", "Lng", "long", "LONG", "Long",
-			"経度（東経）", "経度(東経)", "投票所_経度", "軽度"
+			"経度（東経）", "経度(東経)", "投票所_経度", "軽度", "AEDを設置している建物の経度（10進法）"
 		]
 	},
 	"default": {
 		"crawling_request_interval": 5
 	}, 
 	"local_gov": {
+		"北海道札幌市": {
+			"code": "011002",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://ckan.pf-sapporo.jp/api/3/action/",
+				"package_list": "package_list"
+			},
+			"crawling_monthly_days": [1]
+		},
 		"北海道上砂川町": {
 			"code": "014257",
 			"webapi": "CKAN",
