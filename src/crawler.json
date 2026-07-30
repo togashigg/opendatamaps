@@ -63,7 +63,7 @@
 			"観光施設・場所": ["場所"],
 			"公衆無線LAN": ["提供エリア名"],
 			"公衆トイレ": ["場所"],
-			"防災": ["設置場所", "設置種別"],
+			"防災": ["設置場所", "設置種別", "観測所名"],
 			"消防水利施設": [
 				"水利種別", "水利区名", "水利種別コード",
 				"地方公共団体名", "市区町村名"
@@ -218,8 +218,8 @@
 			"code": "160008",
 			"webapi": "CKAN",
 			"CKAN": {
-				"api_url": "https://opendata.pref.toyama.jp/api/3/action/",
-				"package_list": "package_list?limit=0"
+				"api_url": "https://ckan.tdcp.pref.toyama.jp/api/3/action/",
+				"package_list": "package_list"
 			},
 			"crawling_monthly_days": [5]
 		},
