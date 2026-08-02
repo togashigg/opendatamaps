@@ -2111,7 +2111,7 @@ class Crawler:
         table = []
         for rec in csv.reader(content.replace('\r\n','\n').replace('\r','\n').split('\n')):
             if all(x == '' for x in rec):
-                break
+                continue
             table.append(rec)
         # 復帰
         logger.info('table_from_csv() ended, rc=' + str(len(table)) \
