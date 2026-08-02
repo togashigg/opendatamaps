@@ -1559,11 +1559,25 @@ class Crawler:
             content = self.url_get(resource['url'], resource['filename'], \
                     dir=self.package_dir)
         if content is None:
-            msg = 'リソース内容の取得に失敗しました。'
-            # print(msg, file=sys.stderr)
-            logger.error(msg+'url='+str(resource['url']))
-            # raise Exception(msg)
-            rc = 3
+            if 'download_url' in resource \
+            and resource['download_url'] is not None \
+            and resource['download_url'] != '' \
+            and resource['download_url'] != resource['url']:
+                content = self.url_get(resource['download_url'], resource['filename'], \
+                        dir=self.package_dir)
+                if content is None:
+                    msg = 'リソース内容の取得に失敗しました(2)。'
+                    # print(msg, file=sys.stderr)
+                    logger.error(msg+'url='+str(resource['url'])+',' \
+                                 +str(resource['download_url']))
+                    # raise Exception(msg)
+                    rc = 3
+            else:
+                msg = 'リソース内容の取得に失敗しました。'
+                # print(msg, file=sys.stderr)
+                logger.error(msg+'url='+str(resource['url']))
+                # raise Exception(msg)
+                rc = 3
         resource['_content_'] = content
 
         # 復帰
