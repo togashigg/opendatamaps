@@ -1,6 +1,7 @@
 # オープンデータ位置情報取得サービス
 
-<DIV STYLE="width: 100%; text-align: right;">2026年07月03日 v0.1.0 公開</DIV>
+- 2026年07月03日 v0.1.0 公開
+- 2026年08月30日 データ更新
 
 ## 目次
 
@@ -104,7 +105,7 @@
   |120006 |千葉県   |○  |[CKAN](https://opendata.pref.chiba.lg.jp/ckan_api/package_list?limit=100) |<A HREF="https://www.pref.chiba.lg.jp/gyoukaku/opendata/index.html" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/3/3 |2026年7月から |
   |122041 |千葉県<BR>船橋市 |○   |[CKAN](https://data.bodik.jp/api/3/action/package_search?facet.limit=-1&facet.field=["name"]&fq=name:122041_*&sort=&rows=0) |<A HREF="https://odcs.bodik.jp/122041/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |name:122041_*を抽出 |
   |130001 |東京都   |○   |[CKAN](https://catalog.data.metro.tokyo.lg.jp/api/3/action/package_list?limit=0) |<A HREF="http://opendata-portal.metro.tokyo.jp/www/index.html" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="http://www.koho.metro.tokyo.jp/opendata/" TARGET="_blank" REL="noopener">サイト2</A> | | | |     |
-  |140007 |神奈川県 |△   |[CKAN](https://catalog.opendata.pref.kanagawa.jp/api/3/action/package_list?limit=0) |<A HREF="http://www.pref.kanagawa.jp/cnt/f534212/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |施設情報に座標無し |
+  |140007 |神奈川県 |○   |[CKAN](https://catalog.opendata.pref.kanagawa.jp/api/3/action/package_list?limit=0) |<A HREF="http://www.pref.kanagawa.jp/cnt/f534212/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |2026年8月から追加 |
   |141003 |神奈川県<BR>横浜市 |○   |[CKAN](https://data.city.yokohama.lg.jp/api/3/action/package_list?limit=0) |<A HREF="https://data.city.yokohama.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |150002 |新潟県   |−   |−   |<A HREF="https://www.pref.niigata.lg.jp/site/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/12/15 |     |
   |160008 |富山県   |× |[CKAN](https://opendata.pref.toyama.jp/api/3/action/package_list?limit=0) |<A HREF="http://opendata.pref.toyama.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |2026年6月閉鎖 |
@@ -145,6 +146,9 @@
 
   ☆：追加項目です。
 
+  収集済の都道府県を日本地図にしてみました。
+  <IMG SRC="djangoapp/static/map-japan_crawled.png" ALT="日本地図" TITLE="日本地図">
+
 
 ## 3.施設種別
 
@@ -153,6 +157,7 @@
 　現在、施設種別は、オープンデータのデータセット名から正規表現により、以下のような種別を定義しています。
   |施設種別         |データセット名から施設種別を決定する正規表現            |
   |----------------|------------------------------------------------|
+  |##ignore##      |無視する正規表現を多数定義（src/crawler.jsonを参照） |
   |AED設置箇所      |"(AED\|ＡＥＤ)" |
   |介護サービス事業所 |"介護"        |
   |医療機関         |"(病院\|医療[^品]\|医院\|歯科\|助産所\|健診\|応急救護\|施術所\|診療所)" |
@@ -166,7 +171,7 @@
   |避難所           |"避難(所\|地\|場所)" |
   |防災            |"(防災\|救護所\|同報無線\|飲料水\|ヨウ素剤\|ため池\|河川カメラ\|観測所)" |
   |公衆トイレ       |"(トイレ\|便所)" |
-  |公共施設         |"((市\|区\|町\|村\)役所\|(都\|道\|府\|県\|市\|区\|町\|村)(の\|内)(施設\|機関)\|庁舎\|公共施設\|自治体\|施設情報\|文化\|教養\|スポーツ\|公民館\|集会所\|公会堂\|(都\|道\|府\|県\|市\|区\|町\|村)民会館\|図書館\|文化施設\|(都\|道\|府\|県\|市\|区\|町\|村)営住宅\|斎場\|墓地\|環境施設\|焼却施設\|し尿処理\|衛生検査)" |
+  |公共施設         |"((市\|区\|町\|村\)役所\|(都\|道\|府\|県\|市\|区\|町\|村)(の\|内)(施設\|機関)\|庁舎\|公共施設\|自治体\|施設情報\|文化\|教養\|スポーツ(?!データ)\|公民館\|集会所\|公会堂\|(都\|道\|府\|県\|市\|区\|町\|村)民会館\|図書館\|文化施設\|(都\|道\|府\|県\|市\|区\|町\|村)営住宅\|斎場\|墓地\|環境施設\|焼却施設\|し尿処理\|衛生検査)" |
   |子ども食堂       |"[こ子]ども食堂" |
   |子育て施設       |"子育て" |
   |学校・保育施設    |"(学校\|こども園\|幼稚園\|保育\|児童館\|保育施設\|保育所\|放課後)" |
@@ -179,6 +184,7 @@
   |健康            |"(健康\|厚生)" |
   |飲食店・販売店    |"(認定店\|飲食店\|直売所)" |
   |保護保存樹木林等  |"(保護\|保存)(指定)?(樹木\|樹林\|生け垣)" |
+  |イベント         |"(イベント)" |
 
 　施設種別および施設種別を決定する正規表現は、随時改良する予定です。
 
