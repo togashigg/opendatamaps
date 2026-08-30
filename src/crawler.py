@@ -77,8 +77,6 @@ class Crawler:
         with open(self.settings_path, 'r') as fh:
             self.settings_json = json.loads(fh.read())
         self.LOCALITY_CODE_FILE = self.settings_json['common']['locality_code_file']
-        self.IGNORE_WORD_IN_DATASET_NAME = \
-            self.settings_json['common']['ignore_word_in_dataset_name']
         self.KIND_LIST_NORMALIZED_RE = \
             {k:re.compile(v) for k, v in \
                 self.settings_json['common']['kind_list_normalized_re'].items()}
@@ -553,24 +551,24 @@ class Crawler:
         # 名称リスト初期化
         self.__data_name_dict = {}
         for i, rec in enumerate(data):
-            if len(rec) == 0 \
-            or (type(rec[0]) == str and (len(rec[0]) == 0 or rec[0][0] == '#')):
+            if i < info['header']:
                 continue
-            if i >= info['header'] and len(rec) > 0 \
-            and (type(rec[0]) != str or (len(rec[0]) > 0 and rec[0][0] != '#')):
-                name = ''
-                for n in info['name']:
-                    if type(n) == int:
-                        if len(rec) > n:
-                            name += str(rec[n])
-                    else:
-                        name += str(n)
-                if name == '' or name == '○' or name == '◎':
-                    continue
-                if name in self.__data_name_dict:
-                    self.__data_name_dict[name] += 1
+            if len(rec) == 0 \
+            or (type(rec[0]) == str and len(rec[0]) > 0 and rec[0][0] == '#'):
+                continue
+            name = ''
+            for n in info['name']:
+                if type(n) == int:
+                    if len(rec) > n:
+                        name += str(rec[n])
                 else:
-                    self.__data_name_dict[name] = 1
+                    name += str(n)
+            if name == '' or name == '○' or name == '◎':
+                continue
+            if name in self.__data_name_dict:
+                self.__data_name_dict[name] += 1
+            else:
+                self.__data_name_dict[name] = 1
         # テーブルデータをマップ情報に変換する
         headers = list(data[info['header']-1])
         for i in range(len(headers)):
@@ -580,7 +578,8 @@ class Crawler:
         for i in range(len(data)):
             if i < info['header']:
                 continue
-            if len(data[i]) == 0 or (type(data[i][0]) == str \
+            if len(data[i]) == 0 \
+            or (type(data[i][0]) == str \
                     and (len(data[i][0]) == 0 or data[i][0][0] == '#')):
                 continue
             if len(data[i]) > 0 and isinstance(data[i][0], str) \
@@ -622,9 +621,10 @@ class Crawler:
             address = ''
             if info['address'] >= 0 and len(data[i]) > info['address']:
                 if data[i][info['address']] != 'null':
-                    address = data[i][info['address']]
+                    address = str(data[i][info['address']])
             (lat, lng, msg) = self.lat_lng_from_data(data[i], info, address)
             if (type(lat) != float or type(lng) != float) and address == '':
+                # logger.debug('lat and lng or address not in rec(' + str(i) + ')')
                 continue
             data_value = {
                     "id": id_value,
@@ -1359,27 +1359,22 @@ class Crawler:
         # 正規化種別リストに従って種別を決定する
         kinds = [k for k,v in self.KIND_LIST_NORMALIZED_RE.items() \
                 if v.search(dataset_name)]
-        logger.debug('kinds=' + str(kinds))
+        kinds_detail = [k+str([v if type(v) is str else v[0] for v in \
+                        self.KIND_LIST_NORMALIZED_RE[k].findall(dataset_name)]) \
+                        for k in kinds]
+        logger.debug('kinds=' + str(kinds_detail))
         if len(kinds) == 0 \
-        or (len(kinds) == 1 and kinds[0] == '##ignore##'):
-            msg = dataset_name + '：種別が特定できないか無視対象です。' + str(kinds)
+        or (len(kinds) >= 1 and kinds[0] == '##ignore##'):
+            msg = dataset_name + '：種別が特定できないか無視対象です。' \
+                + str(kinds_detail)
             # print(msg, file=sys.stderr)
-            logger.debug(msg)
+            # logger.debug(msg)
         else:
-            if len(kinds) > 1 and kinds[0] == '##ignore##':
-                kinds.pop(0)
             jpackage['_info_'] = {
                 'name': name,
                 'title': dataset_name,
                 'kind': kinds[0]
             }
-            name_ignore = [w for w in self.IGNORE_WORD_IN_DATASET_NAME \
-                    if dataset_name.find(w) >= 0]
-            if len(name_ignore) > 0:
-                msg = dataset_name + '：特定単語を含むデータセットは除外。' \
-                        + ','.join(name_ignore)
-                # print(msg, file=sys.stderr)
-                logger.debug(msg)
 
         # 復帰
         logger.info('select_package_info() ended, msg=' + str(msg))
@@ -1447,7 +1442,8 @@ class Crawler:
             if resource['filename'] is None or resource['filename'] == '':
                 if resource['url'] is not None and resource['url'] != '':
                     resource['filename'] = resource['url'].split('/')[-1]
-                if resource['filename'] is None or resource['filename'] == '':
+                if resource['filename'] is None or resource['filename'] == '' \
+                or resource['filename'][0] == '.':
                     resource['filename'] = resource['name'] + '.' + resource['format'].lower()
             if resource['filename'] is None or resource['filename'] == '':
                 resource['filename'] = None
@@ -1975,6 +1971,8 @@ class Crawler:
             for i_col in range(len(title_rows[i_row])):
                 if title_rows[i_row][i_col] is None:
                     title_rows[i_row][i_col] = ''
+                if type(title_rows[i_row][i_col]) == str:
+                    title_rows[i_row][i_col] = title_rows[i_row][i_col].strip()
         for t in range(len(title_rows)):
             if title_rows[t] == []:
                 continue
@@ -2066,7 +2064,6 @@ class Crawler:
             map_info = {}
         else:
             logger.debug('headers=' + str(title_rows[map_info['header']-1]))
-            # ToDo:削除 info.append(map_info)
         resource['_map_'] = map_info
         resource['_map_msg_'] = map_msg
 
@@ -2190,7 +2187,7 @@ class Crawler:
                     break
             excel_book = None
             # logger.debug('table=' + str(table).replace('], [', '],\n['))
-            logger.debug('table[:3]=' + str(table[:3]))
+            # logger.debug('table[:3]=' + str(table[:3]))
         except Exception as e:
             logger.error('error in Excel(XLS) data, file=' + file)
             logger.exception(e)
@@ -2239,7 +2236,7 @@ class Crawler:
                     break
             excel_book.close()
             # logger.debug('table=' + str(table).replace('], [', '],\n['))
-            logger.debug('table[:3]=' + str(table[:3]))
+            # logger.debug('table[:3]=' + str(table[:3]))
         except Exception as e:
             logger.error('error in Excel data(XLSX), file=' + file)
             logger.exception(e)
