@@ -213,10 +213,11 @@ class Crawler:
                     print(msg, file=sys.stderr)
                     logger.debug(msg)
                     continue
+                print(package_kind + '：', file=sys.stderr, end='')
                 resources = self.get_all_resources(package_info)
                 resources = self.get_valid_resources(resources)
                 if len(resources) == 0:
-                    msg = '対象のリソースが存在しません。'
+                    msg = '有効なリソースが存在しません。'
                     print(msg, file=sys.stderr)
                     logger.debug(msg)
                     continue
@@ -226,6 +227,9 @@ class Crawler:
                     logger.info('mkdir locality directory=' + self.package_dir)
                 for rno, resource in enumerate(resources):
                     logger.debug('rno='+str(rno)+', name='+str(resource['name']))
+                    if rno > 0:
+                        print('\t', file=sys.stderr, end='')
+                    print('[' + str(rno+1) + ',' + resource['format'] + ']', file=sys.stderr, end='')
                     resource = self.get_content_by_resource(package_kind, resource)
                     if resource is None or resource['_content_'] is None:
                         print('リソースがダウンロードできません。', file=sys.stderr)
@@ -240,7 +244,6 @@ class Crawler:
                     if resource is None or resource['_content_'] is None:
                         print('扱えない形式のコンテンツです。', file=sys.stderr)
                         continue
-                    print(resource['format']+':', end='', file=sys.stderr)
                     # コンテンツを表形式に変換する
                     resource = self.content_to_table(resource, self.package_dir)
                     if resource is None or resource['_table_'] is None:
@@ -262,7 +265,7 @@ class Crawler:
                     # マップデータをキャッシュに保存する
                     self.save_to_cache(map_data, package_title+'_'+str(rno), \
                             dir=packageid)
-                    print('['+package_kind+']', 'マップデータを作成しました。', file=sys.stderr)
+                    print('マップデータを作成しました。', file=sys.stderr)
 
                 map_list_name[packageid] = map_list
 
@@ -356,7 +359,7 @@ class Crawler:
         else:
             if False:
                 # テスト用に迂回する場合
-                msg = 'no Hit in cache, file=' + os.path.join(cache_dir, file)
+                msg = 'TEST:no Hit in cache, file=' + os.path.join(cache_dir, file)
                 logger.debug(msg)
                 print(msg+', url='+url, file=sys.stdout)
                 content = msg
@@ -1351,6 +1354,7 @@ class Crawler:
         if 'title' in jpackage['result']:
             if len(jpackage['result']['title']) <= 128: 
                 dataset_name = jpackage['result']['title']
+        logger.debug('dataset_name=' + dataset_name)
         # 都道府県のパッケージの場合は市町村名を取得する
         locality_name, locality_code = self.get_locality_from_package( \
                 jpackage, site_info['code'])
@@ -2055,11 +2059,10 @@ class Crawler:
             hit_c_max = max(hit_c)
             hit_i = hit_c.index(hit_c_max)
             if hit_c_max >= 2:
-                map_msg = '[' + map_info['kind'] + ']' \
-                        + str(hit_i) + '[' + str(hit_c_max) + ']=' \
+                map_msg = '[' + str(hit_i) + ']=' + '(' + str(hit_c_max) + ')' \
                         + str({k:v for k,v in map_hit[hit_i].items() \
                             if k in ['id','name','lat','lng','address']})
-                map_msg += '\n\t[' + str(hit_i) + ']=' + str(title_rows[hit_i])
+                map_msg += '=' + str(title_rows[hit_i])
             logger.info('必須項目なし, ['+str(hit_i)+']='+str(map_hit[hit_i]))
             map_info = {}
         else:

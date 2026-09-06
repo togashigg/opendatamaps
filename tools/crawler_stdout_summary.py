@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # crawler_stdout_summary.py: crawler.pyの結果をサマライズして標準出力に出力する。
-# Usage: python3 crawler_stdout_summary.py [crawler.pyの出力ファイル]
-#        crawler.pyの標準出力が省略された場合は標準入力から読み込む。
+# Usage: python3 crawler_stdout_summary.py [crawler.pyの標準出力ファイル]
+#        [crawler.pyの標準出力ファイル]が省略された場合は標準入力から読み込む。
 # Copyright (C) N.Togashi 2026
 
 import os
@@ -16,8 +16,8 @@ import copy
 
 # 定数を宣言する
 re_state = re.compile(r'^([0-9]{1,2}/[0-9]{1,2}) 【([^】]+)】サイト=([0-9]{6}) [^：]+：http')
-re_package = re.compile(r'^([0-9]+)/([0-9]+)\[([^\]]+)\]([^：]+)：(.*)$')
-re_make_map = re.compile(r'^([^\:]+)\:\[([^\]]+)\] マップデータを作成しました。$')
+re_package = re.compile(r'^([0-9]+)/([0-9]+)\[([^\]]+)\]([^：]+)：([^：]+)：(.*)$')
+re_make_map = re.compile(r'^\[([0-9]+),([^\]]+)\]マップデータを作成しました。$')
 
 def summarize(h_in):
     """
@@ -38,8 +38,10 @@ def summarize(h_in):
     p_no = None
     p_max = None
     for line in h_in:
-        line = line.rstrip()
         # print('DEBUG:line=' + line, file=sys.stderr)
+        line = line.rstrip()
+        if len(line) == 0:
+            continue
         m_state = re_state.match(line)
         if m_state is not None:
             # 都道府県の行
@@ -76,26 +78,27 @@ def summarize(h_in):
                 package = None
             package = copy.deepcopy({ 'pid':  m_package.group(3), \
                         'name': m_package.group(4), \
-                        'kind': None, \
+                        'kind': m_package.group(5), \
                         'type': [], \
                         'r_count': 0 \
                       })
             p_no = m_package.group(1)
             p_max = m_package.group(2)
-            m_make_map = re_make_map.match(m_package.group(5))
+            m_make_map = re_make_map.match(m_package.group(6))
             if m_make_map is None:
                 continue
 
-            package['kind'] = m_make_map.group(2)
-            package['type'].append(m_make_map.group(1))
+            package['type'].append(m_make_map.group(2))
             package['r_count'] += 1
             continue
 
+        if line[0] != '\t':
+            continue
         m_make_map = re_make_map.match(line)
         if m_make_map is not None:
             # 2つ目以降のリソースの作成
             # print('DEBUG:リソースの行: ' + line, file=sys.stderr)
-            package['type'].append(m_make_map.group(1))
+            package['type'].append(m_make_map.group(2))
             package['r_count'] += 1
             continue
 
@@ -173,7 +176,7 @@ def print_summary_state(summary, state, total, csv_out):
     """
     # データセットの情報を出力する
     for package in summary[state]['packages']:
-        csv_out.writerow([state, package['name'], package['pid'], package['r_count']])
+        csv_out.writerow([state, package['kind'], package['name'], package['pid'], package['r_count']])
 
     # 都道府県単位の情報に加算する
     total['count'] += 1
@@ -206,7 +209,7 @@ if __name__ == '__main__':
 
     # 出力先と項目見出しを出力する
     csv_out = csv.writer(sys.stdout)
-    csv_out.writerow(['自治体名', 'データセット名', 'p_id', 'r_count'])
+    csv_out.writerow(['自治体名', '施設種別', 'データセット名', 'p_id', 'r_count'])
 
     # 入力を決定する
     if len(sys.argv) > 1:
