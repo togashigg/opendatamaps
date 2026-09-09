@@ -29,7 +29,7 @@ MY_CONFIG = {
 }
 CONTENT_HEADER_XLS  = bytes.fromhex('d0cf11e0a1b11ae1')
 CONTENT_HEADER_XLSX = bytes.fromhex('504b03041400')
-HEADER_ROWS = 3
+HEADER_ROWS = 5
 XHTML_PAGE = '<!DOCTYPE html>'
 FLOAT_FORMAT_RE = re.compile('([0-9]+\\.[0-9]+)')
 
@@ -559,6 +559,9 @@ class Crawler:
             if len(rec) == 0 \
             or (type(rec[0]) == str and len(rec[0]) > 0 and rec[0][0] == '#'):
                 continue
+            if rec == data[info['header']-1]:
+                # 見出し行が途中にある場合は無視する
+                continue
             name = ''
             for n in info['name']:
                 if type(n) == int:
@@ -583,10 +586,13 @@ class Crawler:
                 continue
             if len(data[i]) == 0 \
             or (type(data[i][0]) == str \
-                    and (len(data[i][0]) == 0 or data[i][0][0] == '#')):
+                and (len(data[i][0]) > 0 and data[i][0][0] == '#')):
                 continue
             if len(data[i]) > 0 and isinstance(data[i][0], str) \
             and data[i][0][:3] == '記入例':
+                continue
+            if data[i] == data[info['header']-1]:
+                # 見出し行が途中にある場合は無視する
                 continue
             name = ''
             for n in info['name']:
