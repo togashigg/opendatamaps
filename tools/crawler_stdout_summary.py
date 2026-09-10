@@ -17,7 +17,8 @@ import copy
 # 定数を宣言する
 re_state = re.compile(r'^([0-9]{1,2}/[0-9]{1,2}) 【([^】]+)】サイト=([0-9]{6}) [^：]+：http')
 re_package = re.compile(r'^([0-9]+)/([0-9]+)\[([^\]]+)\]([^：]+)：([^：]+)：(.*)$')
-re_make_map = re.compile(r'^\[([0-9]+),([^\]]+)\]マップデータを作成しました。$')
+re_resource_map = re.compile(r'^\[([0-9]+),([^\]]+)\](\[[^\]]+\])?マップデータを作成しました。$')
+re_sheet_map = re.compile(r'^\[([^\]]+)\]マップデータを作成しました。$')
 
 def summarize(h_in):
     """
@@ -43,6 +44,7 @@ def summarize(h_in):
         if len(line) == 0:
             continue
         m_state = re_state.match(line)
+        # print('DEBUG:state ' + str(m_state), file=sys.stderr)
         if m_state is not None:
             # 都道府県の行
             # print('DEBUG:都道府県の行: ' + line, file=sys.stderr)
@@ -69,6 +71,7 @@ def summarize(h_in):
             continue
 
         m_package = re_package.match(line)
+        # print('DEBUG:package' + str(m_package), file=sys.stderr)
         if m_package is not None:
             # パッケージの処理結果
             # print('DEBUG:パッケージの行: ' + line, file=sys.stderr)
@@ -84,7 +87,8 @@ def summarize(h_in):
                       })
             p_no = m_package.group(1)
             p_max = m_package.group(2)
-            m_make_map = re_make_map.match(m_package.group(6))
+            m_make_map = re_resource_map.match(m_package.group(6))
+            # print('DEBUG:' + m_package.group(6) + str(m_make_map), file=sys.stderr)
             if m_make_map is None:
                 continue
 
@@ -92,14 +96,25 @@ def summarize(h_in):
             package['r_count'] += 1
             continue
 
-        if line[0] != '\t':
+        if line[0] == '\t' and line[1] != '\t':
+            # 2つ目以降のリソース確認
+            m_make_map = re_resource_map.match(line.strip())
+            # print('DEBUG:resource ' + str(m_make_map), file=sys.stderr)
+            if m_make_map is not None:
+                # 2つ目以降のリソースの作成
+                # print('DEBUG:リソースの行: ' + line, file=sys.stderr)
+                package['type'].append(m_make_map.group(2))
+                package['r_count'] += 1
             continue
-        m_make_map = re_make_map.match(line)
-        if m_make_map is not None:
-            # 2つ目以降のリソースの作成
-            # print('DEBUG:リソースの行: ' + line, file=sys.stderr)
-            package['type'].append(m_make_map.group(2))
-            package['r_count'] += 1
+
+        if line[0] == '\t' and line[1] == '\t':
+            # 2つ目以降のExcelシート確認
+            m_make_map = re_sheet_map.match(line.strip())
+            # print('DEBUG:sheet ' + str(m_make_map), file=sys.stderr)
+            if m_make_map is not None:
+                # 2つ目以降のExcelシートの作成
+                # print('DEBUG:Excelシートの行: ' + line, file=sys.stderr)
+                package['r_count'] += 1
             continue
 
         # 処理対象外

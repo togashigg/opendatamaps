@@ -143,11 +143,11 @@ class Crawler:
             raise Exception(msg)
 
         for nno, name in enumerate(names):
-            print(str(nno+1)+'/'+str(len(names))+' 【'+name+'】', \
-                    file=sys.stderr, end='')
             logger.debug('nno='+str(nno)+', name='+str(name))
             name_pkgs = name.split('/')
             name = name_pkgs[0]
+            print(str(nno+1)+'/'+str(len(names))+' 【'+name+'】', \
+                    file=sys.stderr, end='')
             site_info = self.get_site_info(name)
             print('サイト=' + site_info['code'], site_info['name'] \
                     + '：' + site_info[site_info['webapi']]['api_url'], file=sys.stderr)
@@ -181,7 +181,7 @@ class Crawler:
                 print(str(pno+1)+'/'+str(len(packageids))+'['+packageid+']', \
                         file=sys.stderr, end='')
                 logger.debug('pno='+str(pno)+', packageid='+str(packageid))
-                map_list = []
+                map_list = {}
                 package_info = self.get_package_info(site_info, packageid)
                 if package_info is None:
                     package_download_failure_count += 1
@@ -246,26 +246,41 @@ class Crawler:
                         continue
                     # コンテンツを表形式に変換する
                     resource = self.content_to_table(resource, self.package_dir)
-                    if resource is None or resource['_table_'] is None:
+                    if resource is None or resource['_table_'] is None \
+                    or resource['_table_'] == {}:
                         print('表データに変換できません。', file=sys.stderr)
                         continue
-                    # 表形式の項目名からマップ情報を作成する
-                    resource = self.make_map_from_table(resource, package_kind)
-                    if resource is None or resource['_map_'] == {}:
-                        print('マップ情報が作成できません,' \
-                                + resource['_map_msg_'], file=sys.stderr)
-                        continue
-                    if resource['_map_'] != None:
-                        map_list.append(resource['_map_'])
-                    # 表形式をマップデータ(JSON形式)に変換する
-                    map_data = self.table_to_mapdata(resource)
-                    if len(map_data) == 0:
-                        print('マップデータが0件。', file=sys.stderr)
-                        continue
-                    # マップデータをキャッシュに保存する
-                    self.save_to_cache(map_data, package_title+'_'+str(rno), \
-                            dir=packageid)
-                    print('マップデータを作成しました。', file=sys.stderr)
+                    # リソースの数だけ繰り返す（XLS/XLSXの復数シート対応）
+                    res_tables = {'': resource['_table_']}
+                    if type(resource['_table_']) is dict:
+                        res_tables = resource['_table_']
+                    for res_i, res_key in enumerate(res_tables.keys()):
+                        res_table = res_tables[res_key]
+                        # 表形式の項目名からマップ情報を作成する
+                        resource['_map_'] = None
+                        resource = self.make_map_from_table(resource, package_kind, res_table)
+                        if resource is None or resource['_map_'] == {}:
+                            if res_i > 0:
+                                print('\t\t', file=sys.stderr, end='')
+                            print('[' + res_key + ']マップ情報が作成できません,' \
+                                    + resource['_map_msg_'], file=sys.stderr)
+                            continue
+                        if resource['_map_'] != None:
+                            map_list[res_key] = resource['_map_']
+                        # 表形式をマップデータ(JSON形式)に変換する
+                        map_data = self.table_to_mapdata(resource, res_table)
+                        if len(map_data) == 0:
+                            print('マップデータが0件。', file=sys.stderr)
+                            continue
+                        # マップデータをキャッシュに保存する
+                        cache_file = package_title + '_' + str(rno)
+                        if res_key != '':
+                            cache_file += '_' + res_key
+                            if res_i > 0:
+                                print('\t\t', file=sys.stderr, end='')
+                            print('[' + res_key + ']', file=sys.stderr, end='')
+                        self.save_to_cache(map_data, cache_file, dir=packageid)
+                        print('マップデータを作成しました。', file=sys.stderr)
 
                 map_list_name[packageid] = map_list
 
@@ -533,33 +548,33 @@ class Crawler:
         logger.info('data_from_xlsx() ended.')
         return map_data
 
-    def table_to_mapdata(self, resource):
+    def table_to_mapdata(self, resource, table):
         """
         二次元配列データ（行、列）をJSON形式データに変換する。
-        :param resource: dict型、マップ情報と二次元配列データを含むリソース情報
+        :param resource: dict型、マップ情報を含むリソース情報
+        :param table: list型、二次元配列データ
         :return: list型、JSON形式データの配列
         """
         logger = logging.getLogger(__name__)
         logger.info('table_to_mapdata() start.')
         # 実行
         if resource is None or not isinstance(resource, dict) \
-        or '_table_' not in resource or not isinstance(resource['_table_'], list) \
+        or not isinstance(table, list) \
         or '_map_' not in resource or not isinstance(resource['_map_'], dict):
             msg = 'resourceパラメタは無効な値です。'
             logger.error(msg+str(resource))
             raise Exception(msg)
         map_data = []
-        data = resource['_table_']
         info = resource['_map_']
         # 名称リスト初期化
         self.__data_name_dict = {}
-        for i, rec in enumerate(data):
+        for i, rec in enumerate(table):
             if i < info['header']:
                 continue
             if len(rec) == 0 \
             or (type(rec[0]) == str and len(rec[0]) > 0 and rec[0][0] == '#'):
                 continue
-            if rec == data[info['header']-1]:
+            if rec == table[info['header']-1]:
                 # 見出し行が途中にある場合は無視する
                 continue
             name = ''
@@ -576,48 +591,48 @@ class Crawler:
             else:
                 self.__data_name_dict[name] = 1
         # テーブルデータをマップ情報に変換する
-        headers = list(data[info['header']-1])
+        headers = list(table[info['header']-1])
         for i in range(len(headers)):
             if headers[i] == '':
                 headers[i] = '#' + ('000'+str(i+1))[-4:]
         no = 0;
-        for i in range(len(data)):
+        for i in range(len(table)):
             if i < info['header']:
                 continue
-            if len(data[i]) == 0 \
-            or (type(data[i][0]) == str \
-                and (len(data[i][0]) > 0 and data[i][0][0] == '#')):
+            if len(table[i]) == 0 \
+            or (type(table[i][0]) == str \
+                    and (len(table[i][0]) > 0 and table[i][0][0] == '#')):
                 continue
-            if len(data[i]) > 0 and isinstance(data[i][0], str) \
-            and data[i][0][:3] == '記入例':
+            if len(table[i]) > 0 and isinstance(table[i][0], str) \
+            and table[i][0][:3] == '記入例':
                 continue
-            if data[i] == data[info['header']-1]:
+            if table[i] == table[info['header']-1]:
                 # 見出し行が途中にある場合は無視する
                 continue
             name = ''
             for n in info['name']:
                 if type(n) == int:
-                    if len(data[i]) > n:
-                        name += str(data[i][n])
+                    if len(table[i]) > n:
+                        name += str(table[i][n])
                 else:
                     name += str(n)
             if name == '' or name == '○' or name == '◎' or name == 'null':
                 continue
             info_items = []
             for j in info['info']:
-                if len(data[i]) <= j:
+                if len(table[i]) <= j:
                     continue
-                if data[i][j] == '':
+                if table[i][j] == '':
                     continue
-                info_items.append({headers[j]: data[i][j]})
+                info_items.append({headers[j]: table[i][j]})
             # info_items.append({'データセットURL': info['url']})
             error = ''
             no += 1
             id_value = ('000' + str(no))[-4:]
             if info['id'] >= 0:
-                if len(data[i]) > info['id']:
-                    if data[i][info['id']] != '' and data[i][info['id']] != 'null':
-                        id_value = data[i][info['id']]
+                if len(table[i]) > info['id']:
+                    if table[i][info['id']] != '' and table[i][info['id']] != 'null':
+                        id_value = table[i][info['id']]
                     else:
                         error += 'id値空。'
                 else:
@@ -628,10 +643,10 @@ class Crawler:
             if self.state == self.name:
                 loc_name = self.name
             address = ''
-            if info['address'] >= 0 and len(data[i]) > info['address']:
-                if data[i][info['address']] != 'null':
-                    address = str(data[i][info['address']])
-            (lat, lng, msg) = self.lat_lng_from_data(data[i], info, address)
+            if info['address'] >= 0 and len(table[i]) > info['address']:
+                if table[i][info['address']] != 'null':
+                    address = str(table[i][info['address']])
+            (lat, lng, msg) = self.lat_lng_from_data(table[i], info, address)
             if (type(lat) != float or type(lng) != float) and address == '':
                 # logger.debug('lat and lng or address not in rec(' + str(i) + ')')
                 continue
@@ -1944,7 +1959,7 @@ class Crawler:
         logger.info('content_to_table() ended.')
         return resource
 
-    def make_map_from_table(self, resource, kind):
+    def make_map_from_table(self, resource, kind, table):
         """
         表形式の項目名からマップ情報を作成する
         """
@@ -1952,7 +1967,7 @@ class Crawler:
         logger.info('make_map_from_table() start.')
         # 実行
         if resource is None or not isinstance(resource, dict) \
-        or '_table_' not in resource or not isinstance(resource['_table_'], list):
+        or not isinstance(table, list):
             msg = 'resourceパラメタは無効な値です。' 
             logger.error(msg+str(resource))
             raise Exception(msg)
@@ -1962,7 +1977,6 @@ class Crawler:
             logger.error(msg+str(kind))
             raise Exception(msg)
 
-        table = resource['_table_']
         map_info = {
             "kind": resource['_package_']['_info_']['kind'],
             "dataset": resource['_package_']['_info_']['title'],
@@ -2170,42 +2184,50 @@ class Crawler:
         logger = logging.getLogger(__name__)
         logger.info('table_from_xls() start, rows=' + str(rows))
         # 実行
-        table = []
+        excel_book = None
+        tables = {}
         try:
             excel_book = xlrd.open_workbook(file)
-            excel_sheet = excel_book.sheet_by_index(0)
-            for row in range(excel_sheet.nrows):
-                row_value = []
-                for col in range(excel_sheet.ncols):
-                    v = excel_sheet.cell(row, col).value
-                    if v is None:
-                        v = ''
-                    elif isinstance(v, datetime.time):
-                        v = str(v)
-                        if v[-3:] == ':00':
-                            v = v[:-3]
-                    elif isinstance(v, datetime.datetime):
-                        v = str(v)
-                        if v[-9:] == ' 00:00:00':
-                            v = v[:-9]
-                        elif v[-3:] == ':00':
-                            v = v[:-3]
-                    row_value.append(v)
-                table.append(row_value)
-                if rows > 0  and len(table) >= rows:
-                    break
-            excel_book = None
-            # logger.debug('table=' + str(table).replace('], [', '],\n['))
-            # logger.debug('table[:3]=' + str(table[:3]))
+            sheet_names = excel_book.sheet_names()
+            for sheet_i, sheet_name in enumerate(sheet_names):
+                table = []
+                excel_sheet = excel_book.sheet_by_index(sheet_i)
+                for row in range(excel_sheet.nrows):
+                    row_value = []
+                    for col in range(excel_sheet.ncols):
+                        v = excel_sheet.cell(row, col).value
+                        if v is None:
+                            v = ''
+                        elif isinstance(v, datetime.time):
+                            v = str(v)
+                            if v[-3:] == ':00':
+                                v = v[:-3]
+                        elif isinstance(v, datetime.datetime):
+                            v = str(v)
+                            if v[-9:] == ' 00:00:00':
+                                v = v[:-9]
+                            elif v[-3:] == ':00':
+                                v = v[:-3]
+                        row_value.append(v)
+                    table.append(row_value)
+                    if rows > 0  and len(table) >= rows:
+                        break
+                # logger.debug(str(sheet_i)+'_'+sheet_name+'=' + str(table).replace('], [', '],\n['))
+                logger.debug(str(sheet_i)+'_'+sheet_name+'[:5]=' + str(table[:5]))
+                tables[str(sheet_i+1)+'_'+sheet_name] = table
+
         except Exception as e:
             logger.error('error in Excel(XLS) data, file=' + file)
             logger.exception(e)
-            table = []
+            tables = {}
             print('Excel形式(XLS)誤り：' + file, file=sys.stderr, end='')
+
+        finally:
+            excel_book = None
+
         # 復帰
-        logger.info('table_from_xls() ended, rc=' + str(len(table)) \
-                + ', table[:5]=' + str(table[:5]))
-        return table
+        logger.info('table_from_xls() ended, rc=' + str(len(tables)))
+        return tables
 
     def table_from_xlsx(self, file, rows=0):
         """
@@ -2214,47 +2236,58 @@ class Crawler:
         logger = logging.getLogger(__name__)
         logger.info('table_from_xlsx() start, rows=' + str(rows))
         # 実行
-        table = []
+        excel_book = None
+        tables = {}
         try:
             excel_book = openpyxl.load_workbook(file, \
                             keep_vba=False, read_only=True, data_only=True)
-            excel_sheet = excel_book.worksheets[0]
-            for row in excel_sheet.iter_rows():
-                row_value = []
-                for cell in row:
-                    v = cell.value
-                    if v is None:
-                        v = ''
-                    elif isinstance(v, datetime.time):
-                        v = str(v)
-                        if v[-3:] == ':00':
-                            v = v[:-3]
-                    elif isinstance(v, datetime.datetime):
-                        v = str(v)
-                        if v[-9:] == ' 00:00:00':
-                            v = v[:-9]
-                        elif v[-3:] == ':00':
-                            v = v[:-3]
-                    elif isinstance(v, datetime.timedelta):
-                        v = str(v)
-                        if v == '1 day':
-                            v = '24:00'
-                    row_value.append(v)
-                table.append(row_value)
-                if rows > 0  and len(table) >= rows:
-                    break
-            excel_book.close()
-            # logger.debug('table=' + str(table).replace('], [', '],\n['))
-            # logger.debug('table[:3]=' + str(table[:3]))
+            sheet_names = excel_book.sheetnames
+            for sheet_i, sheet_name in enumerate(sheet_names):
+                table = []
+                excel_sheet = excel_book.worksheets[sheet_i]
+                for row in excel_sheet.iter_rows():
+                    row_value = []
+                    for cell in row:
+                        v = cell.value
+                        if v is None:
+                            v = ''
+                        elif isinstance(v, datetime.time):
+                            v = str(v)
+                            if v[-3:] == ':00':
+                                v = v[:-3]
+                        elif isinstance(v, datetime.datetime):
+                            v = str(v)
+                            if v[-9:] == ' 00:00:00':
+                                v = v[:-9]
+                            elif v[-3:] == ':00':
+                                v = v[:-3]
+                        elif isinstance(v, datetime.timedelta):
+                            v = str(v)
+                            if v == '1 day':
+                                v = '24:00'
+                        row_value.append(v)
+                    table.append(row_value)
+                    if rows > 0  and len(table) >= rows:
+                        break
+
+                # logger.debug(str(sheet_i)+'_'+sheet_name+'=' + str(table).replace('], [', '],\n['))
+                logger.debug(str(sheet_i)+'_'+sheet_name+'[:5]=' + str(table[:5]))
+                tables[str(sheet_i+1)+'_'+sheet_name] = table
+
         except Exception as e:
             logger.error('error in Excel data(XLSX), file=' + file)
             logger.exception(e)
-            table = []
+            tables = {}
             print('Excel形式(XLSX)誤り：' + file, file=sys.stderr, end='')
+
+        finally:
+            if excel_book is not None:
+                excel_book.close()
+            excel_book = None
+
         # 復帰
-        logger.info('table_from_xlsx() ended, rc=' + str(len(table)) \
-                + ', table[:5]=' + str(table[:5]))
-        return table
+        logger.info('table_from_xlsx() ended, rc=' + str(len(tables)))
+        return tables
 
     def table_from_GeoJSON(self, content):
         """
