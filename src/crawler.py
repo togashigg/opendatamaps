@@ -273,7 +273,8 @@ class Crawler:
                             print('マップデータが0件。', file=sys.stderr)
                             continue
                         # マップデータをキャッシュに保存する
-                        cache_file = package_title + '_' + str(rno)
+                        cache_file = re.sub('[/\0]', '_', package_title.strip()) \
+                                   + '_' + str(rno)
                         if res_key != '':
                             cache_file += '_' + res_key
                             if res_i > 0:
