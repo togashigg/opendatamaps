@@ -1,7 +1,7 @@
 # オープンデータ位置情報取得サービス
 
 - 2026年07月03日 v0.1.0 公開
-- 2026年08月30日 データ更新
+- 2026年09月30日 データ更新
 
 ## 目次
 
@@ -102,8 +102,7 @@
   |090000 |栃木県   |○   |[CKAN](https://data.bodik.jp/api/3/action/package_search?facet.limit=-1&facet.field=["name"]&fq=name:09*&sort=&rows=0) |<A HREF="http://tochigiken.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |name:09*を抽出 |
   |100005 |群馬県   |−   |−   |<A HREF="https://www.pref.gunma.jp/07/b2700057.html" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |110001 |埼玉県   |○   |[CKAN](https://opendata.pref.saitama.lg.jp/ckan_api/package_list?limit=100&offset=0) |<A HREF="https://opendata.pref.saitama.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |120006 |千葉県   |○  |[CKAN](https://opendata.pref.chiba.lg.jp/ckan_api/package_list?limit=100) |<A HREF="https://www.pref.chiba.lg.jp/gyoukaku/opendata/index.html" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/3/3 |2026年7月から |
-  |122041 |千葉県<BR>船橋市 |○   |[CKAN](https://data.bodik.jp/api/3/action/package_search?facet.limit=-1&facet.field=["name"]&fq=name:122041_*&sort=&rows=0) |<A HREF="https://odcs.bodik.jp/122041/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |name:122041_*を抽出 |
+  |120006 |千葉県   |○  |[CKAN](https://opendata.pref.chiba.lg.jp/ckan_api/package_list?limit=100) |<A HREF="https://www.pref.chiba.lg.jp/gyoukaku/opendata/index.html" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/3/3 |2026年9月からデータ増加 |
   |130001 |東京都   |○   |[CKAN](https://catalog.data.metro.tokyo.lg.jp/api/3/action/package_list?limit=0) |<A HREF="http://opendata-portal.metro.tokyo.jp/www/index.html" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="http://www.koho.metro.tokyo.jp/opendata/" TARGET="_blank" REL="noopener">サイト2</A> | | | |     |
   |140007 |神奈川県 |○   |[CKAN](https://catalog.opendata.pref.kanagawa.jp/api/3/action/package_list?limit=0) |<A HREF="http://www.pref.kanagawa.jp/cnt/f534212/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |2026年8月から追加 |
   |141003 |神奈川県<BR>横浜市 |○   |[CKAN](https://data.city.yokohama.lg.jp/api/3/action/package_list?limit=0) |<A HREF="https://data.city.yokohama.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
@@ -159,11 +158,11 @@
   |----------------|------------------------------------------------|
   |##ignore##      |無視する正規表現を多数定義（src/crawler.jsonを参照） |
   |AED設置箇所      |"(AED\|ＡＥＤ)" |
-  |介護サービス事業所 |"介護"        |
+  |介護サービス事業所 |"(介護\|デイサービス)" |
   |医療機関         |"(病院\|医療[^品]\|医院\|歯科\|助産所\|健診\|応急救護\|施術所\|診療所)" |
   |薬局            |"(薬局\|医薬品\|医療品)" |
-  |文化財           |"文化財" |
-  |観光施設・場所    |"(観光(施設\|場所\|情報\|マップ)\|名所\|眺望\|見所\|ブランド\|るるぶ\|野外彫刻\|撮影スポット)" |
+  |文化財           |"(文化財\|所蔵品\|歴史)" |
+  |観光施設・場所    |"(観光(施設\|場所\|情報\|マップ)\|名所\|眺望\|見所\|ブランド\|るるぶ\|野外彫刻\|撮影スポット\|遺跡)" |
   |公衆無線LAN      |"((公衆\|公共)?無線(LAN\|ＬＡＮ)\|公衆無線\|Wi\\-?[Ff]i\|Ｗｉ−?[Ｆｆ]ｉ)" |
   |消防水利施設      |"(消防水利施設\|消火栓\|防火水槽)" |
   |消防            |"消防(署\|団\|施設)" |
@@ -171,18 +170,18 @@
   |避難所           |"避難(所\|地\|場所)" |
   |防災            |"(防災\|救護所\|同報無線\|飲料水\|ヨウ素剤\|ため池\|河川カメラ\|観測所)" |
   |公衆トイレ       |"(トイレ\|便所)" |
-  |公共施設         |"((市\|区\|町\|村\)役所\|(都\|道\|府\|県\|市\|区\|町\|村)(の\|内)(施設\|機関)\|庁舎\|公共施設\|自治体\|施設情報\|文化\|教養\|スポーツ(?!データ)\|公民館\|集会所\|公会堂\|(都\|道\|府\|県\|市\|区\|町\|村)民会館\|図書館\|文化施設\|(都\|道\|府\|県\|市\|区\|町\|村)営住宅\|斎場\|墓地\|環境施設\|焼却施設\|し尿処理\|衛生検査)" |
+  |公共施設         |"([市区町村]役[所場]\|[都道府県市区町村][の内](施設\|機関)\|庁舎\|公共施設\|自治体\|施設情報\|文化\|教養\|スポーツ(?!データ)\|公民館\|集会所\|公会堂\|[都道府県市区町村]民(会館\|センター)\|図書館\|文化施設\|[都道府県市区町村]営住宅\|斎場\|墓地\|環境施設\|焼却施設\|し尿処理\|衛生検査\|葬儀)" |
   |子ども食堂       |"[こ子]ども食堂" |
   |子育て施設       |"子育て" |
   |学校・保育施設    |"(学校\|こども園\|幼稚園\|保育\|児童館\|保育施設\|保育所\|放課後)" |
   |駐車場           |"駐車場" |
-  |駐輪場           |"駐輪場" |
+  |駐輪場           |"(駐輪場\|自転車等?保管所)"" |
   |公園・花壇       |"(公園\|花壇)" |
   |公衆浴場         |"(公衆浴場\|入浴\|足湯)" |
   |投票所           |"投票所" |
-  |福祉施設         |"(老人ホーム\|生活支援ハウス\|交流センター\|高齢者相談センター\|地域包括支援センター)" |
+  |福祉施設         |"(老人ホーム\|生活支援ハウス\|(交流\|福祉\|高齢者相談\|地域包括支援)センター|(ふれあい|老人憩い)の家)" |
   |健康            |"(健康\|厚生)" |
-  |飲食店・販売店    |"(認定店\|飲食店\|直売所)" |
+  |飲食店・販売店    |"(認定店\|飲食店\|直売所\|取扱店)" |
   |保護保存樹木林等  |"(保護\|保存)(指定)?(樹木\|樹林\|生け垣)" |
   |イベント         |"(イベント)" |
 
