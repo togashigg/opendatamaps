@@ -16,6 +16,7 @@ import pathlib
 import requests
 from urllib3 import ssl
 import unicodedata
+import warnings
 import openpyxl
 import xlrd
 from bs4 import BeautifulSoup
@@ -32,6 +33,8 @@ CONTENT_HEADER_XLSX = bytes.fromhex('504b03041400')
 HEADER_ROWS = 5
 XHTML_PAGE = '<!DOCTYPE html>'
 FLOAT_FORMAT_RE = re.compile('([0-9]+\\.[0-9]+)')
+
+warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 
 class Crawler:
 

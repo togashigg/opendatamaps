@@ -16,7 +16,8 @@ import copy
 
 # 定数を宣言する
 re_state = re.compile(r'^([0-9]{1,2}/[0-9]{1,2}) 【([^】]+)】サイト=([0-9]{6}) [^：]+：http')
-re_package = re.compile(r'^([0-9]+)/([0-9]+)\[([^\]]+)\]([^：]+)：([^：]+)：(.*)$')
+re_package = re.compile(r'^([0-9]+)/([0-9]+)\[([^\]]+)\]([^：]+)：(.*)$')
+re_package_OK = re.compile(r'^([^：]+)：(.*)$')
 re_resource_map = re.compile(r'^\[([0-9]+),([^\]]+)\](\[[^\]]+\])?マップデータを作成しました。$')
 re_sheet_map = re.compile(r'^\[([^\]]+)\]マップデータを作成しました。$')
 
@@ -75,20 +76,26 @@ def summarize(h_in):
         if m_package is not None:
             # パッケージの処理結果
             # print('DEBUG:パッケージの行: ' + line, file=sys.stderr)
+            p_no = m_package.group(1)
+            p_max = m_package.group(2)
+            p_pid = m_package.group(3)
+            p_name = m_package.group(4)
+            p_result = m_package.group(5)
+            m_package_OK = re_package_OK.match(p_result)
+            if m_package_OK is None:
+                continue
             if package is not None and package['r_count'] > 0:
                 summary[state]['packages'].append(copy.deepcopy(package))
                 summary[state]['r_sum'] += package['r_count']
                 package = None
-            package = copy.deepcopy({ 'pid':  m_package.group(3), \
-                        'name': m_package.group(4), \
-                        'kind': m_package.group(5), \
+            package = copy.deepcopy({ 'pid': p_pid, \
+                        'name': p_name, \
+                        'kind': m_package_OK.group(1), \
                         'type': [], \
                         'r_count': 0 \
                       })
-            p_no = m_package.group(1)
-            p_max = m_package.group(2)
-            m_make_map = re_resource_map.match(m_package.group(6))
-            # print('DEBUG:' + m_package.group(6) + str(m_make_map), file=sys.stderr)
+            m_make_map = re_resource_map.match(m_package_OK.group(2))
+            # print('DEBUG:' + m_package_OK.group(2) + str(m_make_map), file=sys.stderr)
             if m_make_map is None:
                 continue
 
@@ -96,8 +103,9 @@ def summarize(h_in):
             package['r_count'] += 1
             continue
 
-        if line[0] == '\t' and line[1] != '\t':
-            # 2つ目以降のリソース確認
+        if (line[0] == '\t' and line[1] != '\t') \
+        or line[0] == '[':
+            # 2つ目以降のリソース確認（openpyxlのwarningメッセージが出力された場合は1つ目も含む）
             m_make_map = re_resource_map.match(line.strip())
             # print('DEBUG:resource ' + str(m_make_map), file=sys.stderr)
             if m_make_map is not None:
