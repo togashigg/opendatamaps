@@ -33,6 +33,12 @@ CONTENT_HEADER_XLSX = bytes.fromhex('504b03041400')
 HEADER_ROWS = 5
 XHTML_PAGE = '<!DOCTYPE html>'
 FLOAT_FORMAT_RE = re.compile('([0-9]+\\.[0-9]+)')
+EXCEL_SHEET_IGNORE_RE = re.compile('(記入例|記載例|作成例|項目説明)')
+FILE_NAME_REPLACE_RE = re.compile('[/\0]')
+STREET_NUMBER_RE = re.compile('[^0-9０-９]*([0-9０-９\\-−－ー]*)$')
+ALPHANUMERIC_RE = re.compile('^[0-9a-zA-Z]+$')
+LINKEDDATA_SYSTEM_URL_RE = re.compile(r"LD.systemUrl = '([^']+)';")
+LINKEDDATA_STANDARD_PROPERTY_RE = re.compile('^[0-9a-zA-Z\\:\\+\\-\\._#]{0,18}$')
 
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 
@@ -258,14 +264,19 @@ class Crawler:
                     if type(resource['_table_']) is dict:
                         res_tables = resource['_table_']
                     for res_i, res_key in enumerate(res_tables.keys()):
+                        if res_i > 0:
+                            print('\t\t', file=sys.stderr, end='')
+                        if res_key != '':
+                            print('[' + res_key + ']', file=sys.stderr, end='')
+                        if type(res_tables[res_key]) is str:
+                            print(res_tables[res_key], file=sys.stderr)
+                            continue
                         res_table = res_tables[res_key]
                         # 表形式の項目名からマップ情報を作成する
                         resource['_map_'] = None
                         resource = self.make_map_from_table(resource, package_kind, res_table)
                         if resource is None or resource['_map_'] == {}:
-                            if res_i > 0:
-                                print('\t\t', file=sys.stderr, end='')
-                            print('[' + res_key + ']マップ情報が作成できません,' \
+                            print('マップ情報が作成できません,' \
                                     + resource['_map_msg_'], file=sys.stderr)
                             continue
                         if resource['_map_'] != None:
@@ -276,13 +287,10 @@ class Crawler:
                             print('マップデータが0件。', file=sys.stderr)
                             continue
                         # マップデータをキャッシュに保存する
-                        cache_file = re.sub('[/\0]', '_', package_title.strip()) \
+                        cache_file = FILE_NAME_REPLACE_RE.sub('_', package_title.strip()) \
                                    + '_' + str(rno)
                         if res_key != '':
                             cache_file += '_' + res_key
-                            if res_i > 0:
-                                print('\t\t', file=sys.stderr, end='')
-                            print('[' + res_key + ']', file=sys.stderr, end='')
                         self.save_to_cache(map_data, cache_file, dir=packageid)
                         print('マップデータを作成しました。', file=sys.stderr)
 
@@ -946,15 +954,13 @@ class Crawler:
                                 a_addr = unicodedata.normalize('NFKC', \
                                         address.replace('番地', '−'))
                                 # logger.debug('a_addr=' + a_addr)
-                                a_match = re.match( \
-                                        '[^0-9０-９]*([0-9０-９\\-−－ー]*)$', a_addr)
+                                a_match = STREET_NUMBER_RE.match(a_addr)
                                 if a_match is not None and a_match.group(1) != '':
                                     # logger.debug(str(a_match.groups()))
                                     r_addr = unicodedata.normalize('NFKC', \
                                             res['formatted_address'].replace('番地', '−'))
                                     # logger.debug('r_addr=' + r_addr)
-                                    r_match = re.match( \
-                                            '[^0-9０-９]*([0-9０-９\\-−－ー]*)$', r_addr)
+                                    r_match = STREET_NUMBER_RE.match(r_addr)
                                     if r_match is not None and r_match.group(1) != '':
                                         if a_match.group(1) == r_match.group(1):
                                             lat = res['geometry']['location']['lat']
@@ -1197,7 +1203,7 @@ class Crawler:
             if locality_name == '' \
             and 'organization' in jpackage['result']:
                 if isinstance(jpackage['result']['organization']['name'], str) \
-                and re.match('^[0-9a-zA-Z]+$', jpackage['result']['organization']['name']) == None:
+                and ALPHANUMERIC_RE.match(jpackage['result']['organization']['name']) is None:
                     locality_name = jpackage['result']['organization']['name']
                 elif jpackage['result']['organization']['title'][-1] in ['市','区','町','村']:
                     if jpackage['result']['organization']['title'][:len(self.state)] == self.state:
@@ -1733,7 +1739,7 @@ class Crawler:
         # 実行
         redirect = None
         url_base = self.LINKEDDATA_URL_BASE
-        match = re.search(r"LD.systemUrl = '([^']+)';", resource['_content_'])
+        match = LINKEDDATA_SYSTEM_URL_RE.search(resource['_content_'])
         if match is not None:
             url_base = match.group(1)
             if url_base[-1] == '/':
@@ -2165,7 +2171,7 @@ class Crawler:
                         if table[i][0] == '#property':
                             properties = [v[0] for v in table[i+1:] \
                                     if len(v)>0 and v[0][0]!='#' \
-                                    and not re.match('^[0-9a-zA-Z\\:\\+\\-\\._#]{0,18}$', v[0])]
+                                    and not LINKEDDATA_STANDARD_PROPERTY_RE.match(v[0])]
                             logger.debug('properties=' + str(properties))
                             if len(properties) == 0:
                                 link_data.append(['id'] + table[i][1:])
@@ -2194,6 +2200,12 @@ class Crawler:
             excel_book = xlrd.open_workbook(file)
             sheet_names = excel_book.sheet_names()
             for sheet_i, sheet_name in enumerate(sheet_names):
+                m_ignore_sheet = EXCEL_SHEET_IGNORE_RE.search(sheet_name)
+                if m_ignore_sheet is not None:
+                    tables[str(sheet_i+1)+'_'+sheet_name] = '対象外シート' \
+                            + str(EXCEL_SHEET_IGNORE_RE.findall(sheet_name))
+                    logger.warning('Excel sheet ignore:' + sheet_name)
+                    continue
                 table = []
                 excel_sheet = excel_book.sheet_by_index(sheet_i)
                 for row in range(excel_sheet.nrows):
@@ -2224,7 +2236,7 @@ class Crawler:
             logger.error('error in Excel(XLS) data, file=' + file)
             logger.exception(e)
             tables = {}
-            print('Excel形式(XLS)誤り：' + file, file=sys.stderr, end='')
+            print('Excel形式(XLS)誤り：' + os.path.basename(file), file=sys.stderr, end='')
 
         finally:
             excel_book = None
@@ -2247,6 +2259,12 @@ class Crawler:
                             keep_vba=False, read_only=True, data_only=True)
             sheet_names = excel_book.sheetnames
             for sheet_i, sheet_name in enumerate(sheet_names):
+                m_ignore_sheet = EXCEL_SHEET_IGNORE_RE.search(sheet_name)
+                if m_ignore_sheet is not None:
+                    tables[str(sheet_i+1)+'_'+sheet_name] = '対象外シート' \
+                            + str(EXCEL_SHEET_IGNORE_RE.findall(sheet_name))
+                    logger.warning('Excel sheet ignore:' + sheet_name)
+                    continue
                 table = []
                 excel_sheet = excel_book.worksheets[sheet_i]
                 for row in excel_sheet.iter_rows():
@@ -2282,7 +2300,7 @@ class Crawler:
             logger.error('error in Excel data(XLSX), file=' + file)
             logger.exception(e)
             tables = {}
-            print('Excel形式(XLSX)誤り：' + file, file=sys.stderr, end='')
+            print('Excel形式(XLSX)誤り：' + os.path.basename(file), file=sys.stderr, end='')
 
         finally:
             if excel_book is not None:

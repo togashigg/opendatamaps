@@ -86,7 +86,7 @@
 		"name_item_list_2": {
 			"AED設置箇所": [
 				"AED設置施設の名称", "AED設置施設名称", "設置場所", "AED設置場所名称",
-				"設置箇所", "設置場所_名称", "設置施設"
+				"設置箇所", "設置場所_名称", "設置施設", "場所"
 			],
 			"介護サービス事業所": [
 				"介護予防・日常生活支援総合事業第1号指定事業所名称",
@@ -118,7 +118,7 @@
 			],
 			"指定緊急避難場所": ["タイトル", "指定緊急避難場所", "避難場所名称"],
 			"避難所": ["避難場所名称", "避難場所", "タイトル"],
-			"公衆トイレ": ["トイレ名", "場所"],
+			"公衆トイレ": ["トイレ名", "場所", "地点名"],
 			"公共施設": [
 				"庁舎名称", "ページタイトル", "列1", "住宅名称", "住宅名", "台帳名称",
 				"クラブ名"
@@ -335,6 +335,15 @@
 			},
 			"crawling_monthly_days": [6]
 		},
+		"山梨県": {
+			"code": "190004",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://catalog.dataplatform-yamanashi.jp/api/3/action/",
+				"package_list": "package_list?limit=0"
+			},
+			"crawling_monthly_days": [6]
+		},
 		"岐阜県": {
 			"code": "210005",
 			"webapi": "CKAN",
@@ -414,6 +423,15 @@
 				"http_request_headers": {
 					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.7559.132 Safari/537.36"
 				}
+			},
+			"crawling_monthly_days": [10]
+		},
+		"広島県": {
+			"code": "340006",
+			"webapi": "CKAN",
+			"CKAN": {
+				"api_url": "https://hiroshima-opendata.dataeye.jp/ckan_api/",
+				"package_list": "package_list?limit=9999"
 			},
 			"crawling_monthly_days": [10]
 		},

@@ -111,7 +111,7 @@
   |160008 |富山県   |○   |[CKAN](https://ckan.tdcp.pref.toyama.jp/api/3/action/package_list) |<A HREF="https://ckan-front.tdcp.pref.toyama.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |2024年4月25日オープン |
   |170003 |石川県   |○   |[CKAN](https://ckan.opendata.pref.ishikawa.lg.jp/api/3/action/package_list?limit=0) |<A HREF="https://www.pref.ishikawa.lg.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |180009 |福井県   |−   |−   |<A HREF="http://www.pref.fukui.lg.jp/doc/toukei-jouhou/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |190004 |山梨県   |−   |−   |<A HREF="https://www.pref.yamanashi.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
+  |190004 |山梨県   |○   |[CKAN](https://catalog.dataplatform-yamanashi.jp/api/3/action/package_list?limit=0) |<A HREF="https://www.pref.yamanashi.jp/opendata/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |2026年10月に追加 |
   |200000 |長野県   |−   |−   |<A HREF="https://wwwgis.pref.nagano.lg.jp/pref-nagano/OpenData" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/11/7 |     |
   |210005 |岐阜県   |○   |[CKAN](https://gifu-opendata.pref.gifu.lg.jp/api/3/action/package_list?limit=0) |<A HREF="https://gifu-opendata.pref.gifu.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |220001 |静岡県   |○   |[シラサギ](https://opendata.pref.shizuoka.jp/api/package_list?limit=0) |<A HREF="https://opendata.pref.shizuoka.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
@@ -126,7 +126,7 @@
   |310000 |鳥取県   |−   |−   |<A HREF="https://odp-pref-tottori.tori-info.co.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |320005 |島根県   |○   |[CKAN](https://shimane-opendata.jp/ckan_api/package_list?limit=9999) |<A HREF="https://shimane-opendata.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |330001 |岡山県   |○   |[CKAN](https://www.okayama-opendata.jp/ckan_api/package_list?limit=9999) |<A HREF="http://www.okayama-opendata.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
-  |340006 |広島県   |−   |−   |<A HREF="https://www.pref.hiroshima.lg.jp/soshiki/265/opendata.html" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://hiroshima-opendata.dataeye.jp" TARGET="_blank" REL="noopener">サイト2</A> | | |2022/4/13 |     |
+  |340006 |広島県   |○   |[CKAN](https://hiroshima-opendata.dataeye.jp/ckan_api/package_list?limit=9999) |<A HREF="https://www.pref.hiroshima.lg.jp/soshiki/265/opendata.html" TARGET="_blank" REL="noopener">サイト1</A> |<A HREF="https://hiroshima-opendata.dataeye.jp" TARGET="_blank" REL="noopener">サイト2</A> | | |2022/4/13 |2026年10月に追加 |
   |350001 |山口県   |○   |[CKAN](https://yamaguchi-opendata.jp/ckan/api/3/action/package_list?limit=0) |<A HREF="https://yamaguchi-opendata.jp/www/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
   |360007 |徳島県   |○   |[シラサギ](https://opendata.pref.tokushima.lg.jp/api/package_list?limit=0)|<A HREF="https://opendata.pref.tokushima.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | |2022/6/16 |     |
   |370002 |香川県   |−   |−   |<A HREF="https://opendata.pref.kagawa.lg.jp/" TARGET="_blank" REL="noopener">サイト1</A> | | | | |     |
