@@ -33,7 +33,6 @@ CONTENT_HEADER_XLSX = bytes.fromhex('504b03041400')
 HEADER_ROWS = 5
 XHTML_PAGE = '<!DOCTYPE html>'
 FLOAT_FORMAT_RE = re.compile('([0-9]+\\.[0-9]+)')
-EXCEL_SHEET_IGNORE_RE = re.compile('(記入例|記載例|作成例|項目説明)')
 FILE_NAME_REPLACE_RE = re.compile('[/\0]')
 STREET_NUMBER_RE = re.compile('[^0-9０-９]*([0-9０-９\\-−－ー]*)$')
 ALPHANUMERIC_RE = re.compile('^[0-9a-zA-Z]+$')
@@ -98,6 +97,8 @@ class Crawler:
         self.address_item_list = self.settings_json['common']['address_item_list']
         self.lat_item_list = self.settings_json['common']['lat_item_list']
         self.lng_item_list = self.settings_json['common']['lng_item_list']
+        self.EXCEL_SHEET_IGNORE_RE = re.compile( \
+                self.settings_json['common']['excel_sheet_ignore_re'])
         self.LINKEDDATA_URL_BASE = self.settings_json['linkeddata']['url_base']
         self.LINKEDDATA_DOWNLOAD_CONTENT = ''
         for v in self.settings_json['linkeddata']['content_header']:
@@ -1255,7 +1256,11 @@ class Crawler:
             url = site[site['webapi']]['api_url'] + site[site['webapi']]['package_list']
             content = self.url_get(url, packages_file, dir=self.packages_dir)
             if content is not None:
-                jpackages = json.loads(content)
+                try:
+                    jpackages = json.loads(content)
+                except Exception as e:
+                    logger.error(e)
+                    jpackages = None
 
         elif 'package_search' in site[site['webapi']]:
             # package_search
@@ -1334,14 +1339,22 @@ class Crawler:
                 name=site_info['name']))
         if os.path.exists(package_path):
             with open(package_path, 'r') as hf:
-                jpackage = json.loads(hf.read())
+                try:
+                    jpackage = json.loads(hf.read())
+                except Exception as e:
+                    logger.error(e)
+                    jpackage = None
         else:
             url = site_info[site_info['webapi']]['api_url'] + 'package_show?id=' + packageid
             content = self.url_get(url, package_file, dir=self.packages_dir)
             if content is not None:
-                jpackage = json.loads(content)
+                try:
+                    jpackage = json.loads(content)
+                except Exception as e:
+                    logger.error(e)
+                    jpackage = None
                 # logger.debug('jpackage=' + str(jpackage))
-                if not 'success' in jpackage or not jpackage['success']:
+                if jpackage is None or 'success' not in jpackage or not jpackage['success']:
                     logger.error('ERROR: error in result, result=' + str(jpackage))
                     # raise Exception('msg:パッケージ取得失敗：' + str(jpackage))
                     jpackage = None
@@ -2200,10 +2213,10 @@ class Crawler:
             excel_book = xlrd.open_workbook(file)
             sheet_names = excel_book.sheet_names()
             for sheet_i, sheet_name in enumerate(sheet_names):
-                m_ignore_sheet = EXCEL_SHEET_IGNORE_RE.search(sheet_name)
+                m_ignore_sheet = self.EXCEL_SHEET_IGNORE_RE.search(sheet_name)
                 if m_ignore_sheet is not None:
                     tables[str(sheet_i+1)+'_'+sheet_name] = '対象外シート' \
-                            + str(EXCEL_SHEET_IGNORE_RE.findall(sheet_name))
+                            + str(self.EXCEL_SHEET_IGNORE_RE.findall(sheet_name))
                     logger.warning('Excel sheet ignore:' + sheet_name)
                     continue
                 table = []
@@ -2259,10 +2272,10 @@ class Crawler:
                             keep_vba=False, read_only=True, data_only=True)
             sheet_names = excel_book.sheetnames
             for sheet_i, sheet_name in enumerate(sheet_names):
-                m_ignore_sheet = EXCEL_SHEET_IGNORE_RE.search(sheet_name)
+                m_ignore_sheet = self.EXCEL_SHEET_IGNORE_RE.search(sheet_name)
                 if m_ignore_sheet is not None:
                     tables[str(sheet_i+1)+'_'+sheet_name] = '対象外シート' \
-                            + str(EXCEL_SHEET_IGNORE_RE.findall(sheet_name))
+                            + str(self.EXCEL_SHEET_IGNORE_RE.findall(sheet_name))
                     logger.warning('Excel sheet ignore:' + sheet_name)
                     continue
                 table = []
