@@ -2255,7 +2255,8 @@ class Crawler:
             excel_book = None
 
         # 復帰
-        logger.info('table_from_xls() ended, rc=' + str(len(tables)))
+        logger.info('table_from_xls() ended, rc=' + str(len(tables)) \
+                + ' sheets=' + str({k:len(v) for k,v in tables.items()}))
         return tables
 
     def table_from_xlsx(self, file, rows=0):
@@ -2321,7 +2322,8 @@ class Crawler:
             excel_book = None
 
         # 復帰
-        logger.info('table_from_xlsx() ended, rc=' + str(len(tables)))
+        logger.info('table_from_xlsx() ended, rc=' + str(len(tables)) \
+                + ' sheets=' + str({k:len(v) for k,v in tables.items()}))
         return tables
 
     def table_from_GeoJSON(self, content):
