@@ -156,11 +156,10 @@ class Crawler:
             logger.debug('nno='+str(nno)+', name='+str(name))
             name_pkgs = name.split('/')
             name = name_pkgs[0]
-            print(str(nno+1)+'/'+str(len(names))+' 【'+name+'】', \
-                    file=sys.stderr, end='')
+            print(str(nno+1)+'/'+str(len(names))+' 【'+name+'】', end='')
             site_info = self.get_site_info(name)
             print('サイト=' + site_info['code'], site_info['name'] \
-                    + '：' + site_info[site_info['webapi']]['api_url'], file=sys.stderr)
+                    + '：' + site_info[site_info['webapi']]['api_url'])
             self.__requests_interval_seconds \
                     = self.settings_json['default']['crawling_request_interval']
             if 'crawling_request_interval' in site_info:
@@ -188,15 +187,14 @@ class Crawler:
             for pno, packageid in enumerate(packageids):
                 if not isinstance(packageid, str):
                     packageid = str(packageid)
-                print(str(pno+1)+'/'+str(len(packageids))+'['+packageid+']', \
-                        file=sys.stderr, end='')
+                print(str(pno+1)+'/'+str(len(packageids))+'['+packageid+']', end='')
                 logger.debug('pno='+str(pno)+', packageid='+str(packageid))
                 map_list = {}
                 package_info = self.get_package_info(site_info, packageid)
                 if package_info is None:
                     package_download_failure_count += 1
                     msg = 'パッケージの取得に失敗しました。' + str((package_download_failure_count))
-                    print(msg, file=sys.stderr)
+                    print(msg)
                     logger.debug(msg)
                     if 'package_download_failure' in site_info[site_info['webapi']]:
                         if site_info[site_info['webapi']]['package_download_failure'][0] == 'stop' \
@@ -204,7 +202,7 @@ class Crawler:
                             >= site_info[site_info['webapi']]['package_download_failure'][1]:
                             msg = '失敗回数が上限に達しました。package_download_failure=' \
                                     + str(site_info[site_info['webapi']]['package_download_failure'])
-                            print(msg, file=sys.stderr)
+                            print(msg)
                             logger.error(msg)
                             # ToDo: rc = 1
                             rc = 0     # ToDo: 青森県での中断を回避するため
@@ -213,22 +211,22 @@ class Crawler:
                 package_download_failure_count = 0
                 msg = self.select_package_info(site_info, packageid, package_info)
                 if msg is not None:
-                    print(msg, file=sys.stderr)
+                    print(msg)
                     continue
                 package_title = self.get_package_title(package_info)
-                print(package_title + '：', file=sys.stderr, end='')
+                print(package_title + '：', end='')
                 package_kind = self.get_package_kind(package_info)
                 if package_kind is None:
                     msg = '対象外のパッケージです。'
-                    print(msg, file=sys.stderr)
+                    print(msg)
                     logger.debug(msg)
                     continue
-                print(package_kind + '：', file=sys.stderr, end='')
+                print(package_kind + '：', end='')
                 resources = self.get_all_resources(package_info)
                 resources = self.get_valid_resources(resources)
                 if len(resources) == 0:
                     msg = '有効なリソースが存在しません。'
-                    print(msg, file=sys.stderr)
+                    print(msg)
                     logger.debug(msg)
                     continue
                 self.package_dir = os.path.join(self.packages_dir, packageid)
@@ -238,27 +236,27 @@ class Crawler:
                 for rno, resource in enumerate(resources):
                     logger.debug('rno='+str(rno)+', name='+str(resource['name']))
                     if rno > 0:
-                        print('\t', file=sys.stderr, end='')
-                    print('[' + str(rno+1) + ',' + resource['format'] + ']', file=sys.stderr, end='')
+                        print('\t', end='')
+                    print('[' + str(rno+1) + ',' + resource['format'] + ']', end='')
                     resource = self.get_content_by_resource(package_kind, resource)
                     if resource is None or resource['_content_'] is None:
-                        print('リソースがダウンロードできません。', file=sys.stderr)
+                        print('リソースがダウンロードできません。')
                         continue
                     # HTML形式でダウンロードページならダウンロードする
                     resource = self.check_html_page(resource, self.package_dir)
                     if resource is None or resource['_content_'] is None:
-                        print('HTMLページからダウンロードできません。', file=sys.stderr)
+                        print('HTMLページからダウンロードできません。')
                         continue
                     # コンテンツの内容でformatを検査する
                     resource = self.check_content_format(resource, self.package_dir)
                     if resource is None or resource['_content_'] is None:
-                        print('扱えない形式のコンテンツです。', file=sys.stderr)
+                        print('扱えない形式のコンテンツです。')
                         continue
                     # コンテンツを表形式に変換する
                     resource = self.content_to_table(resource, self.package_dir)
                     if resource is None or resource['_table_'] is None \
                     or resource['_table_'] == {}:
-                        print('表データに変換できません。', file=sys.stderr)
+                        print('表データに変換できません。')
                         continue
                     # リソースの数だけ繰り返す（XLS/XLSXの復数シート対応）
                     res_tables = {'': resource['_table_']}
@@ -266,11 +264,11 @@ class Crawler:
                         res_tables = resource['_table_']
                     for res_i, res_key in enumerate(res_tables.keys()):
                         if res_i > 0:
-                            print('\t\t', file=sys.stderr, end='')
+                            print('\t\t', end='')
                         if res_key != '':
-                            print('[' + res_key + ']', file=sys.stderr, end='')
+                            print('[' + res_key + ']', end='')
                         if type(res_tables[res_key]) is str:
-                            print(res_tables[res_key], file=sys.stderr)
+                            print(res_tables[res_key])
                             continue
                         res_table = res_tables[res_key]
                         # 表形式の項目名からマップ情報を作成する
@@ -278,14 +276,14 @@ class Crawler:
                         resource = self.make_map_from_table(resource, package_kind, res_table)
                         if resource is None or resource['_map_'] == {}:
                             print('マップ情報が作成できません,' \
-                                    + resource['_map_msg_'], file=sys.stderr)
+                                    + resource['_map_msg_'])
                             continue
                         if resource['_map_'] != None:
                             map_list[res_key] = resource['_map_']
                         # 表形式をマップデータ(JSON形式)に変換する
                         map_data = self.table_to_mapdata(resource, res_table)
                         if len(map_data) == 0:
-                            print('マップデータが0件。', file=sys.stderr)
+                            print('マップデータが0件。')
                             continue
                         # マップデータをキャッシュに保存する
                         cache_file = FILE_NAME_REPLACE_RE.sub('_', package_title.strip()) \
@@ -293,7 +291,7 @@ class Crawler:
                         if res_key != '':
                             cache_file += '_' + res_key
                         self.save_to_cache(map_data, cache_file, dir=packageid)
-                        print('マップデータを作成しました。', file=sys.stderr)
+                        print('マップデータを作成しました。')
 
                 map_list_name[packageid] = map_list
 
@@ -389,7 +387,7 @@ class Crawler:
                 # テスト用に迂回する場合
                 msg = 'TEST:no Hit in cache, file=' + os.path.join(cache_dir, file)
                 logger.debug(msg)
-                print(msg+', url='+url, file=sys.stdout)
+                print(msg+', url='+url, file=sys.stderr)
                 content = msg
                 logger.debug('url_get() ended_3.')
                 return content
@@ -1123,7 +1121,10 @@ class Crawler:
                 name=site_info['name']))
         packages = self.get_package_list(site_info)
         if packages is None:
-            raise Exception('パッケージリストの取得に失敗しました。' + str(site_info))
+            msg = 'パッケージリストの取得に失敗しました。'
+            print(msg)
+            # 継続するため raise Exception(msg + str(site_info))
+            packages = []
 
         # 復帰
         logger.info('get_packageids_in_site() ended, packages=' \
@@ -1241,37 +1242,52 @@ class Crawler:
         logger.debug('packages_path='+packages_path)
         if os.path.exists(packages_path):
             with open(packages_path, 'r') as fh:
-                jpackages = json.loads(fh.read())
-            if 'package_search' in site[site['webapi']]:
-                pkg_list = [k for k in jpackages['result']['facets']['name'].keys()]
-            else:
-                pkg_list = jpackages['result']
-        elif 'package_list_limit' in site[site['webapi']] \
-          and site[site['webapi']]['package_list_limit'] > 0:
-            # package_list and loop
-            get_loop = True
-
-        elif 'package_list' in site[site['webapi']]:
-            # package_list
-            url = site[site['webapi']]['api_url'] + site[site['webapi']]['package_list']
-            content = self.url_get(url, packages_file, dir=self.packages_dir)
-            if content is not None:
                 try:
-                    jpackages = json.loads(content)
+                    jpackages = json.loads(fh.read())
                 except Exception as e:
                     logger.error(e)
                     jpackages = None
 
-        elif 'package_search' in site[site['webapi']]:
-            # package_search
-            url = site[site['webapi']]['api_url'] + site[site['webapi']]['package_search']
-            content = self.url_get(url, packages_file, dir=self.packages_dir)
-            if content is not None:
-                jpackages = json.loads(content)
-                if 'result' in jpackages \
-                and 'facets' in jpackages['result'] \
-                and 'name' in jpackages['result']['facets']:
+            if jpackages is None:
+                os.remove(packages_path)
+            else:
+                if 'package_search' in site[site['webapi']]:
                     pkg_list = [k for k in jpackages['result']['facets']['name'].keys()]
+                else:
+                    pkg_list = jpackages['result']
+
+        if jpackages is None:
+            if 'package_list_limit' in site[site['webapi']] \
+              and site[site['webapi']]['package_list_limit'] > 0:
+                # package_list and loop
+                get_loop = True
+
+            elif 'package_list' in site[site['webapi']]:
+                # package_list
+                url = site[site['webapi']]['api_url'] + site[site['webapi']]['package_list']
+                content = self.url_get(url, packages_file, dir=self.packages_dir)
+                if content is not None:
+                    try:
+                        jpackages = json.loads(content)
+                    except Exception as e:
+                        logger.error(e)
+                        jpackages = None
+
+            elif 'package_search' in site[site['webapi']]:
+                # package_search
+                url = site[site['webapi']]['api_url'] + site[site['webapi']]['package_search']
+                content = self.url_get(url, packages_file, dir=self.packages_dir)
+                if content is not None:
+                    try:
+                        jpackages = json.loads(content)
+                    except Exception as e:
+                        logger.error(e)
+                        jpackages = None
+
+                    if 'result' in jpackages \
+                    and 'facets' in jpackages['result'] \
+                    and 'name' in jpackages['result']['facets']:
+                        pkg_list = [k for k in jpackages['result']['facets']['name'].keys()]
 
         if get_loop:
             limit = site[site['webapi']]['package_list_limit']
@@ -1310,7 +1326,7 @@ class Crawler:
                     pkg_list = jpackages['result']
 
         # 復帰
-        end_msg = 'None'
+        end_msg = '-1'
         if pkg_list is not None:
             end_msg = str(len(pkg_list))
         logger.info('get_package_list() ended, result=' + end_msg)
@@ -1415,7 +1431,7 @@ class Crawler:
         or (len(kinds) >= 1 and kinds[0] == '##ignore##'):
             msg = dataset_name + '：種別が特定できないか無視対象です。' \
                 + str(kinds_detail)
-            # print(msg, file=sys.stderr)
+            # print(msg)
             # logger.debug(msg)
         else:
             jpackage['_info_'] = {
@@ -1587,14 +1603,14 @@ class Crawler:
         if kind is None or not isinstance(kind, str) \
         or kind not in [k for k in self.KIND_LIST_NORMALIZED_RE.keys()]:
             msg = 'kindパラメタは無効な値です。'
-            print(msg, file=sys.stderr)
+            print(msg)
             logger.error(msg+'kind='+str(kind))
             raise Exception(msg)
             rc = 1
         if resource is None or not isinstance(resource, dict) \
         or 'url' not in resource or 'filename' not in resource:
             msg = 'resourceパラメタは無効な値です。'
-            print(msg, file=sys.stderr)
+            print(msg)
             logger.error(msg+'resource='+str(resource))
             raise Exception(msg)
             rc = 2
@@ -1611,14 +1627,14 @@ class Crawler:
                         dir=self.package_dir)
                 if content is None:
                     msg = 'リソース内容の取得に失敗しました(2)。'
-                    # print(msg, file=sys.stderr)
+                    # print(msg)
                     logger.error(msg+'url='+str(resource['url'])+',' \
                                  +str(resource['download_url']))
                     # raise Exception(msg)
                     rc = 3
             else:
                 msg = 'リソース内容の取得に失敗しました。'
-                # print(msg, file=sys.stderr)
+                # print(msg)
                 logger.error(msg+'url='+str(resource['url']))
                 # raise Exception(msg)
                 rc = 3
@@ -2249,7 +2265,7 @@ class Crawler:
             logger.error('error in Excel(XLS) data, file=' + file)
             logger.exception(e)
             tables = {}
-            print('Excel形式(XLS)誤り：' + os.path.basename(file), file=sys.stderr, end='')
+            print('Excel形式(XLS)誤り：' + os.path.basename(file), end='')
 
         finally:
             excel_book = None
@@ -2314,7 +2330,7 @@ class Crawler:
             logger.error('error in Excel data(XLSX), file=' + file)
             logger.exception(e)
             tables = {}
-            print('Excel形式(XLSX)誤り：' + os.path.basename(file), file=sys.stderr, end='')
+            print('Excel形式(XLSX)誤り：' + os.path.basename(file), end='')
 
         finally:
             if excel_book is not None:
@@ -2433,7 +2449,7 @@ if __name__ == '__main__':
         today = datetime.datetime.now()
         msg = today.strftime('%Y/%m/%d-%H:%M:%S') + ' crawler.py start.'
         logger.info(msg)
-        print(msg, file=sys.stderr)
+        print(msg)
         # 取得開始
         cobj = Crawler()
         names_all = cobj.get_names()
@@ -2443,9 +2459,9 @@ if __name__ == '__main__':
             names = cobj.get_target_names(today)
         if args.site_list:
             if args.monthly:
-                print('実行対象自治体名：' + str(names), file=sys.stderr)
+                print('実行対象自治体名：' + str(names))
             else:
-                print('定義済自治体名：' + str(names), file=sys.stderr)
+                print('定義済自治体名：' + str(names))
         else:
             if len(args.names) > 0:
                 # 対象自治体（サイト）を処理する
@@ -2454,7 +2470,7 @@ if __name__ == '__main__':
 
     except Exception as e:
         logger.exception(e)
-        print('', file=sys.stderr)
+        print('')
         rc = 99
 
     finally:
@@ -2464,7 +2480,7 @@ if __name__ == '__main__':
     msg = datetime.datetime.now().strftime('%Y/%m/%d-%H:%M:%S') \
         + ' crawler.py ended, rc=' + str(rc)
     logger.info(msg)
-    print(msg, file=sys.stderr)
+    print(msg)
 
     # 復帰
     sys.exit(rc)
