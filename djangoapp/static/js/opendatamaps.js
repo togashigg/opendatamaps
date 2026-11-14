@@ -26,6 +26,7 @@
 	var myInitialMode='center';	// center:近隣施設表示、code:市区町村単位の施設表示
 	var myInitialLocality='-';	// 市区町村コード：三島市='222062'
 	var myInitialKind='-';		// 種別：'公衆トイレ'
+	var myInitialResultLimit=100;	// 最大取得件数：100（APIのデフォルト）
 	var myInitialDistance=1000; // 近隣の距離：500/1000/2000/5000(m)
 	var myInitialCount=10;	// マーカーの表示数：10/20/50/0(全て)
 	var mapCenter=null;
@@ -110,11 +111,13 @@
 		let myParam={locality_list: null, locality_dict: null, locality_codes: null,
 				datalist: null, 
 				mode: myInitialMode, locality: myInitialLocality, kind: myInitialKind,
+				resultLimit: myInitialResultLimit,
 				distance: myInitialDistance, count: myInitialCount,
 				kind_selected: [], not_kind_selected: ['消防水利施設']};
 		myParam.mode=myUrlParams.get('mode');	// 動作モード：center=近隣施設、code=市区町村単位の施設
 		myParam.locality=myUrlParams.get('locality');	// 市区町村コード、例：22206
 		myParam.kind=myUrlParams.get('kind');	// 種別、例：公衆トイレ
+		myParam.resultLimit=myUrlParams.get('limit');   // 最大取得件数、例：100
 		myParam.distance=myUrlParams.get('distance');	// 近隣距離、例：500
 		myParam.count=myUrlParams.get('count');	// 表示件数、例：0/10/20/50
 		if(myParam.mode==null) {
@@ -125,6 +128,9 @@
 		}
 		if(myParam.kind==null) {
 			myParam.kind=myInitialKind;
+		}
+		if(myParam.resultLimit==null) {
+			myParam.resultLimit=myInitialResultLimit;
 		}
 		if(myParam.distance==null) {
 			myParam.distance=myInitialDistance;
@@ -355,6 +361,8 @@
 				document.getElementById("selectKindList").querySelector("option[value='"+myParam.kind+"']").setAttribute("selected", "selected");
 			}
 		}
+		// 取得最大件数
+		document.getElementById("selectResultLimitList").querySelector("option[value='"+myParam.resultLimit+"']").setAttribute("selected", "selected");
 		// 近隣距離選択
 		document.getElementById("selectDistanceList").querySelector("option[value='"+myParam.distance+"']").setAttribute("selected", "selected");
 		// 現在住所表示
@@ -491,6 +499,17 @@
 		if(DEBUG) console.log(nowToString()+' selectDistance() ended');
 		return false;
 	}
+	// 最大取得件数選択
+	function selectResultLimit(limit) {
+		if(DEBUG) console.log(nowToString()+' selectResultLimit() start, limit='+limit);
+		if(typeof limit=='undefined' || isNaN(limit)) {
+			if(DEBUG) console.log('invalid limit');
+			return false;
+		}
+		myParam.resultLimit=limit;
+		if(DEBUG) console.log(nowToString()+' selectResultLimit() ended');
+		return false;
+	}
 	// データ更新
 	function updateMapsData() {
 		if(DEBUG) console.log(nowToString()+' updateMapsData() start');
@@ -543,6 +562,7 @@
 			return false
 		}
 		url+=kinds;
+		url+='&limit='+myParam.resultLimit;
 		console.log('url='+url);
 		apiLogsAppend('GET '+url);
 		return readDataRetry(url, httpRetryMax);

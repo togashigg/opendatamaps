@@ -97,6 +97,14 @@
 							</td></tr>
 							<tr><td>種別</td><td id="kindListSelect"></td></tr>
 							<tr><td>種別<BR>（除外）</td><td id="notKindListSelect"></td></tr>
+							<tr><td>最大取得件数</td><td>
+								<select id="selectResultLimitList" name="selectResultLimitList" onchange="selectResultLimit(this.options[this.selectedIndex].value);" style="text-align: right;">
+									<option value="100">100件</option>
+                                    <option value="200">200件</option>
+									<option value="500">500件</option>
+									<option value="1000">1,000件</option>
+								</select>
+							</td></tr>
 						</table>
 					</div>
 					<div id="settingsTab2">
