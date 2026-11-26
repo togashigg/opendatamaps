@@ -1,6 +1,6 @@
 {
 	"common": {
-		"url_get_noaccess": true,
+		"url_get_noaccess": false,
 		"address_to_geocode_nocall": true,
 		"locality_code_file": "都道府県コード及び市区町村コード_20240101.csv",
 		"kind_list_normalized_re": {
@@ -193,8 +193,8 @@
 			"webapi": "CKAN", 
 			"CKAN": {
 				"api_url": "https://opendata.pref.saitama.lg.jp/ckan_api/",
-				"package_list_limit": 100,
-				"package_list": "package_list"
+				"package_list": "package_list",
+				"package_list_limit": 500
 			},
 			"crawling_monthly_days": [3]
 		},
@@ -338,7 +338,8 @@
 			"webapi": "CKAN",
 			"CKAN": {
 				"api_url": "https://www.okayama-opendata.jp/ckan_api/",
-				"package_list": "package_list?limit=9999",
+				"package_list": "package_list",
+				"package_list_limit": 500,
 				"http_request_headers": {
 					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.7559.132 Safari/537.36"
 				}
