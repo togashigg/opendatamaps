@@ -15,6 +15,7 @@ import copy
 import pathlib
 import requests
 from urllib3 import ssl
+import shutil
 import unicodedata
 import warnings
 import openpyxl
@@ -31,6 +32,8 @@ MY_CONFIG = {
 CONTENT_HEADER_XLS  = bytes.fromhex('d0cf11e0a1b11ae1')
 CONTENT_HEADER_XLSX = bytes.fromhex('504b03041400')
 HEADER_ROWS = 5
+SPACE_RE = re.compile('\\s')
+SERIAL_NUMBER_RE = re.compile('([0-9]+|[０-９]+)$')
 XHTML_PAGE = '<!DOCTYPE html>'
 FLOAT_FORMAT_RE = re.compile('([0-9]+\\.[0-9]+)')
 FILE_NAME_REPLACE_RE = re.compile('[/\0]')
@@ -84,6 +87,8 @@ class Crawler:
             raise Exception('settings path not found, file='+self.settings_path)
         with open(self.settings_path, 'r') as fh:
             self.settings_json = json.loads(fh.read())
+        self.URL_GET_NOACCESS = self.settings_json['common']['url_get_noaccess']
+        self.ADDRESS_TO_GEOCODE_NOCALL = self.settings_json['common']['address_to_geocode_nocall']
         self.LOCALITY_CODE_FILE = self.settings_json['common']['locality_code_file']
         self.KIND_LIST_NORMALIZED_RE = \
             {k:re.compile(v) for k, v in \
@@ -91,12 +96,28 @@ class Crawler:
         self.OPENDATA_SITES = self.get_opendata_sites()
         self.site_names = list(self.OPENDATA_SITES.keys())
         logger.debug('site_names=' + str(self.site_names))
-       	self.id_item_list = self.settings_json['common']['id_item_list']
-        self.name_item_list_1 = self.settings_json['common']['name_item_list_1']
-        self.name_item_list_2 = self.settings_json['common']['name_item_list_2']
-        self.address_item_list = self.settings_json['common']['address_item_list']
-        self.lat_item_list = self.settings_json['common']['lat_item_list']
-        self.lng_item_list = self.settings_json['common']['lng_item_list']
+        self.ID_ITEM_LIST_RE = [re.compile(v) \
+                            for v in self.settings_json['common']['id_item_list_re']]
+        self.NAME_ITEM_LIST_1_RE = [re.compile(v) \
+                            for v in self.settings_json['common']['name_item_list_1_re']]
+        self.NAME_ITEM_IGNORE_RE = [re.compile(v) \
+                            for v in self.settings_json['common']['name_item_ignore_re']]
+        self.NAME_ITEM_LIST_2_RE = {k: [re.compile(r) for r in v] \
+                            for k,v in self.settings_json['common']['name_item_list_2_re'].items()}
+        self.ADDRESS_ITEM_LIST_1_RE = [re.compile(v) \
+                            for v in self.settings_json['common']['address_item_list_1_re']]
+        self.ADDRESS_ITEM_IGNORE_RE = [re.compile(v) \
+                            for v in self.settings_json['common']['address_item_ignore_re']]
+        self.ADDRESS_ITEM_LIST_2_RE = [re.compile(v) \
+                            for v in self.settings_json['common']['address_item_list_2_re']]
+        self.LAT_ITEM_LIST_RE = [re.compile(v) \
+                            for v in self.settings_json['common']['lat_item_list_re']]
+        self.LAT_ITEM_IGNORE_RE = [re.compile(v) \
+                            for v in self.settings_json['common']['lat_item_ignore_re']]
+        self.LNG_ITEM_LIST_RE = [re.compile(v) \
+                            for v in self.settings_json['common']['lng_item_list_re']]
+        self.LNG_ITEM_IGNORE_RE = [re.compile(v) \
+                            for v in self.settings_json['common']['lng_item_ignore_re']]
         self.EXCEL_SHEET_IGNORE_RE = re.compile( \
                 self.settings_json['common']['excel_sheet_ignore_re'])
         self.LINKEDDATA_URL_BASE = self.settings_json['linkeddata']['url_base']
@@ -300,6 +321,11 @@ class Crawler:
                 hfm.write(json.dumps(map_list_name, \
                         ensure_ascii=False).replace('[], "', '[],\n"').replace( \
                         '}], "', '}],\n"'))
+            # geocode検索結果キャッシュを更新する
+            if self.__geocode_cache_update:
+                with open(self.__geocode_cache_path, 'w') as hf:
+                    hf.write(json.dumps(self.__geocode_cache, ensure_ascii=False).replace( \
+                            '"OK"}, "', '"OK"},\n"'))
         # 復帰
         logger.info('crewler_main() ended, rc=' + str(rc))
         return rc
@@ -351,7 +377,7 @@ class Crawler:
         """
         指定されたURLの内容を取得してdownload_dirに保存する
         :param url: str型、取得する資源のURL
-        :param file: str型、URLのファイル名部分
+        :param file: str型、キャッシュのファイル名、None：キャッシュ対象外
         :param cache: boolean型、True=キャッシュを使用する、False:キャッシュを使用しない
         :return: str型、取得したコンテンツ、取得できない場合はNoneを返却する
         :raise: Exception
@@ -366,7 +392,7 @@ class Crawler:
             # raise Exception(msg)
             logger.debug('url_get() ended_1.')
             return content
-        if file is None or not isinstance(file, str) or file == '':
+        if file is not None and (not isinstance(file, str) or file == ''):
             msg = 'fileパタメタは無効な値です。'
             logger.error(msg+str(file))
             # raise Exception(msg)
@@ -376,20 +402,20 @@ class Crawler:
         cache_dir = dir
         if cache_dir == None:
             cache_dir = self.download_dir
-        if cache \
+        if cache and file is not None\
         and os.path.exists(os.path.join(cache_dir, file)):
             # キャッシュから読み込む
             with open(os.path.join(cache_dir, file), 'rb') as hf:
                 content = hf.read()
             logger.debug('Hit cache, file=' + os.path.join(cache_dir, file))
         else:
-            if False:
+            if self.URL_GET_NOACCESS:
                 # テスト用に迂回する場合
                 msg = 'TEST:no Hit in cache, file=' + os.path.join(cache_dir, file)
                 logger.debug(msg)
                 print(msg+', url='+url, file=sys.stderr)
-                content = msg
-                logger.debug('url_get() ended_3.')
+                content = None
+                logger.debug('url_get() ended_3, URL_GET_NOACCESS=True.')
                 return content
             # 連続でrequestsしないように間隔を空ける
             delta = self.__requests_interval_seconds
@@ -438,7 +464,7 @@ class Crawler:
             if res is not None:
                 res.close()
             # キャッシュディレクイトリに保存する
-            if cache and content is not None:
+            if cache and file is not None and content is not None:
                 with open(os.path.join(cache_dir, file), 'wb') as f:
                     f.write(content)
             # logger.debug('OK requests.get(), size=' + str(len(content)))
@@ -458,40 +484,51 @@ class Crawler:
         logger.info('convert_to_utf8() start, rows=' + str(rows))
         # 実行
         data = None
-        cont = content
-        if rows > 0:
-            lines = []
-            index = 0
-            while len(lines) < (rows+15):
+        if type(content) is str:
+            logger.info('convert_to_utf8() ended-2, rc=' + str(len(content)))
+            return content
+        for enc in ['CP932', 'SHIFT_JIS', 'UTF-8-SIG', 'utf-8', 'euc_jp']:
+            try: 
+                data = content.decode(enc)
+                logger.debug('encoding=' + enc)
+                break
+            except UnicodeDecodeError:
+                data = None
+        if data is None:
+            res = chardet.detect(content)
+            logger.debug('chardet.detect()=' + str(res))
+            if res is None or res['encoding'] is None:
+               data = str(content)
+            else:
                 try:
-                    n_index = content[index:].index(b'\n')
-                    lines.append(content[index:index+n_index+1])
-                    index += n_index + 1
+                    data = content.decode(res['encoding'], errors='replace')
                 except Exception as e:
-                    lines.append(content[index:])
-                    break
-            cont = lines[0]
-            for i in range(1, len(lines)):
-                cont += lines[i]
-        res = {'encoding': 'utf-8', 'confidence': 0.5, 'language': 'Japanese'}
-        try:
-            res = chardet.detect(cont)
-        except Exception as e:
-            logger.exception(e)
+                    logger.exception(e)
+                    data = str(content)
+        # 復帰
+        logger.info('convert_to_utf8() ended, rc=' + str(len(data)))
+        return data
+
+    def detect_encoding(data):
+        logger = logging.getLogger(__name__)
+        for enc in ['CP932', 'SHIFT_JIS', 'UTF-8-SIG', 'utf-8', 'euc_jp']:
+            try:
+                data.decode(enc)
+                return enc
+            except UnicodeDecodeError:
+                pass
+        res = chardet.detect(data)
         logger.debug('chardet.detect()=' + str(res))
-        if res['encoding'] is None \
-        or not ((len(res['encoding'])>=5 and res['encoding'].upper()[:5] == 'UTF-8') \
-             or (len(res['encoding'])>=6 and res['encoding'].upper()[:6] == 'UTF-16') \
-             or (len(res['encoding'])>=3 and res['encoding'].upper()[:3] == 'EUC')):
-            res['encoding'] = 'CP932'
+        if res is None or res['encoding'] is None:
+           enc = 'utf-8'
+        else:
+           enc = res['encoding']
         try:
             data = content.decode(res['encoding'], errors='replace')
         except Exception as e:
             logger.exception(e)
             data = str(content)
-        # 復帰
-        logger.info('convert_to_utf8() ended, rc=' + str(len(data)))
-        return data
+        return 
 
     def data_from_csv(self, content, info):
         """
@@ -595,6 +632,7 @@ class Crawler:
                         name += str(rec[n])
                 else:
                     name += str(n)
+            name = name.strip()
             if name == '' or name == '○' or name == '◎':
                 continue
             if name in self.__data_name_dict:
@@ -654,9 +692,11 @@ class Crawler:
             if self.state == self.name:
                 loc_name = self.name
             address = ''
-            if info['address'] >= 0 and len(table[i]) > info['address']:
-                if table[i][info['address']] != 'null':
-                    address = str(table[i][info['address']])
+            if info['address'] != [-1]:
+                for j in info['address']:
+                    if len(table[i]) > j:
+                        if table[i][j] != 'null':
+                            address += str(table[i][j])
             (lat, lng, msg) = self.lat_lng_from_data(table[i], info, address)
             if (type(lat) != float or type(lng) != float) and address == '':
                 # logger.debug('lat and lng or address not in rec(' + str(i) + ')')
@@ -789,6 +829,7 @@ class Crawler:
                 name += str(data[n])
             else:
                 name += str(n)
+        name = name.strip()
         if name in self.__data_name_dict \
         and self.__data_name_dict[name] > 1:
             msg += '名称が重複。'
@@ -810,7 +851,9 @@ class Crawler:
                 msg += '住所未設定。'
             else:
                 # logger.debug('address='+str(address))
-                param_addr = address
+                param_addr = address.strip()
+                if param_addr[-2:] in ['　他', ' 他']:
+                    param_addr = param_addr[:-2]
                 if address[:len(self.state)] == self.state:
                     if address[len(self.state):len(self.state)+len(self.name)] == self.name:
                         # 住所に都道府県名と市区町村名が含まれている→加工不要
@@ -819,7 +862,7 @@ class Crawler:
                         # 住所に都道府県名が含まれているが市区町村名は含まれていない
                         # → 市区町村名を挿入する
                         if self.state == self.name:
-                            # 都道ぬ件名が重複指定された場合→加工不要
+                            # 都道府県名が重複指定された場合→加工不要
                             pass
                         else:
                             param_addr = self.state + self.name + address[len(self.state):]
@@ -831,7 +874,7 @@ class Crawler:
                         # 住所に都道府県名も市区町村名も含まれていない
                         # → 都道府県名と市区町村名を追加する
                         if self.state == self.name:
-                            # 都道ぬ件名が重複指定された場合→都道府県名のみを追加する
+                            # 都道府県名が重複指定された場合→都道府県名のみを追加する
                             param_addr = self.state + address
                         else:
                             param_addr = self.state + self.name + address
@@ -840,7 +883,7 @@ class Crawler:
                     result = self.__geocode_cache[param_addr]
                     logger.debug('Hit in __geocode_cache, 住所=' + param_addr)
                 else:
-                    if True:	# ToDo:
+                    if self.ADDRESS_TO_GEOCODE_NOCALL:
                         result = {'status': 'NG', \
                                 'note': '住所から緯度・経度への変換は中止' \
                                 '（Google Mapsの課金が発生するため）'}
@@ -848,6 +891,8 @@ class Crawler:
                         geo_url = self.__geocode_url.format(address=param_addr, \
                                 key=self.__google_maps_api_key)
                         content = self.url_get(geo_url, None, cache=False)
+                        logger.debug('geo_url=' + geo_url)
+                        logger.debug('result=' + str(content))
                         if content is None:
                             result = {'status': 'NG'}
                         else:
@@ -892,7 +937,7 @@ class Crawler:
                 result = self.__geocode_cache[param_name]
                 logger.debug('Hit in __geocode_cache, 名称=' + param_name)
             else:
-                if True:	# ToDo:
+                if self.ADDRESS_TO_GEOCODE_NOCALL:
                     result = {'status': 'NG', \
                             'note': '名称から緯度・経度への変換は中止' \
                             '（Google Mapsの課金が発生するため）'}
@@ -900,6 +945,8 @@ class Crawler:
                     geo_url = self.__geocode_url.format(address=param_name, \
                             key=self.__google_maps_api_key)
                     content = self.url_get(geo_url, None, cache=False)
+                    logger.debug('geo_url=' + geo_url)
+                    logger.debug('result=' + str(content))
                     if content is None:
                         result = {'status': 'NG'}
                     else:
@@ -1150,7 +1197,7 @@ class Crawler:
         # geocode検索結果キャッシュを初期化
         self.__geocode_cache = {}
         self.__geocode_cache_update = False
-        self.__geocode_cache_path = os.path.join(self.packages_dir, \
+        self.__geocode_cache_path = os.path.join(self.download_dir, \
                 self.__geocode_cache_file.format(site_info['name']))
         logger.debug('geocode_cache_path=' + self.__geocode_cache_path)
         if os.path.exists(self.__geocode_cache_path):
@@ -1245,7 +1292,7 @@ class Crawler:
                 try:
                     jpackages = json.loads(fh.read())
                 except Exception as e:
-                    logger.error(e)
+                    logger.exception(e)
                     jpackages = None
 
             if jpackages is None:
@@ -1270,7 +1317,7 @@ class Crawler:
                     try:
                         jpackages = json.loads(content)
                     except Exception as e:
-                        logger.error(e)
+                        logger.exception(e)
                         jpackages = None
 
             elif 'package_search' in site[site['webapi']]:
@@ -1281,7 +1328,7 @@ class Crawler:
                     try:
                         jpackages = json.loads(content)
                     except Exception as e:
-                        logger.error(e)
+                        logger.exception(e)
                         jpackages = None
 
                     if 'result' in jpackages \
@@ -1358,7 +1405,7 @@ class Crawler:
                 try:
                     jpackage = json.loads(hf.read())
                 except Exception as e:
-                    logger.error(e)
+                    logger.exception(e)
                     jpackage = None
         else:
             url = site_info[site_info['webapi']]['api_url'] + 'package_show?id=' + packageid
@@ -1367,7 +1414,7 @@ class Crawler:
                 try:
                     jpackage = json.loads(content)
                 except Exception as e:
-                    logger.error(e)
+                    logger.exception(e)
                     jpackage = None
                 # logger.debug('jpackage=' + str(jpackage))
                 if jpackage is None or 'success' not in jpackage or not jpackage['success']:
@@ -1789,6 +1836,7 @@ class Crawler:
                 file = url[url.rfind('/')+1:]
                 if file.find('/') >= 0:
                     file = file.replace('/', '_')
+                format = None
                 if type in TYPE_TO_FORMAT:
                     format = TYPE_TO_FORMAT[type]
                     if format == 'Excel':
@@ -1927,12 +1975,14 @@ class Crawler:
                     # 指定のまま
                     logger.warning('format不明, ' + resource['format'])
 
-        # Excel形式でファイルの拡張子が違っている場合は変更する
+        # Excel形式でファイルの拡張子が違っている場合は変更して複写する
         if resource['format'] in ['XLSX', 'XLS'] \
         and resource['filename'].split('.')[-1].upper() != resource['format'].upper():
             dist_name = '.'.join(resource['filename'].split('.')[:-1]) \
                     + '.' + resource['format'].lower()
-            os.rename(os.path.join(dir, resource['filename']),
+            # os.rename(os.path.join(dir, resource['filename']),
+            #         os.path.join(dir, dist_name))
+            shutil.copy2(os.path.join(dir, resource['filename']),
                     os.path.join(dir, dist_name))
             resource['filename'] = dist_name
             dataset_path = os.path.join(dir, resource['filename'])
@@ -2024,90 +2074,56 @@ class Crawler:
             "name": [-1],
             "id": -1,
             "info": [-1],
-            "address": -1,
+            "address": [-1],
             "header": -1
         }
         map_msg = ''
         map_hit = []
-        title_rows = [list(row) for row in table[:min(HEADER_ROWS , len(table))]]
-        for i_row in range(len(title_rows)):
-            for i_col in range(len(title_rows[i_row])):
-                if title_rows[i_row][i_col] is None:
-                    title_rows[i_row][i_col] = ''
-                if type(title_rows[i_row][i_col]) == str:
-                    title_rows[i_row][i_col] = title_rows[i_row][i_col].strip()
+        # タイトル行候補の値を正規化する
+        title_rows = [['' if c is None else SPACE_RE.sub('', str(c)) \
+                    for c in r] for r in table[:min(HEADER_ROWS , len(table))]]
+        # 行毎に各項目の出現状況を確認する
         for t in range(len(title_rows)):
             if title_rows[t] == []:
                 continue
-            address = [i for i in range(len(title_rows[t])) \
-                    if title_rows[t][i] in self.address_item_list]
-            if len(address) == 0:
-                # 住所項目なし
-                address = [-1]
-            address = address[0]
-            lat = [i for i in range(len(title_rows[t])) \
-                    if title_rows[t][i] in self.lat_item_list \
-                    or (type(title_rows[t][i])==str \
-                      and len(title_rows[t][i])>4 \
-                      and title_rows[t][i][-4:]=='#lat')]
-            if len(lat) == 0:
-                # 緯度項目なし
-                lat = [-1]
-            lat = lat[0]
-            lng = [i for i in range(len(title_rows[t])) \
-                    if title_rows[t][i] in self.lng_item_list \
-                    or (type(title_rows[t][i])==str \
-                      and len(title_rows[t][i])>5 \
-                      and title_rows[t][i][-5:]=='#long')]
-            if len(lng) == 0:
-                # 経度項目なし
-                lng = [-1]
-            lng = lng[0]
-            name = [i for i in range(len(title_rows[t])) \
-                    if title_rows[t][i] in self.name_item_list_1 \
-                    or (type(title_rows[t][i])==str \
-                      and len(title_rows[t][i])>6 \
-                      and title_rows[t][i][-6:]=='#label')]
-            if len(name) > 0:
-                name = [name[0]]
-            else:
-                if kind in self.name_item_list_2:
-                    name = [title_rows[t].index(w) for w in self.name_item_list_2[kind] \
-                            if w in title_rows[t]]
-                if len(name) == 0:
-                    # 名称項目なし
-                    name = [-1]
-                    if '種別' in title_rows[t] and '住所' in title_rows[t]:
-                        name = [title_rows[t].index('種別'), title_rows[t].index('住所')]
-            id = [i for i in range(len(title_rows[t])) \
-                    if title_rows[t][i] in self.id_item_list]
-            if len(id) == 0:
-                # ID項目なし
-                id = [-1]
-            id = id[0]
-
-            map_info['lat'] = lat
-            map_info['lng'] = lng
-            map_info['name'] = name
-            map_info['id'] = id
-            map_info['address'] = address
+            header = title_rows[t]
+            # 各項目を抽出してマップ情報を作成する
+            map_info['id'] = self.header_item_check(header, \
+                    [self.ID_ITEM_LIST_RE], [None])
+            map_info['name'] = self.header_item_check(header, \
+                    [self.NAME_ITEM_LIST_1_RE, self.NAME_ITEM_LIST_2_RE[kind]],
+                    [self.NAME_ITEM_IGNORE_RE, None])
+            map_info['address'] = self.header_item_check(header, \
+                    [self.ADDRESS_ITEM_LIST_1_RE, [self.ADDRESS_ITEM_IGNORE_RE[2]], \
+                     [self.ADDRESS_ITEM_IGNORE_RE[1]], self.ADDRESS_ITEM_LIST_2_RE], \
+                    [self.ADDRESS_ITEM_IGNORE_RE, None, None, None])
+            map_info['lat'] = self.header_item_check(header, \
+                    [self.LAT_ITEM_LIST_RE], [self.LAT_ITEM_IGNORE_RE])
+            map_info['lng'] = self.header_item_check(header, \
+                    [self.LNG_ITEM_LIST_RE], [self.LNG_ITEM_IGNORE_RE])
             map_info['header'] = t + 1
-            used_index = [map_info['lat'],map_info['lng']]	# ,map_info['id']]
+            # logger.debug('(1)map_info=' + str(map_info))
+            # 各項目を補正する
+            map_info = self.header_item_correct(header, map_info)
+            # logger.debug('(2)map_info=' + str(map_info))
+            # 追加情報と判断
+            used_index = [map_info['lat'], map_info['lng']]	# ,map_info['id']]
             # used_index.extend(map_info['name'])
             map_info['info'] = [i for i in range(len(title_rows[map_info['header']-1])) \
                     if i not in used_index]
-            # logger.debug('map_info=' + str(map_info))
+            # logger.debug('(3)map_info=' + str(map_info))
             if ((map_info['lat'] >= 0 and map_info['lng'] >= 0) \
-              or map_info['address'] >= 0) \
+              or map_info['address'] != [-1]) \
             and map_info['name'] != [-1]:
                 # 必須項目が揃っている
                 break
             # 必須項目なし
             map_hit.append(copy.deepcopy(map_info))
             # raise Exception('必須項目なし')
+
         # 最終確認
         if ((map_info['lat'] < 0 or map_info['lng'] < 0) \
-        and map_info['address'] < 0) \
+        and map_info['address'] == [-1]) \
         or map_info['name'] == [-1]:
             # 必須項目なし
             map_hit.append(map_info)
@@ -2132,6 +2148,64 @@ class Crawler:
         # 復帰
         logger.info('make_map_from_table() ended, map=' + str(map_info))
         return resource
+
+    def header_item_check(self, header, select_res, ignore_res):
+        """
+        タイトル行から項目を抽出する。
+        """
+        for s in range(len(select_res)):
+            items = [any([False if r.match(v) is None else True \
+                          for r in select_res[s]]) \
+                     for v in header]
+            items = [i for i in range(len(header)) if items[i]]
+            if len(items) > 0 and ignore_res[s] is not None and len(ignore_res[s]) > 0:
+                items = sorted(list(set([i for i in items \
+                         if not any([False if r.search(header[i]) is None else True \
+                                     for r in ignore_res[s]])])))
+            if len(items) > 0:
+                break
+        if len(items) == 0:
+            items = [-1]
+        # 本来の復帰値
+        return items
+
+    def header_item_correct(self, header, map_info):
+        """
+        複数項目が候補の場合は補正を行う。
+        """
+        # ID
+        if len(map_info['id']) > 1:
+            map_info['id'] = [i for i in map_info['id'] if header[i][0] != '_']
+        map_info['id'] = map_info['id'][0]
+        # 名称
+        # if len(map_info['name']) > 1:
+        #     if all([True if SERIAL_NUMBER_RE.search(header[i]) else False \
+        #             for i in map_info['name']]):
+        #         map_info['name'] = [map_info['name'][0]]
+        if map_info['kind'] in ['消防水利施設', '保護保存樹木林等']:
+            pass
+        else:
+            map_info['name'] = [map_info['name'][0]]
+        # 住所
+        if len(map_info['address']) > 1:
+            # if all([True if SERIAL_NUMBER_RE.search(header[i]) else False \
+            #         for i in map_info['address']]):
+            #     map_info['address'] = [map_info['address'][0]]
+            if all([True if self.ADDRESS_ITEM_IGNORE_RE[1].search(header[i]) else False \
+                      for i in map_info['address']]):
+                pass	# 複数項目
+            else:
+                map_info['address'] = [map_info['address'][0]]
+        # 緯度
+        map_info['lat'] = map_info['lat'][0]
+        # 経度
+        map_info['lng'] = map_info['lng'][0]
+        # 全体
+        if map_info['name'] == [-1] and map_info['id'] != -1 \
+        and (map_info['address'] != [-1] or (map_info['lat'] != -1 and map_info['lng'] != -1)):
+            map_info['name'] = [map_info['id']]
+        # 復帰
+        return map_info
 
     def get_package_kind(self, package):
         """
@@ -2459,9 +2533,9 @@ if __name__ == '__main__':
             names = cobj.get_target_names(today)
         if args.site_list:
             if args.monthly:
-                print('実行対象自治体名：' + str(names))
+                print('実行対象自治体名：' + ' '.join(names))
             else:
-                print('定義済自治体名：' + str(names))
+                print('定義済自治体名：' + ' '.join(names))
         else:
             if len(args.names) > 0:
                 # 対象自治体（サイト）を処理する
